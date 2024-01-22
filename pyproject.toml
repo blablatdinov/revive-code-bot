@@ -9,6 +9,10 @@ readme = "README.md"
 python = ">=3.12,<3.13"
 litestar = "2.5.1"
 gitpython = "3.1.32"
+gunicorn = "21.2.0"
+uvicorn = "0.26.0"
+psycopg2-binary = "2.9.9"
+pydantic-settings = "2.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.0"
