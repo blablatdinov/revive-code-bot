@@ -17,7 +17,10 @@ pydantic-settings = "2.1.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.0"
 isort = "5.12.0"
-flake8 = "6.1.0"
+ruff = "0.1.14"
+wemake-python-styleguide = "0.18.0"
+refurb = "1.27.0"
+mypy = "1.8.0"
 
 [build-system]
 requires = ["poetry-core"]
