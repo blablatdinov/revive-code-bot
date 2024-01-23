@@ -23,7 +23,6 @@ ruff = "0.1.14"
 wemake-python-styleguide = "0.18.0"
 refurb = "1.27.0"
 pytest-cov = "4.1.0"
-sqlfluff = "2.3.5"
 
 [build-system]
 requires = ["poetry-core"]
