@@ -22,6 +22,8 @@ wemake-python-styleguide = "0.18.0"
 refurb = "1.27.0"
 mypy = "1.8.0"
 yoyo-migrations = "8.2.0"
+pytest-cov = "4.1.0"
+sqlfluff = "2.3.5"
 
 [build-system]
 requires = ["poetry-core"]
