@@ -4,7 +4,10 @@ run:
 
 lint:
 	poetry run isort src tests
+	poetry run ruff check src tests --fix
 	poetry run flake8 src tests
+	poetry run refurb src tests
+	poetry run mypy src tests
 
 test:
 	poetry run pytest

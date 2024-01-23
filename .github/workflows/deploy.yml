@@ -51,8 +51,8 @@ jobs:
       run: cp .github/.env .env
     - name: Lint via ruff
       run: .venv/bin/ruff check src
-    - name: Lint via flake8
-      run: .venv/bin/flake8 src
+    # - name: Lint via flake8
+    #   run: .venv/bin/flake8 src
     - name: Lint via refurb
       run: .venv/bin/refurb src
     - name: Check types with mypy
@@ -83,45 +83,45 @@ jobs:
           push: true
           tags: blablatdinov/revive-code-bot:${{ steps.tag_name.outputs.TAG_NAME }}
 
-  # apply-migrations:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: 3.12.1
-  #     - name: Install Dependencies
-  #       run: |
-  #         pip install yoyo-migrations==8.2.0 psycopg2-binary==2.9.9 setuptools==68.2.2
-  #     - name: Fill yoyo.ini
-  #       run: |
-  #         echo '[DEFAULT]
-  #         sources = migrations
-  #         database = ${{ secrets.POSTGRES_URL }}
-  #         batch_mode = on
-  #         verbosity = 3' > yoyo.ini
-  #     - name: Apply Migrations
-  #       run: |
-  #         yoyo apply
+  apply-migrations:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12.1
+      - name: Install Dependencies
+        run: |
+          pip install yoyo-migrations==8.2.0 psycopg2-binary==2.9.9 setuptools==68.2.2
+      - name: Fill yoyo.ini
+        run: |
+          echo '[DEFAULT]
+          sources = migrations
+          database = ${{ secrets.POSTGRES_URL }}
+          batch_mode = on
+          verbosity = 3' > yoyo.ini
+      - name: Apply Migrations
+        run: |
+          yoyo apply
 
-  # apply-nginx-conf:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
-  #     - name: Install SSH Key
-  #       uses: shimataro/ssh-key-action@v2
-  #       with:
-  #         key: ${{ secrets.SSH_KEY}}
-  #         known_hosts: '87.249.49.217 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDXsftBFh0RQ0pupvfT8zZp7HEIT8cWD9ziL7glOEtCqVWu8mMqgmYH+GzA7xsWHkAGgQ0BHHQinVMg2sQzDyyHdSVuMvsi04WsgAaOdD0mQa5LwauXpaw/X5nyOKAtiVzzUSi6I8leTS+o4/5nnNz+wxGEZSItESEYYbLWIhE9p30Mt1cSB+F8iUXsAO/I1DqwqXsOUET5ocVOfeRd7/3P7ZT8KGjG6DP8D4aCvxnc1NIAVnW9sfj7hsR84kTWNFFfihMZkmFrDuQfS30mFBlb9sAahHmQfeYfVUexU0ntkiSyE7jsnvfKJIKb3uyfbP1TjJ5EwTt7lDgNdZst3aAkK/JHiEJaIyod1AHt5gG8OFC75+Cy7fbwawPJUuRysxz2O35KFGcbZyN42kdHYZoVLpe5GvcziUSkQLW/KRBrbK7Uw4X6Q6h1QOhUL1ifbqACEIZXeuqkje0c6nL9M5lFeYITn1Ikc3N+c50hAmnX6F4rnifbFUnqiELBk0sn7zM='
-  #     - name:
-  #       run: |
-  #         scp deploy/quranbot_nginx.conf www@87.249.49.217:/etc/nginx/sites-enabled/
-  #         ssh www@87.249.49.217 'sudo nginx -t && sudo service nginx reload'
+  apply-nginx-conf:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY}}
+          known_hosts: '87.249.49.217 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDXsftBFh0RQ0pupvfT8zZp7HEIT8cWD9ziL7glOEtCqVWu8mMqgmYH+GzA7xsWHkAGgQ0BHHQinVMg2sQzDyyHdSVuMvsi04WsgAaOdD0mQa5LwauXpaw/X5nyOKAtiVzzUSi6I8leTS+o4/5nnNz+wxGEZSItESEYYbLWIhE9p30Mt1cSB+F8iUXsAO/I1DqwqXsOUET5ocVOfeRd7/3P7ZT8KGjG6DP8D4aCvxnc1NIAVnW9sfj7hsR84kTWNFFfihMZkmFrDuQfS30mFBlb9sAahHmQfeYfVUexU0ntkiSyE7jsnvfKJIKb3uyfbP1TjJ5EwTt7lDgNdZst3aAkK/JHiEJaIyod1AHt5gG8OFC75+Cy7fbwawPJUuRysxz2O35KFGcbZyN42kdHYZoVLpe5GvcziUSkQLW/KRBrbK7Uw4X6Q6h1QOhUL1ifbqACEIZXeuqkje0c6nL9M5lFeYITn1Ikc3N+c50hAmnX6F4rnifbFUnqiELBk0sn7zM='
+      - name:
+        run: |
+          scp deploy/revive_code_bot_nginx.conf www@87.249.49.217:/etc/nginx/sites-enabled/
+          ssh www@87.249.49.217 'sudo nginx -t && sudo service nginx reload'
 
   update-remote-container:
     needs: build-and-push
