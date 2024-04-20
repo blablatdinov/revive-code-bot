@@ -20,6 +20,8 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 """
+import datetime
+from typing import TypedDict
 import tempfile
 from collections import defaultdict
 from operator import itemgetter
@@ -29,38 +31,82 @@ from pathlib import Path
 import pytest
 from git import Repo
 
+from main.algorithms import files_changes_count, files_sorted_by_last_changes, merge_rating
+
 
 @pytest.fixture()
-def repo_path():
+def repo_path(faker, time_machine):
     """Path to temorary git repo."""
     temp_dir = tempfile.TemporaryDirectory()
     temp_dir_path = Path(temp_dir.name)
     repo = Repo.init(temp_dir_path)
-    for filename in 'first', 'second', 'third':
+    today = datetime.datetime(2024, 4, 20)
+    time_machine.move_to(today)
+    for filename in 'first.py', 'second.py', 'third.py', 'config.yaml':
         Path(temp_dir_path / filename).write_text('')
         repo.index.add([filename])
         repo.index.commit(filename)
+    for i in range(6):
+        time_machine.move_to(today + datetime.timedelta(i))
+        Path(temp_dir_path / 'first.py').write_text(faker.text())
+        repo.index.add(['first.py'])
+        repo.index.commit('Important changes')
+    for i in range(5, 7):
+        time_machine.move_to(today + datetime.timedelta(i))
+        Path(temp_dir_path / 'config.yaml').write_text(faker.text())
+        repo.index.add(['config.yaml'])
+        repo.index.commit('Config changes')
+    time_machine.move_to(today + datetime.timedelta(15))
     (Path(temp_dir_path / 'dir1')).mkdir()
-    Path(temp_dir_path / 'dir1/file_in_dir').write_text('File in directory')
-    repo.index.add(['dir1/file_in_dir'])
+    Path(temp_dir_path / 'dir1/file_in_dir.py').write_text('File in directory')
+    repo.index.add(['dir1/file_in_dir.py'])
     repo.index.commit('Create directory')
-    Path(temp_dir_path / 'first').write_text('Some changes')
-    repo.index.add(['first'])
+    time_machine.move_to(today + datetime.timedelta(17))
+    Path(temp_dir_path / 'first.py').write_text('Some changes')
+    repo.index.add(['first.py'])
     repo.index.commit('Some changes')
-    (Path(temp_dir_path / 'second')).unlink()
+    (Path(temp_dir_path / 'second.py')).unlink()
     yield temp_dir_path
     temp_dir.cleanup()
 
 
+def test_files_change_count(repo_path):
+    got = files_changes_count(repo_path, list(repo_path.glob('**/*.py')))
+
+    assert got == {
+        'dir1/file_in_dir.py': 1,
+        'first.py': 19,
+        'third.py': 0,
+    }
+
+
+def test_last_changes(repo_path, time_machine):
+    time_machine.move_to('2024-06-02')
+    got = {
+        str(file).replace(str(repo_path), '')[1:]: rating
+        for file, rating in files_sorted_by_last_changes(repo_path, list(repo_path.glob('**/*.py'))).items()
+    }
+
+    assert got == {'dir1/file_in_dir.py': 28, 'first.py': 26, 'third.py': 43}
+
+
+def test_merge_rating():
+    got = merge_rating(
+        {'first.py': 4},
+        {'first.py': 6},
+    )
+
+    assert got == {'first.py': 10}
+
+
 def test(repo_path):
     """Test sorting files for checking."""
-    repo = Repo(repo_path)
-    file_change_count: dict[str | PathLike[str], int] = defaultdict(int)
-    exists_files = list(repo_path.glob('**/*'))
-    for commit in repo.iter_commits():
-        for item in commit.stats.files.items():
-            filename, stats = item
-            if (repo_path / filename) in exists_files:
-                file_change_count[filename] += stats['lines']
-    sorted_files = sorted(file_change_count.items(), key=itemgetter(1))
+    repo_path = Path('/Users/almazilaletdinov/code/quranbot/bot')
+    files_for_check = list(repo_path.glob('**/*.py'))
+    from pprint import pprint
+    pprint(merge_rating(
+        files_changes_count(repo_path, files_for_check),
+        files_sorted_by_last_changes(repo_path, files_for_check),
+    ))
+    assert False
     assert [x[0] for x in sorted_files] == ['third', 'first', 'dir1/file_in_dir']
