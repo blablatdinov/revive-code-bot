@@ -58,6 +58,13 @@ def files_sorted_by_last_changes(repo_path: Path, files_for_check: list[Path]):
     }
 
 
+def apply_coefficient(file_point_map: dict[PathLike[str], int], coefficient: float):
+    return {
+        file: points * coefficient
+        for file, points in file_point_map.items()
+    }
+
+
 def merge_rating(
     *file_point_maps: tuple[dict[PathLike[str], int]],
 ):

@@ -31,7 +31,7 @@ from pathlib import Path
 import pytest
 from git import Repo
 
-from main.algorithms import files_changes_count, files_sorted_by_last_changes, merge_rating
+from main.algorithms import files_changes_count, files_sorted_by_last_changes, merge_rating, apply_coefficient
 
 
 @pytest.fixture()
@@ -112,3 +112,12 @@ def test_merge_rating():
     )
 
     assert got == {'first.py': 10}
+
+
+def test_apply_coefficient():
+    got = apply_coefficient(
+        {'first.py': 5},
+        0.5
+    )
+
+    assert got == {'first.py': 2.5}
