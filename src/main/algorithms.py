@@ -82,6 +82,15 @@ def file_editors_count(repo_path, files_for_check: list[Path]):
     }
 
 
+def lines_count(files_for_check: list[Path]):
+    for file in files_for_check:
+        print(file)
+        print(file.read_text())
+    return {
+        file: file.read_text().count('\n')
+        for file in files_for_check
+    }
+
 
 def merge_rating(
     *file_point_maps: tuple[dict[PathLike[str], int]],

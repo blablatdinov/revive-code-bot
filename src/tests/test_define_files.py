@@ -32,7 +32,7 @@ from pathlib import Path
 import pytest
 from git import Repo
 
-from main.algorithms import files_changes_count, files_sorted_by_last_changes, merge_rating, apply_coefficient, file_editors_count
+from main.algorithms import files_changes_count, files_sorted_by_last_changes, merge_rating, apply_coefficient, file_editors_count, lines_count
 
 
 @pytest.fixture()
@@ -74,7 +74,7 @@ def repo_path(faker, time_machine):
     repo.index.add(['dir1/file_in_dir.py'])
     repo.index.commit('Create directory')
     time_machine.move_to(today + datetime.timedelta(17))
-    Path(temp_dir_path / 'first.py').write_text('Some changes')
+    Path(temp_dir_path / 'first.py').write_text(faker.text(1000))
     repo.index.add(['first.py'])
     repo.index.commit('Some changes')
     (Path(temp_dir_path / 'second.py')).unlink()
@@ -90,7 +90,7 @@ def test_files_change_count(repo_path):
 
     assert got == {
         'dir1/file_in_dir.py': 1,
-        'first.py': 19,
+        'first.py': 28,
         'third.py': 0,
     }
 
@@ -123,7 +123,16 @@ def test_merge_real_ratings(repo_path):
         ).items()
     }
 
-    assert got == {'dir1/file_in_dir.py': 3, 'first.py': 19, 'third.py': 17}
+    assert got == {'dir1/file_in_dir.py': 3, 'first.py': 28, 'third.py': 17}
+
+
+def test_lines_count(repo_path):
+    got = {
+        str(file).replace(str(repo_path), '')[1:]: rating
+        for file, rating in lines_count(list(repo_path.glob('**/*.py'))).items()
+    }
+
+    assert got == {'dir1/file_in_dir.py': 0, 'first.py': 9, 'third.py': 0}
 
 
 def test_merge_rating():
