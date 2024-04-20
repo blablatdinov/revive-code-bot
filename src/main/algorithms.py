@@ -68,13 +68,8 @@ def apply_coefficient(file_point_map: dict[PathLike[str], int], coefficient: flo
 def merge_rating(
     *file_point_maps: tuple[dict[PathLike[str], int]],
 ):
-    first_map = defaultdict(
-        int,
-        file_point_maps[0],
-    )
     res = defaultdict(int)
-    for file, points_from_first_map in first_map.items():
-        for file_point_map in file_point_maps[1:]:
-            file_point = defaultdict(int, file_point_map)
-            res[file] += points_from_first_map + file_point[file]
+    for file_points_map in file_point_maps:
+        for file, points in file_points_map.items():
+            res[file] += points
     return dict(res)

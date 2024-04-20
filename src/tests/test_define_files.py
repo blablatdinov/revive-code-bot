@@ -109,9 +109,10 @@ def test_merge_rating():
     got = merge_rating(
         {'first.py': 4},
         {'first.py': 6},
+        {'first.py': 7, 'second.py': 2},
     )
 
-    assert got == {'first.py': 10}
+    assert got == {'first.py': 17, 'second.py': 2}
 
 
 def test_apply_coefficient():
