@@ -20,8 +20,10 @@ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 """
+import jwt
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 def healthcheck(request):
@@ -29,3 +31,16 @@ def healthcheck(request):
     return JsonResponse({
         'app': 'ok',
     })
+
+
+@csrf_exempt
+def gh_webhook(request):
+    if request.method == 'POST':
+        payload = request.body
+        token = request.headers.get('Authorization')
+        if not token:
+            return HttpResponseBadRequest('Missing Authorization header')
+        print(payload)
+        return HttpResponse('OK')
+    else:
+        return HttpResponseBadRequest('Only POST requests are allowed')

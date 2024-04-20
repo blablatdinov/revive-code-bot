@@ -24,10 +24,11 @@ from django.contrib import admin
 from django.http.response import JsonResponse
 from django.urls import path
 
-from main.views import healthcheck
+from main.views import healthcheck, gh_webhook
 
 
 urlpatterns = [
     path('health-check/', healthcheck),
+    path('webhook', gh_webhook),
     path('admin/', admin.site.urls),
 ]
