@@ -68,8 +68,6 @@ def apply_coefficient(file_point_map: dict[PathLike[str], int], coefficient: flo
 def file_editors_count(repo_path, files_for_check: list[Path]):
     repo = Repo(repo_path)
     file_editors_map = defaultdict(set)
-    from pprint import pprint
-    pprint(files_for_check)
     for commit in repo.iter_commits():
         files = commit.stats.files
         author = commit.author.email
@@ -83,9 +81,6 @@ def file_editors_count(repo_path, files_for_check: list[Path]):
 
 
 def lines_count(files_for_check: list[Path]):
-    for file in files_for_check:
-        print(file)
-        print(file.read_text())
     return {
         file: file.read_text().count('\n')
         for file in files_for_check
