@@ -42,7 +42,7 @@ def files_changes_count(repo_path: Path, files_for_check: list[Path]):
                 file_change_count[repo_path / filename] += stats['lines']
     return {
         file: hoc
-        for file, hoc in sorted(file_change_count.items(), key=itemgetter(1))
+        for file, hoc in file_change_count.items()
     }
 
 
@@ -54,7 +54,7 @@ def files_sorted_by_last_changes(repo_path: Path, files_for_check: list[Path]):
         file_last_commit[file] = (now - next(repo.iter_commits(paths=file)).committed_datetime).days
     return {
         file: days
-        for file, days in sorted(list(file_last_commit.items()), key=itemgetter(1), reverse=True)
+        for file, days in file_last_commit.items()
     }
 
 
@@ -63,6 +63,24 @@ def apply_coefficient(file_point_map: dict[PathLike[str], int], coefficient: flo
         file: points * coefficient
         for file, points in file_point_map.items()
     }
+
+
+def file_editors_count(repo_path, files_for_check: list[Path]):
+    repo = Repo(repo_path)
+    file_editors_map = defaultdict(set)
+    from pprint import pprint
+    pprint(files_for_check)
+    for commit in repo.iter_commits():
+        files = commit.stats.files
+        author = commit.author.email
+        for file in files:
+            if repo_path / file in files_for_check:
+                file_editors_map[repo_path / file].add(author)
+    return {
+        file: len(authors)
+        for file, authors in file_editors_map.items()
+    }
+
 
 
 def merge_rating(

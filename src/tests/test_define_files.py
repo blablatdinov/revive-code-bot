@@ -22,6 +22,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import datetime
 from typing import TypedDict
+from itertools import cycle
 import tempfile
 from collections import defaultdict
 from operator import itemgetter
@@ -31,7 +32,7 @@ from pathlib import Path
 import pytest
 from git import Repo
 
-from main.algorithms import files_changes_count, files_sorted_by_last_changes, merge_rating, apply_coefficient
+from main.algorithms import files_changes_count, files_sorted_by_last_changes, merge_rating, apply_coefficient, file_editors_count
 
 
 @pytest.fixture()
@@ -42,21 +43,32 @@ def repo_path(faker, time_machine):
     repo = Repo.init(temp_dir_path)
     today = datetime.datetime(2024, 4, 20)
     time_machine.move_to(today)
+    repo.config_writer().set_value('user', 'name', 'First Contributer').release()
+    repo.config_writer().set_value('user', 'email', 'first-contributer@github.com').release()
     for filename in 'first.py', 'second.py', 'third.py', 'config.yaml':
         Path(temp_dir_path / filename).write_text('')
         repo.index.add([filename])
         repo.index.commit(filename)
-    for i in range(6):
+    for i, (name, email) in zip(
+        range(6),
+        cycle([('First Contributer', 'first-contributer@github.com'), ('Second Contributer', 'second-contributer@github.com')]),
+    ):
+        repo.config_writer().set_value('user', 'name', name).release()
+        repo.config_writer().set_value('user', 'email', email).release()
         time_machine.move_to(today + datetime.timedelta(i))
         Path(temp_dir_path / 'first.py').write_text(faker.text())
         repo.index.add(['first.py'])
         repo.index.commit('Important changes')
     for i in range(5, 7):
+        repo.config_writer().set_value('user', 'name', 'Thrird Contributer').release()
+        repo.config_writer().set_value('user', 'email', 'thrird-contributer@github.com').release()
         time_machine.move_to(today + datetime.timedelta(i))
         Path(temp_dir_path / 'config.yaml').write_text(faker.text())
         repo.index.add(['config.yaml'])
         repo.index.commit('Config changes')
     time_machine.move_to(today + datetime.timedelta(15))
+    repo.config_writer().set_value('user', 'name', 'First Contributer').release()
+    repo.config_writer().set_value('user', 'email', 'first-contributer@github.com').release()
     (Path(temp_dir_path / 'dir1')).mkdir()
     Path(temp_dir_path / 'dir1/file_in_dir.py').write_text('File in directory')
     repo.index.add(['dir1/file_in_dir.py'])
@@ -91,6 +103,15 @@ def test_last_changes(repo_path, time_machine):
     }
 
     assert got == {'dir1/file_in_dir.py': 28, 'first.py': 26, 'third.py': 43}
+
+
+def test_file_editors_count(repo_path):
+    got = {
+        str(file).replace(str(repo_path), '')[1:]: rating
+        for file, rating in file_editors_count(repo_path, list(repo_path.glob('**/*.py'))).items()
+    }
+
+    assert got == {'dir1/file_in_dir.py': 1, 'first.py': 2, 'third.py': 1}
 
 
 def test_merge_real_ratings(repo_path):
