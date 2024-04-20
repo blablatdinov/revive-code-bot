@@ -71,7 +71,10 @@ def repo_path(faker, time_machine):
 
 
 def test_files_change_count(repo_path):
-    got = files_changes_count(repo_path, list(repo_path.glob('**/*.py')))
+    got = {
+        str(file).replace(str(repo_path), '')[1:]: rating
+        for file, rating in files_changes_count(repo_path, list(repo_path.glob('**/*.py'))).items()
+    }
 
     assert got == {
         'dir1/file_in_dir.py': 1,
@@ -90,6 +93,18 @@ def test_last_changes(repo_path, time_machine):
     assert got == {'dir1/file_in_dir.py': 28, 'first.py': 26, 'third.py': 43}
 
 
+def test_merge_real_ratings(repo_path):
+    got = {
+        str(file).replace(str(repo_path), '')[1:]: rating
+        for file, rating in merge_rating(
+            files_sorted_by_last_changes(repo_path, list(repo_path.glob('**/*.py'))),
+            files_changes_count(repo_path, list(repo_path.glob('**/*.py'))),
+        ).items()
+    }
+
+    assert got == {'dir1/file_in_dir.py': 3, 'first.py': 19, 'third.py': 17}
+
+
 def test_merge_rating():
     got = merge_rating(
         {'first.py': 4},
@@ -97,16 +112,3 @@ def test_merge_rating():
     )
 
     assert got == {'first.py': 10}
-
-
-def test(repo_path):
-    """Test sorting files for checking."""
-    repo_path = Path('/Users/almazilaletdinov/code/quranbot/bot')
-    files_for_check = list(repo_path.glob('**/*.py'))
-    from pprint import pprint
-    pprint(merge_rating(
-        files_changes_count(repo_path, files_for_check),
-        files_sorted_by_last_changes(repo_path, files_for_check),
-    ))
-    assert False
-    assert [x[0] for x in sorted_files] == ['third', 'first', 'dir1/file_in_dir']

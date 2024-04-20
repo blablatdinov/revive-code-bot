@@ -39,7 +39,7 @@ def files_changes_count(repo_path: Path, files_for_check: list[Path]):
         for item in commit.stats.files.items():
             filename, stats = item
             if (repo_path / filename) in files_for_check:
-                file_change_count[filename] += stats['lines']
+                file_change_count[repo_path / filename] += stats['lines']
     return {
         file: hoc
         for file, hoc in sorted(file_change_count.items(), key=itemgetter(1))
