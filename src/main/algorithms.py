@@ -21,18 +21,15 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import datetime
-from typing import TypedDict
-import tempfile
-from collections import defaultdict, OrderedDict
-from operator import itemgetter
+from collections import defaultdict
 from os import PathLike
 from pathlib import Path
 
-import pytest
 from git import Repo
 
 
 def files_changes_count(repo_path: Path, files_for_check: list[Path]):
+    """Count of commits in the file."""
     repo = Repo(repo_path)
     file_change_count: dict[str | PathLike[str], int] = defaultdict(int)
     for commit in repo.iter_commits():
@@ -40,25 +37,21 @@ def files_changes_count(repo_path: Path, files_for_check: list[Path]):
             filename, stats = item
             if (repo_path / filename) in files_for_check:
                 file_change_count[repo_path / filename] += stats['lines']
-    return {
-        file: hoc
-        for file, hoc in file_change_count.items()
-    }
+    return file_change_count
 
 
 def files_sorted_by_last_changes(repo_path: Path, files_for_check: list[Path]):
+    """Count days after last file changing."""
     repo = Repo(repo_path)
     file_last_commit: dict[PathLike[str], datetime.datetime] = {}
     now = datetime.datetime.now(tz=datetime.UTC)
     for file in files_for_check:
         file_last_commit[file] = (now - next(repo.iter_commits(paths=file)).committed_datetime).days
-    return {
-        file: days
-        for file, days in file_last_commit.items()
-    }
+    return file_last_commit
 
 
 def apply_coefficient(file_point_map: dict[PathLike[str], int], coefficient: float):
+    """Apply coefficient for rating."""
     return {
         file: points * coefficient
         for file, points in file_point_map.items()
@@ -66,6 +59,7 @@ def apply_coefficient(file_point_map: dict[PathLike[str], int], coefficient: flo
 
 
 def file_editors_count(repo_path, files_for_check: list[Path]):
+    """Count editors by git commits for each file."""
     repo = Repo(repo_path)
     file_editors_map = defaultdict(set)
     for commit in repo.iter_commits():
@@ -81,6 +75,7 @@ def file_editors_count(repo_path, files_for_check: list[Path]):
 
 
 def lines_count(files_for_check: list[Path]):
+    """Count lines for each file."""
     return {
         file: file.read_text().count('\n')
         for file in files_for_check
@@ -90,6 +85,10 @@ def lines_count(files_for_check: list[Path]):
 def merge_rating(
     *file_point_maps: tuple[dict[PathLike[str], int]],
 ):
+    """Merge ratings.
+
+    Function sum points for file from different ratings
+    """
     res = defaultdict(int)
     for file_points_map in file_point_maps:
         for file, points in file_points_map.items():

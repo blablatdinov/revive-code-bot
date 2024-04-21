@@ -21,18 +21,21 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import datetime
-from typing import TypedDict
-from itertools import cycle
 import tempfile
-from collections import defaultdict
-from operator import itemgetter
-from os import PathLike
+from itertools import cycle
 from pathlib import Path
 
 import pytest
 from git import Repo
 
-from main.algorithms import files_changes_count, files_sorted_by_last_changes, merge_rating, apply_coefficient, file_editors_count, lines_count
+from main.algorithms import (
+    apply_coefficient,
+    file_editors_count,
+    files_changes_count,
+    files_sorted_by_last_changes,
+    lines_count,
+    merge_rating,
+)
 
 
 @pytest.fixture()
@@ -41,7 +44,7 @@ def repo_path(faker, time_machine):
     temp_dir = tempfile.TemporaryDirectory()
     temp_dir_path = Path(temp_dir.name)
     repo = Repo.init(temp_dir_path)
-    today = datetime.datetime(2024, 4, 20)
+    today = datetime.datetime(2024, 4, 20, tzinfo=datetime.UTC)
     time_machine.move_to(today)
     repo.config_writer().set_value('user', 'name', 'First Contributer').release()
     repo.config_writer().set_value('user', 'email', 'first-contributer@github.com').release()
@@ -51,7 +54,10 @@ def repo_path(faker, time_machine):
         repo.index.commit(filename)
     for i, (name, email) in zip(
         range(6),
-        cycle([('First Contributer', 'first-contributer@github.com'), ('Second Contributer', 'second-contributer@github.com')]),
+        cycle([
+            ('First Contributer', 'first-contributer@github.com'),
+            ('Second Contributer', 'second-contributer@github.com')],
+        ),
     ):
         repo.config_writer().set_value('user', 'name', name).release()
         repo.config_writer().set_value('user', 'email', email).release()
@@ -148,7 +154,7 @@ def test_merge_rating():
 def test_apply_coefficient():
     got = apply_coefficient(
         {'first.py': 5},
-        0.5
+        0.5,
     )
 
     assert got == {'first.py': 2.5}
