@@ -27,6 +27,7 @@ from collections import defaultdict
 from os import PathLike
 from pathlib import Path
 
+from bs4 import BeautifulSoup
 from git import Repo
 
 from main.models import TouchRecord
@@ -123,5 +124,8 @@ def merge_rating(
     return dict(res)
 
 
-def code_coverage_rating(coverage_xml):
-    assert False, coverage_xml
+def code_coverage_rating(coverage_xml: str):
+    return {
+        file['filename']: float(file['line-rate'])
+        for file in BeautifulSoup(coverage_xml, features='xml').find_all('class')
+    }
