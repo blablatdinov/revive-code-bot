@@ -35,6 +35,7 @@ from main.algorithms import (
     files_sorted_by_last_changes,
     lines_count,
     merge_rating,
+    code_coverage_rating,
 )
 
 
@@ -139,6 +140,12 @@ def test_lines_count(repo_path):
     }
 
     assert got == {'dir1/file_in_dir.py': 0, 'first.py': 9, 'third.py': 0}
+
+
+def test_code_coverage(repo_path):
+    got = code_coverage_rating(Path('tests/fixtures/coverage.xml').read_text())
+
+    assert got == {'bar.py': 0.6667, 'foo.py': 0.5, 'test.py': 1}
 
 
 def test_merge_rating():

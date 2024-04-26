@@ -25,6 +25,7 @@ from collections import defaultdict
 from os import PathLike
 from pathlib import Path
 
+from bs4 import BeautifulSoup
 from git import Repo
 
 
@@ -94,3 +95,10 @@ def merge_rating(
         for file, points in file_points_map.items():
             res[file] += points
     return dict(res)
+
+
+def code_coverage_rating(coverage_xml: str):
+    return {
+        file['filename']: float(file['line-rate'])
+        for file in BeautifulSoup(coverage_xml, features='xml').find_all('class')
+    }
