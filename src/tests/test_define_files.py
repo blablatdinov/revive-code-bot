@@ -158,12 +158,9 @@ def test_lines_count(repo_path):
 
 
 def test_code_coverage(repo_path):
-    got = {
-        str(file).replace(str(repo_path), '')[1:]: rating
-        for file, rating in code_coverage_rating(Path('tests/fixtures/coverage.xml').read_text()).items()
-    }
+    got = code_coverage_rating(Path('tests/fixtures/coverage.xml').read_text())
 
-    assert got == {}
+    assert got == {'bar.py': 0.6667, 'foo.py': 0.5, 'test.py': 1}
 
 
 def test_merge_rating():
