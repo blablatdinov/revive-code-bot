@@ -10,21 +10,21 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
-gitpython = "3.1.32"
-gunicorn = "21.2.0"
+gitpython = "3.1.43"
+gunicorn = "22.0.0"
 psycopg2-binary = "2.9.9"
-django = "5.0.1"
+django = "5.0.6"
 django-environ = "^0.11.2"
 time-machine = "2.14.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "7.4.0"
-isort = "5.12.0"
-ruff = "0.1.14"
-wemake-python-styleguide = "0.18.0"
-refurb = "1.27.0"
-pytest-cov = "4.1.0"
-pytest-django = "4.7.0"
+pytest = "8.2.2"
+isort = "5.13.2"
+ruff = "0.4.10"
+wemake-python-styleguide = "0.19.2"
+refurb = "2.0.0"
+pytest-cov = "5.0.0"
+pytest-django = "4.8.0"
 faker = "24.11.0"
 
 [build-system]
