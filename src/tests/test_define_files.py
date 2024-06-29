@@ -158,3 +158,66 @@ def test_apply_coefficient():
     )
 
     assert got == {'first.py': 2.5}
+
+
+def test():
+    repo_path = Path('/Users/almazilaletdinov/code/quranbot/bot')
+    # repo_path = Path('/Users/almazilaletdinov/code/source-codes/wemake-python-styleguide')
+    # repo_path = Path('/Users/almazilaletdinov/code/moment/mindskills-frontend')
+    # repo_path = Path('/Users/almazilaletdinov/code/source-codes/django')
+    # for file in repo_path.glob('**/*.py'):
+    #     if '.venv' in str(file) or 'venv' in str(file) or '__init__.py' in str(file):
+    #         continue
+    #     if file.read_text().count('\n') < 5:
+    #         print(file)
+    #         file.unlink()
+    files_for_search = [
+        # Path('/Users/almazilaletdinov/code/moment/portal_back/static/static_dev/AdminLTE/bower_components/moment/min/tests.js'),
+    ]
+    for entry in Repo(repo_path).commit().tree.traverse():
+        if Path(repo_path / entry.path).is_file() and str(entry.path).endswith('.py'):
+            try:
+                Path(repo_path / entry.path).read_text()
+                files_for_search.append(Path(repo_path / entry.path))
+            except:
+                pass
+    got = merge_rating(
+        apply_coefficient(
+            files_sorted_by_last_changes(repo_path, files_for_search),
+            1,
+        ),
+        # apply_coefficient(
+        #     files_changes_count(repo_path, files_for_search),
+        #     -1,
+        # ),
+    )
+    # got = merge_rating(
+    #     apply_coefficient(
+    #         file_editors_count(repo_path, files_for_search),
+    #         -20,
+    #     ),
+    #     apply_coefficient(
+    #         lines_count(files_for_search),
+    #         0.5,
+    #     ),
+    #     apply_coefficient(
+    #         files_sorted_by_last_changes(repo_path, files_for_search),
+    #         1,
+    #     ),
+    #     apply_coefficient(
+    #         files_changes_count(repo_path, files_for_search),
+    #         -1,
+    #     ),
+    # )
+
+    from operator import itemgetter
+    a = sorted(
+        [
+            (file, points)
+            for file, points in got.items()
+        ],
+        key=itemgetter(1),
+        reverse=True,
+    )
+    for idx, (file, points) in enumerate(a):
+        print(idx, str(file), points)
