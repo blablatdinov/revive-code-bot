@@ -48,7 +48,7 @@ def webhook(request: HttpRequest):  # FIXME add secret
             GhRepo.objects.bulk_create(new_repos)
             gh_repo = gh.get_repo(repo['full_name'])
             gh_repo.create_hook(
-                'web', {'url': 'http://revive-code-bot.ilaletdinov.ru/webhook', 'content_type': 'json'},
+                'web', {'url': 'http://revive-code-bot.ilaletdinov.ru/hook/github', 'content_type': 'json'},
                 ['issues', 'issue_comment', 'push'],
             )
         gh.close()

@@ -27,6 +27,6 @@ from main.views import healthcheck, webhook
 
 urlpatterns = [
     path('health-check/', healthcheck),
-    path('webhook', webhook),
+    path('hook/github', webhook),
     path('admin/', admin.site.urls),
 ]

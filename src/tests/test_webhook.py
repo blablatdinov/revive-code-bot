@@ -8,7 +8,7 @@ pytestmark = [pytest.mark.django_db]
 
 def test_add_installation(client):
     response = client.post(
-        '/webhook',
+        '/hook/github',
         Path('src/tests/fixtures/installation_added.json').read_text(),
         content_type='application/json',
         headers={
