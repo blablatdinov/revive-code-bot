@@ -84,4 +84,3 @@ def process_repo(repo_id: int):
             ],
         })),
     )
-    assert False, issue.id
