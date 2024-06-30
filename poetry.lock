@@ -459,13 +459,13 @@ files = [
 
 [[package]]
 name = "faker"
-version = "24.11.0"
+version = "12.0.1"
 description = "Faker is a Python package that generates fake data for you."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.6"
 files = [
-    {file = "Faker-24.11.0-py3-none-any.whl", hash = "sha256:adb98e771073a06bdc5d2d6710d8af07ac5da64c8dc2ae3b17bb32319e66fd82"},
-    {file = "Faker-24.11.0.tar.gz", hash = "sha256:34b947581c2bced340c39b35f89dbfac4f356932cfff8fe893bde854903f0e6e"},
+    {file = "Faker-12.0.1-py3-none-any.whl", hash = "sha256:1dc2811f20e163892fefe7006f2ce00778f8099a40aee265bfa60a13400de63d"},
+    {file = "Faker-12.0.1.tar.gz", hash = "sha256:aa7103805ae793277abbb85da9f6f05e76a1a295a9384a8e17c2fba2b3a690cb"},
 ]
 
 [package.dependencies]
@@ -807,6 +807,23 @@ files = [
     {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
     {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
 ]
+
+[[package]]
+name = "mixer"
+version = "7.2.2"
+description = "Mixer -- Is a fixtures replacement. Supported Django ORM, SqlAlchemy ORM, Mongoengine ODM and custom python objects."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mixer-7.2.2-py3-none-any.whl", hash = "sha256:8089b8e2d00288c77e622936198f5dd03c8ac1603a1530a4f870dc213363b2ae"},
+    {file = "mixer-7.2.2.tar.gz", hash = "sha256:9b3f1a261b56d8f2394f39955f83adbc7ff3ab4bb1065ebfec19a10d3e8501e0"},
+]
+
+[package.dependencies]
+Faker = ">=5.4.0,<12.1"
+
+[package.extras]
+tests = ["Django (>=3.0)", "Flask (>=1.0)", "Marshmallow (>=3.9)", "SQLAlchemy (>=1.1.4)", "flask-sqlalchemy (>=2.1)", "mongoengine (>=0.10.1)", "peewee (>=3.7.0)", "pony (>=0.7)", "psycopg2-binary (>=2.8.4)", "pytest"]
 
 [[package]]
 name = "mypy"
@@ -1647,4 +1664,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<3.13"
-content-hash = "fe0c3d2ce0206eed182963d161c1cfa7a9b1ed4a0d5d89d04936194d1b52f265"
+content-hash = "11e4cb17181aadd46b06fc5242365caa6171af4bf5841c419cf2e7945965d4b3"

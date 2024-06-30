@@ -15,12 +15,14 @@ from main.algorithms import (
     lines_count,
     merge_rating,
 )
+from main.models import GhRepo
 
 
-def process_repo(repo: str):
-    auth = Auth.AppAuth(874924, settings.GH_PRIVATE_KEY)
-    gh = Github(auth=auth.get_installation_auth(52326552))  # FIXME must be configurable
-    repo = gh.get_repo(repo)
+def process_repo(repo_id: int):
+    gh_repo = GhRepo.objects.get(id=repo_id)
+    auth = Auth.AppAuth(874924, Path('revive-code-bot.2024-04-11.private-key.pem').read_text())
+    gh = Github(auth=auth.get_installation_auth(gh_repo.gh_installation.installation_id))
+    repo = gh.get_repo(gh_repo.full_name)
     gh.close()
     with tempfile.TemporaryDirectory() as tmpdirname:
         print(tmpdirname)
@@ -71,6 +73,7 @@ def process_repo(repo: str):
             '1. Create new issues with reference to this issue',
             '2. Clean files must be marked in checklist',
             '3. Close issue',
+            # FIXME add thanks to use text
         ])).render(Context({
             'files': [
                 str(file).replace(

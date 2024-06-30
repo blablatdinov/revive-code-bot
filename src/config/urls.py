@@ -23,9 +23,10 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 from django.contrib import admin
 from django.urls import path
 
-from main.views import healthcheck
+from main.views import healthcheck, webhook
 
 urlpatterns = [
     path('health-check/', healthcheck),
+    path('webhook', webhook),
     path('admin/', admin.site.urls),
 ]

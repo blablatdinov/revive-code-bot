@@ -27,3 +27,9 @@ from django.test import Client
 @pytest.fixture()
 def anon():
     return Client()
+
+
+@pytest.fixture()
+def mixer():
+    from mixer.backend.django import mixer as _mixer
+    return _mixer
