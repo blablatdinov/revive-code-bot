@@ -20,3 +20,14 @@ class GhRepo(models.Model):
 
     class Meta:
         db_table = 'gh_repos'
+
+
+@final
+class TouchRecord(models.Model):
+
+    gh_repo = models.ForeignKey(GhRepo, on_delete=models.PROTECT)
+    path = models.CharField(max_length=1024, unique=True)
+    date = models.DateField()
+
+    class Meta:
+        db_table = 'touch_records'

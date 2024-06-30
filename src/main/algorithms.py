@@ -27,6 +27,8 @@ from pathlib import Path
 
 from git import Repo
 
+from main.models import TouchRecord
+
 
 def files_changes_count(repo_path: Path, files_for_check: list[Path]):
     """Count of commits in the file."""
@@ -40,13 +42,26 @@ def files_changes_count(repo_path: Path, files_for_check: list[Path]):
     return file_change_count
 
 
-def files_sorted_by_last_changes(repo_path: Path, files_for_check: list[Path]):
+def files_sorted_by_last_changes(
+    repo_path: Path,
+    repo_name: Path,
+    files_for_check: list[Path],
+):
     """Count days after last file changing."""
     repo = Repo(repo_path)
     file_last_commit: dict[PathLike[str], datetime.datetime] = {}
     now = datetime.datetime.now(tz=datetime.UTC)
+    touch_records = dict(
+        TouchRecord.objects.filter(
+            gh_repo__full_name=repo_name,
+        ).values_list('path', 'date'),
+    )
     for file in files_for_check:
-        file_last_commit[file] = (now - next(repo.iter_commits(paths=file)).committed_datetime).days
+        last_touch = max(
+            next(repo.iter_commits(paths=file)).committed_datetime,
+            touch_records[file],
+        )
+        file_last_commit[file] = (now - last_touch).days
     return file_last_commit
 
 
