@@ -24,6 +24,7 @@ from pathlib import Path
 import json
 from django.http import JsonResponse, HttpResponse, HttpRequest
 from github import Auth, Github
+from django.views.decorators.csrf import csrf_exempt
 
 from main.models import GhInstallation, GhRepo
 
@@ -35,6 +36,7 @@ def healthcheck(request):
     })
 
 
+@csrf_exempt
 def webhook(request: HttpRequest):  # FIXME add secret
     if request.headers['X-GitHub-Event'] == 'installation_repositories':
         request_json = json.loads(request.body)
