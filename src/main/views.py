@@ -44,13 +44,17 @@ def webhook(request: HttpRequest):  # FIXME add secret
         auth = Auth.AppAuth(874924, Path('revive-code-bot.2024-04-11.private-key.pem').read_text())
         gh = Github(auth=auth.get_installation_auth(installation_id))
         for repo in request_json['repositories_added']:
-            new_repos.append(GhRepo(full_name=repo['full_name'], gh_installation=gh_instn))
+            new_repos.append(GhRepo(full_name=repo['full_name'], gh_installation=gh_instn, has_webhook=False))
             GhRepo.objects.bulk_create(new_repos)
             gh_repo = gh.get_repo(repo['full_name'])
             gh_repo.create_hook(
-                'revive-code-bot',
-                {'url': 'http://revive-code-bot.ilaletdinov.ru/webhook', 'content_type': 'json'},
-                [],
+                'web', {'url': 'http://revive-code-bot.ilaletdinov.ru/webhook', 'content_type': 'json'},
+                ['issues', 'issue_comment', 'push'],
             )
         gh.close()
+    elif request.headers['X-GitHub-Event'] == 'ping':
+        request_json = json.loads(request.body)
+        pg_repo = GhRepo.objects.get(full_name=request_json['repository']['full_name'])
+        pg_repo.has_webhook = True
+        pg_repo.save()
     return HttpResponse()

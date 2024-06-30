@@ -16,6 +16,7 @@ class GhRepo(models.Model):
 
     full_name = models.CharField(max_length=512, unique=True)
     gh_installation = models.ForeignKey(GhInstallation, on_delete=models.PROTECT)
+    has_webhook = models.BooleanField()
 
     class Meta:
         db_table = 'gh_repos'
