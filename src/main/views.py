@@ -41,12 +41,16 @@ def webhook(request: HttpRequest):  # FIXME add secret
     if request.headers['X-GitHub-Event'] == 'installation_repositories':
         request_json = json.loads(request.body)
         installation_id = request_json['installation']['id']
-        gh_instn = GhInstallation.objects.create(installation_id=installation_id)
+        gh_instn, _ = GhInstallation.objects.get_or_create(installation_id=installation_id)
         new_repos = []
         auth = Auth.AppAuth(874924, Path('revive-code-bot.2024-04-11.private-key.pem').read_text())
         gh = Github(auth=auth.get_installation_auth(installation_id))
         for repo in request_json['repositories_added']:
-            new_repos.append(GhRepo(full_name=repo['full_name'], gh_installation=gh_instn, has_webhook=False))
+            new_repos.append(GhRepo(
+                full_name=repo['full_name'],
+                gh_installation=gh_instn,
+                has_webhook=False),
+            )
             GhRepo.objects.bulk_create(new_repos)
             gh_repo = gh.get_repo(repo['full_name'])
             gh_repo.create_hook(

@@ -20,7 +20,7 @@ def test_add_installation(client):
             'X-GitHub-Hook-ID': '487229453',
             'X-GitHub-Hook-Installation-Target-ID': '874924',
             'X-GitHub-Hook-Installation-Target-Type': 'integration',
-        }
+        },
     )
 
     assert response.status_code == 200
