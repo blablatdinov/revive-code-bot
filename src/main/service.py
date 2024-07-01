@@ -35,26 +35,9 @@ def process_repo(repo_id: int):
     # tmpdirname = '/Users/almazilaletdinov/code/quranbot/old'
         repo_path = Path(tmpdirname)
         files_for_search = list(repo_path.glob('**/*.py'))  # FIXME from config
-        got = merge_rating(
-            apply_coefficient(
-                file_editors_count(repo_path, files_for_search),
-                -20,
-            ),
-            apply_coefficient(
-                lines_count(files_for_search),
-                0.5,
-            ),
-            apply_coefficient(
-                files_sorted_by_last_changes_from_db(
-                    repo_id,
-                    files_sorted_by_last_changes(repo_path, files_for_search),
-                ),
-                1,
-            ),
-            apply_coefficient(
-                files_changes_count(repo_path, files_for_search),
-                -1,
-            ),
+        got = files_sorted_by_last_changes_from_db(
+            repo_id,
+            files_sorted_by_last_changes(repo_path, files_for_search),
         )
     limit = 10  # FIXME read from config
     stripped_file_list = sorted(
@@ -91,4 +74,5 @@ def process_repo(repo_id: int):
             date=datetime.datetime.now().date(),
         )
         for file, _ in stripped_file_list
+        if file not in TouchRecord.objects.values_list('path', flat=True)
     ])
