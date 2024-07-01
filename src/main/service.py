@@ -15,6 +15,7 @@ from main.algorithms import (
     files_sorted_by_last_changes,
     lines_count,
     merge_rating,
+    files_sorted_by_last_changes_from_db,
 )
 from main.models import GhRepo, TouchRecord
 
@@ -44,7 +45,10 @@ def process_repo(repo_id: int):
                 0.5,
             ),
             apply_coefficient(
-                files_sorted_by_last_changes(repo_path, files_for_search),
+                files_sorted_by_last_changes_from_db(
+                    repo_id,
+                    files_sorted_by_last_changes(repo_path, files_for_search),
+                ),
                 1,
             ),
             apply_coefficient(
@@ -52,21 +56,12 @@ def process_repo(repo_id: int):
                 -1,
             ),
         )
-    a = sorted(
-        [
-            (file, points)
-            for file, points in got.items()
-        ],
+    limit = 10  # FIXME read from config
+    stripped_file_list = sorted(
+        got.items(),
         key=itemgetter(1),
         reverse=True,
-    )
-    limit = 10  # FIXME read from config
-    stripped_file_list = a[:limit]
-    for idx, (file, points) in enumerate(a, start=1):
-        if idx == limit:
-            break
-        print(idx, str(file), points)
-    # assert False, got
+    )[:limit]
     issue = repo.create_issue(
         'Issue from revive-code-bot',
         Template('\n'.join([
