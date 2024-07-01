@@ -20,33 +20,35 @@ from main.algorithms import (
 from main.models import GhRepo, TouchRecord
 
 
+def pygithub_client(installation_id: int):
+    auth = Auth.AppAuth(874924, Path('revive-code-bot.2024-04-11.private-key.pem').read_text())
+    return Github(auth=auth.get_installation_auth(installation_id))
+
+
 def process_repo(repo_id: int):
     gh_repo = GhRepo.objects.get(id=repo_id)
-    auth = Auth.AppAuth(874924, Path('revive-code-bot.2024-04-11.private-key.pem').read_text())
-    gh = Github(auth=auth.get_installation_auth(gh_repo.gh_installation.installation_id))
+    gh = pygithub_client(gh_repo.installation_id)
     repo = gh.get_repo(gh_repo.full_name)
     gh.close()
     with tempfile.TemporaryDirectory() as tmpdirname:
         print(tmpdirname)
         Repo.clone_from(repo.clone_url, tmpdirname)
         print('Repo cloned')
-    # time.sleep(60)
-    # assert False
-    # tmpdirname = '/Users/almazilaletdinov/code/quranbot/old'
         repo_path = Path(tmpdirname)
         files_for_search = list(repo_path.glob('**/*.py'))  # FIXME from config
         got = files_sorted_by_last_changes_from_db(
             repo_id,
             files_sorted_by_last_changes(repo_path, files_for_search),
+            tmpdirname,
         )
     limit = 10  # FIXME read from config
     stripped_file_list = sorted(
         [
             (
-                Path(str(path).replace(
+                str(path).replace(
                     '{0}/'.format(tmpdirname),
                     '',
-                )),
+                ),
                 points,
             )
             for path, points in got.items()

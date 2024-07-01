@@ -26,7 +26,8 @@ from django.http import JsonResponse, HttpResponse, HttpRequest
 from github import Auth, Github
 from django.views.decorators.csrf import csrf_exempt
 
-from main.models import GhInstallation, GhRepo
+from main.models import GhRepo
+from main.service import pygithub_client
 
 
 def healthcheck(request):
@@ -41,14 +42,12 @@ def webhook(request: HttpRequest):  # FIXME add secret
     if request.headers['X-GitHub-Event'] == 'installation_repositories':
         request_json = json.loads(request.body)
         installation_id = request_json['installation']['id']
-        gh_instn, _ = GhInstallation.objects.get_or_create(installation_id=installation_id)
         new_repos = []
-        auth = Auth.AppAuth(874924, Path('revive-code-bot.2024-04-11.private-key.pem').read_text())
-        gh = Github(auth=auth.get_installation_auth(installation_id))
+        gh = pygithub_client(installation_id)
         for repo in request_json['repositories_added']:
             new_repos.append(GhRepo(
                 full_name=repo['full_name'],
-                gh_installation=gh_instn,
+                installation_id=installation_id,
                 has_webhook=False),
             )
             GhRepo.objects.bulk_create(new_repos)

@@ -14,27 +14,29 @@ pytestmark = [pytest.mark.django_db]
 def gh_repo(mixer):
     return mixer.blend(
         'main.GhRepo',
-        full_name='blablatdinov/ramadan2020marathon_bot',
-        gh_installation__installation_id=52326552,
+        full_name='blablatdinov/iman-game-bot',
+        installation_id=52326552,
     )
 
 
 def test(gh_repo, time_machine):
-    time_machine.move_to('2024-07-01')
+    # time_machine.move_to('2024-07-01')
     process_repo(gh_repo.id)
+    from pprint import pprint
+    # pprint(list(TouchRecord.objects.values_list('path', flat=True)))
+    # pprint(list(TouchRecord.objects.values_list('date', flat=True)))
 
-    # assert False, TouchRecord.objects.all()
     assert list(TouchRecord.objects.values_list('path', flat=True)) == [
+        'manage.py',
+        'config/asgi.py',
+        'config/wsgi.py',
+        'game/__init__.py',
+        'game/apps.py',
+        'game/views.py',
         'bot_init/__init__.py',
-        'bot_init/migrations/__init__.py',
-        'dialog/__init__.py',
-        'dialog/migrations/__init__.py',
-        'marathon/__init__.py',
-        'marathon/migrations/__init__.py',
-        'bot_init/tests.py',
-        'dialog/models.py',
-        'dialog/tests.py',
-        'dialog/views.py',
+        'bot_init/apps.py',
+        'bot_init/urls.py',
+        'game/migrations/__init__.py',
     ]
     assert list(TouchRecord.objects.values_list('date', flat=True)) == [
         datetime.date(2024, 7, 1),
@@ -46,7 +48,16 @@ def test(gh_repo, time_machine):
         datetime.date(2024, 7, 1),
         datetime.date(2024, 7, 1),
         datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1)
+    ]
+
+    process_repo(gh_repo.id)
+    # pprint(list(TouchRecord.objects.values_list('path', flat=True)))
+    # pprint(list(TouchRecord.objects.values_list('date', flat=True)))
+
+    assert list(TouchRecord.objects.values_list('path', flat=True)) == [
+    ]
+    assert list(TouchRecord.objects.values_list('date', flat=True)) == [
     ]
 
 
