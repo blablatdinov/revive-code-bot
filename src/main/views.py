@@ -63,4 +63,6 @@ def webhook(request: HttpRequest):  # FIXME add secret
         pg_repo = GhRepo.objects.get(full_name=request_json['repository']['full_name'])
         pg_repo.has_webhook = True
         pg_repo.save()
+    elif request.headers['X-GitHub-Event'] == 'ping':
+        pass
     return HttpResponse()

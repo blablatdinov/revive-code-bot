@@ -44,25 +44,35 @@ def files_changes_count(repo_path: Path, files_for_check: list[Path]):
 
 def files_sorted_by_last_changes(
     repo_path: Path,
-    repo_name: Path,
     files_for_check: list[Path],
 ):
     """Count days after last file changing."""
     repo = Repo(repo_path)
     file_last_commit: dict[PathLike[str], datetime.datetime] = {}
     now = datetime.datetime.now(tz=datetime.UTC)
-    touch_records = dict(
-        TouchRecord.objects.filter(
-            gh_repo__full_name=repo_name,
-        ).values_list('path', 'date'),
-    )
     for file in files_for_check:
-        last_touch = max(
-            next(repo.iter_commits(paths=file)).committed_datetime,
-            touch_records[file],
-        )
+        last_touch = next(repo.iter_commits(paths=file)).committed_datetime
         file_last_commit[file] = (now - last_touch).days
     return file_last_commit
+
+
+def files_sorted_by_last_changes_from_db(
+    repo_id: int,
+    real_points: dict[PathLike[str], int],
+):
+    """Count days after last file changing."""
+    today = datetime.datetime.now().date()
+    touch_records = {
+        Path(str_path): (today - date).days
+        for str_path, date in TouchRecord.objects.filter(gh_repo_id=repo_id).values_list('path', 'date')
+    }
+    res = {}
+    for key, value in real_points.items():
+        res[key] = min(
+            touch_records.get(key, float('inf')),
+            value,
+        )
+    return res
 
 
 def apply_coefficient(file_point_map: dict[PathLike[str], int], coefficient: float):

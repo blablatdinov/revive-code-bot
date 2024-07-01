@@ -1,9 +1,11 @@
+import datetime
 from pathlib import Path
 
 from github import Auth, Github
 
 import pytest
 from main.service import process_repo
+from main.models import TouchRecord
 
 pytestmark = [pytest.mark.django_db]
 
@@ -17,19 +19,35 @@ def gh_repo(mixer):
     )
 
 
-def test(gh_repo):
+def test(gh_repo, time_machine):
+    time_machine.move_to('2024-07-01')
     process_repo(gh_repo.id)
-    assert False
-    # assert False, Path('revive-code-bot.2024-04-11.private-key.pem').read_text()
-    auth = Auth.AppAuth(874924, Path('revive-code-bot.2024-04-11.private-key.pem').read_text())
-    print(auth.token)
-    gh = Github(auth=auth.get_installation_auth(52326552))
-    repo = gh.get_repo('blablatdinov/quranbot')
-    issue = repo.create_issue(
-        'Issue from revive-code-bot',
-        'Please review some files...',
-    )
-    assert False
+
+    # assert False, TouchRecord.objects.all()
+    assert list(TouchRecord.objects.values_list('path', flat=True)) == [
+        'bot_init/__init__.py',
+        'bot_init/migrations/__init__.py',
+        'dialog/__init__.py',
+        'dialog/migrations/__init__.py',
+        'marathon/__init__.py',
+        'marathon/migrations/__init__.py',
+        'bot_init/tests.py',
+        'dialog/models.py',
+        'dialog/tests.py',
+        'dialog/views.py',
+    ]
+    assert list(TouchRecord.objects.values_list('date', flat=True)) == [
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+        datetime.date(2024, 7, 1),
+    ]
 
 
 # def test_get_installations():

@@ -35,7 +35,20 @@ from main.algorithms import (
     files_sorted_by_last_changes,
     lines_count,
     merge_rating,
+    files_sorted_by_last_changes_from_db,
 )
+
+pytestmark = [pytest.mark.django_db]
+
+
+@pytest.fixture()
+def gh_repo(mixer):
+    return mixer.blend('main.GhRepo')
+
+
+@pytest.fixture()
+def touch_records(mixer, gh_repo):
+    return mixer.blend('main.TouchRecord', path='src/main.py', gh_repo=gh_repo, date=datetime.date(2024, 7, 1))
 
 
 @pytest.fixture()
@@ -158,6 +171,22 @@ def test_apply_coefficient():
     )
 
     assert got == {'first.py': 2.5}
+
+
+def test_files_sorted_by_last_changes_from_db(gh_repo, touch_records, time_machine):
+    time_machine.move_to('2024-07-01')
+    got = files_sorted_by_last_changes_from_db(
+        gh_repo.id,
+        {
+            Path('src/main.py'): 90,
+            Path('src/lib.py'): 73,
+        },
+    )
+
+    assert got == {
+        Path('src/main.py'): 0,
+        Path('src/lib.py'): 73,
+    }
 
 
 def test():

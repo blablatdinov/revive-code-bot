@@ -1,3 +1,4 @@
+import datetime
 import tempfile
 from operator import itemgetter
 from pathlib import Path
@@ -15,7 +16,7 @@ from main.algorithms import (
     lines_count,
     merge_rating,
 )
-from main.models import GhRepo
+from main.models import GhRepo, TouchRecord
 
 
 def process_repo(repo_id: int):
@@ -60,6 +61,7 @@ def process_repo(repo_id: int):
         reverse=True,
     )
     limit = 10  # FIXME read from config
+    stripped_file_list = a[:limit]
     for idx, (file, points) in enumerate(a, start=1):
         if idx == limit:
             break
@@ -80,7 +82,18 @@ def process_repo(repo_id: int):
                     '{0}/'.format(tmpdirname),
                     '',
                 )
-                for file, _ in a[:limit]
+                for file, _ in stripped_file_list
             ],
         })),
     )
+    TouchRecord.objects.bulk_create([
+        TouchRecord(
+            gh_repo_id=repo_id,
+            path=str(file).replace(
+                '{0}/'.format(tmpdirname),
+                '',
+            ),
+            date=datetime.datetime.now().date(),
+        )
+        for file, _ in stripped_file_list
+    ])
