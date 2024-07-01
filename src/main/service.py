@@ -41,7 +41,16 @@ def process_repo(repo_id: int):
         )
     limit = 10  # FIXME read from config
     stripped_file_list = sorted(
-        got.items(),
+        [
+            (
+                Path(path).replace(
+                    '{0}/'.format(tmpdirname),
+                    '',
+                ),
+                points,
+            )
+            for path, points in got.items()
+        ],
         key=itemgetter(1),
         reverse=True,
     )[:limit]
@@ -56,10 +65,7 @@ def process_repo(repo_id: int):
             # FIXME add thanks to use text
         ])).render(Context({
             'files': [
-                str(file).replace(
-                    '{0}/'.format(tmpdirname),
-                    '',
-                )
+                file
                 for file, _ in stripped_file_list
             ],
         })),
@@ -67,10 +73,7 @@ def process_repo(repo_id: int):
     TouchRecord.objects.bulk_create([
         TouchRecord(
             gh_repo_id=repo_id,
-            path=str(file).replace(
-                '{0}/'.format(tmpdirname),
-                '',
-            ),
+            path=file,
             date=datetime.datetime.now().date(),
         )
         for file, _ in stripped_file_list
