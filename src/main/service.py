@@ -43,10 +43,10 @@ def process_repo(repo_id: int):
     stripped_file_list = sorted(
         [
             (
-                Path(path).replace(
+                Path(str(path).replace(
                     '{0}/'.format(tmpdirname),
                     '',
-                ),
+                )),
                 points,
             )
             for path, points in got.items()
