@@ -1,25 +1,27 @@
-"""The MIT License (MIT).
+# The MIT License (MIT).
+#
+# Copyright (c) 2013-2024 Almaz Ilaletdinov <a.ilaletdinov@yandex.ru>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+# OR OTHER DEALINGS IN THE SOFTWARE.
 
-Copyright (c) 2013-2024 Almaz Ilaletdinov <a.ilaletdinov@yandex.ru>
+"""Test algorithms for define files."""
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
-OR OTHER DEALINGS IN THE SOFTWARE.
-"""
 import datetime
 import tempfile
 from itertools import cycle
@@ -188,66 +190,3 @@ def test_files_sorted_by_last_changes_from_db(gh_repo, touch_records, time_machi
         Path('src/main.py'): 0,
         Path('src/lib.py'): 73,
     }
-
-
-def test():
-    repo_path = Path('/Users/almazilaletdinov/code/quranbot/bot')
-    # repo_path = Path('/Users/almazilaletdinov/code/source-codes/wemake-python-styleguide')
-    # repo_path = Path('/Users/almazilaletdinov/code/moment/mindskills-frontend')
-    # repo_path = Path('/Users/almazilaletdinov/code/source-codes/django')
-    # for file in repo_path.glob('**/*.py'):
-    #     if '.venv' in str(file) or 'venv' in str(file) or '__init__.py' in str(file):
-    #         continue
-    #     if file.read_text().count('\n') < 5:
-    #         print(file)
-    #         file.unlink()
-    files_for_search = [
-        # Path('/Users/almazilaletdinov/code/moment/portal_back/static/static_dev/AdminLTE/bower_components/moment/min/tests.js'),
-    ]
-    for entry in Repo(repo_path).commit().tree.traverse():
-        if Path(repo_path / entry.path).is_file() and str(entry.path).endswith('.py'):
-            try:
-                Path(repo_path / entry.path).read_text()
-                files_for_search.append(Path(repo_path / entry.path))
-            except:
-                pass
-    got = merge_rating(
-        apply_coefficient(
-            files_sorted_by_last_changes(repo_path, files_for_search),
-            1,
-        ),
-        # apply_coefficient(
-        #     files_changes_count(repo_path, files_for_search),
-        #     -1,
-        # ),
-    )
-    # got = merge_rating(
-    #     apply_coefficient(
-    #         file_editors_count(repo_path, files_for_search),
-    #         -20,
-    #     ),
-    #     apply_coefficient(
-    #         lines_count(files_for_search),
-    #         0.5,
-    #     ),
-    #     apply_coefficient(
-    #         files_sorted_by_last_changes(repo_path, files_for_search),
-    #         1,
-    #     ),
-    #     apply_coefficient(
-    #         files_changes_count(repo_path, files_for_search),
-    #         -1,
-    #     ),
-    # )
-
-    from operator import itemgetter
-    a = sorted(
-        [
-            (file, points)
-            for file, points in got.items()
-        ],
-        key=itemgetter(1),
-        reverse=True,
-    )
-    for idx, (file, points) in enumerate(a):
-        print(idx, str(file), points)
