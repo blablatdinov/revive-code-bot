@@ -33,9 +33,9 @@ from main.algorithms import (
     file_editors_count,
     files_changes_count,
     files_sorted_by_last_changes,
+    files_sorted_by_last_changes_from_db,
     lines_count,
     merge_rating,
-    files_sorted_by_last_changes_from_db,
 )
 
 pytestmark = [pytest.mark.django_db]
@@ -181,6 +181,7 @@ def test_files_sorted_by_last_changes_from_db(gh_repo, touch_records, time_machi
             Path('src/main.py'): 90,
             Path('src/lib.py'): 73,
         },
+        Path(),
     )
 
     assert got == {

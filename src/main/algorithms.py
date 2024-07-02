@@ -24,7 +24,6 @@ import datetime
 from collections import defaultdict
 from os import PathLike
 from pathlib import Path
-from pprint import pprint
 
 from git import Repo
 
@@ -54,8 +53,6 @@ def files_sorted_by_last_changes(
     for file in files_for_check:
         last_touch = next(repo.iter_commits(paths=file)).committed_datetime
         file_last_commit[file] = (now - last_touch).days
-    print(f'files_sorted_by_last_changes')
-    pprint(file_last_commit)
     return file_last_commit
 
 
@@ -68,24 +65,17 @@ def files_sorted_by_last_changes_from_db(
     today = datetime.datetime.now().date()
     touch_records = {}
     for str_path, date in TouchRecord.objects.filter(gh_repo_id=repo_id).values_list('path', 'date'):
-        print(str_path)
         touch_records[Path(str_path)] = (today - date).days
     # touch_records = {
     #     Path(str_path).relative_to(relative_to): (today - date).days
     #     for str_path, date in TouchRecord.objects.filter(gh_repo_id=repo_id).values_list('path', 'date')
     # }
-    print(f'Exist touches:')
-    pprint(touch_records)
     res = {}
-    pprint(real_points.items())
     for key, value in real_points.items():
-        # print(f'touch record: {touch_records.get(key)}')
         res[key] = min(
             touch_records.get(key.relative_to(relative_to), float('inf')),
             value,
         )
-    print(f'files_sorted_by_last_changes:')
-    pprint(res)
     return res
 
 

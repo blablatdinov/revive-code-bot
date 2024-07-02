@@ -3,25 +3,20 @@ import tempfile
 from operator import itemgetter
 from pathlib import Path
 
-from github import Auth, Github
-from git import Repo
-from django.template import Template, Context
 from django.conf import settings
+from django.template import Context, Template
+from git import Repo
+from github import Auth, Github
 
 from main.algorithms import (
-    apply_coefficient,
-    file_editors_count,
-    files_changes_count,
     files_sorted_by_last_changes,
-    lines_count,
-    merge_rating,
     files_sorted_by_last_changes_from_db,
 )
 from main.models import GhRepo, TouchRecord
 
 
-def pygithub_client(installation_id: int):
-    auth = Auth.AppAuth(874924, Path('revive-code-bot.2024-04-11.private-key.pem').read_text())
+def pygithub_client(installation_id: int) -> Github:
+    auth = Auth.AppAuth(874924, Path(settings.BASE_DIR / 'revive-code-bot.2024-04-11.private-key.pem').read_text())
     return Github(auth=auth.get_installation_auth(installation_id))
 
 

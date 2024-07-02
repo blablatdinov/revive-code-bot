@@ -1,30 +1,52 @@
+from operator import attrgetter
 import datetime
-from pathlib import Path
-
-from github import Auth, Github
 
 import pytest
-from main.service import process_repo
+
 from main.models import TouchRecord
+from main.service import process_repo, pygithub_client
 
 pytestmark = [pytest.mark.django_db]
 
 
 @pytest.fixture()
 def gh_repo(mixer):
-    return mixer.blend(
+    yield mixer.blend(
         'main.GhRepo',
         full_name='blablatdinov/iman-game-bot',
         installation_id=52326552,
     )
+    repo = pygithub_client(52326552).get_repo('blablatdinov/iman-game-bot')
+    for issue in repo.get_issues():
+        if issue.title == 'Issue from revive-code-bot':
+            issue.edit(state='closed')
+
+
+@pytest.fixture()
+def exist_touch_records(mixer, gh_repo):
+    files = [
+        'manage.py',
+        'config/asgi.py',
+        'config/wsgi.py',
+        'game/__init__.py',
+        'game/apps.py',
+        'game/views.py',
+        'bot_init/__init__.py',
+        'bot_init/apps.py',
+        'bot_init/urls.py',
+        'game/migrations/__init__.py',
+    ]
+    mixer.cycle(10).blend(
+        'main.TouchRecord',
+        gh_repo=gh_repo,
+        path=(f for f in files),
+        date=datetime.datetime.now().date(),
+    )
 
 
 def test(gh_repo, time_machine):
-    # time_machine.move_to('2024-07-01')
     process_repo(gh_repo.id)
-    from pprint import pprint
-    # pprint(list(TouchRecord.objects.values_list('path', flat=True)))
-    # pprint(list(TouchRecord.objects.values_list('date', flat=True)))
+    today = datetime.datetime.now().date()
 
     assert list(TouchRecord.objects.values_list('path', flat=True)) == [
         'manage.py',
@@ -38,30 +60,77 @@ def test(gh_repo, time_machine):
         'bot_init/urls.py',
         'game/migrations/__init__.py',
     ]
-    assert list(TouchRecord.objects.values_list('date', flat=True)) == [
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1),
-        datetime.date(2024, 7, 1)
-    ]
+    assert list(TouchRecord.objects.values_list('date', flat=True)) == [today] * 10
+    assert next(iter(sorted(
+        pygithub_client(gh_repo.installation_id).search_issues('Issue from revive-code-bot'),
+        key=attrgetter('created_at'),
+        reverse=True,
+    ))).body == '\n'.join([
+        '- [ ] `manage.py`',
+        '- [ ] `config/asgi.py`',
+        '- [ ] `config/wsgi.py`',
+        '- [ ] `game/__init__.py`',
+        '- [ ] `game/apps.py`',
+        '- [ ] `game/views.py`',
+        '- [ ] `bot_init/__init__.py`',
+        '- [ ] `bot_init/apps.py`',
+        '- [ ] `bot_init/urls.py`',
+        '- [ ] `game/migrations/__init__.py`',
+        '',
+        '',
+        'Expected actions:',
+        '1. Create new issues with reference to this issue',
+        '2. Clean files must be marked in checklist',
+        '3. Close issue',
+    ])
 
+
+def test_double_process(exist_touch_records, gh_repo):
     process_repo(gh_repo.id)
-    # pprint(list(TouchRecord.objects.values_list('path', flat=True)))
-    # pprint(list(TouchRecord.objects.values_list('date', flat=True)))
+    today = datetime.datetime.now().date()
 
     assert list(TouchRecord.objects.values_list('path', flat=True)) == [
+        'manage.py',
+        'config/asgi.py',
+        'config/wsgi.py',
+        'game/__init__.py',
+        'game/apps.py',
+        'game/views.py',
+        'bot_init/__init__.py',
+        'bot_init/apps.py',
+        'bot_init/urls.py',
+        'game/migrations/__init__.py',
+        'bot_init/migrations/__init__.py',
+        'bot_init/migrations/0001_initial.py',
+        'bot_init/management/commands/update_webhook.py',
+        'events/service.py',
+        'events/models.py',
+        'events/__init__.py',
+        'events/apps.py',
+        'events/admin.py',
+        'events/migrations/__init__.py',
+        'events/migrations/0001_initial.py',
     ]
-    assert list(TouchRecord.objects.values_list('date', flat=True)) == [
-    ]
-
-
-# def test_get_installations():
-
-
-# eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTk2ODIxODAsImV4cCI6MTcxOTY4MjU0MCwiaXNzIjo0ODcyMjk0NTN9.zHM6_YkYMOjRa45ud7rXJmduzrpwmL8M9SMsa9L1MZOIH4iJt2aHNUgfUiCZQ23weDUlBxNLG4Ma0nfSp4xJTo6pLXlTGzW-NfDVwOp-tL2A_s4Q_tpVzJXEWNKzHillPBHx1vkeFZhVfvG_yxh0s-gf9u51RKzU28H18z35XG7Qm5FoY_a1Mf6doHlSoEMuyK7koy4ReqQPKsKwusrEK-Kq4vDEMCEKNcolq6oASz9-5HrE8ktQvHCpDubF_0DDdTaW4DFp8G4-EjgBwP-uA5QTgxObX_FYbvtPji1Mv1In72211BgsEzHf2F-gYq3FteaX1_96frVw9QEQYy2Y1g
+    assert list(TouchRecord.objects.values_list('date', flat=True)) == [today] * 20
+    assert next(iter(sorted(
+        pygithub_client(gh_repo.installation_id).search_issues('Issue from revive-code-bot'),
+        key=attrgetter('created_at'),
+        reverse=True,
+    ))).body == '\n'.join([
+        '- [ ] `bot_init/migrations/__init__.py`',
+        '- [ ] `bot_init/migrations/0001_initial.py`',
+        '- [ ] `bot_init/management/commands/update_webhook.py`',
+        '- [ ] `events/service.py`',
+        '- [ ] `events/models.py`',
+        '- [ ] `events/__init__.py`',
+        '- [ ] `events/apps.py`',
+        '- [ ] `events/admin.py`',
+        '- [ ] `events/migrations/__init__.py`',
+        '- [ ] `events/migrations/0001_initial.py`',
+        '',
+        '',
+        'Expected actions:',
+        '1. Create new issues with reference to this issue',
+        '2. Clean files must be marked in checklist',
+        '3. Close issue',
+    ])

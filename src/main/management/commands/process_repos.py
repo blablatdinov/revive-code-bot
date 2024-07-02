@@ -1,8 +1,7 @@
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from main.service import process_repo
 from main.models import GhRepo
+from main.service import process_repo
 
 
 class Command(BaseCommand):

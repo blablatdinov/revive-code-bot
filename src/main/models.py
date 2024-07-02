@@ -1,4 +1,5 @@
 from typing import final
+
 from django.db import models
 
 

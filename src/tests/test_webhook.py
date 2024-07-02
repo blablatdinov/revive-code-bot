@@ -1,15 +1,31 @@
-import pytest
 from pathlib import Path
 
-from main.models import GhInstallation, GhRepo
+import pytest
+from django.conf import settings
+
+from main.models import GhRepo
+from main.service import pygithub_client
 
 pytestmark = [pytest.mark.django_db]
 
 
+@pytest.fixture()
+def _remove_exist_webhook():
+    gh = pygithub_client(52326552)
+    gh_repo = gh.get_repo('blablatdinov/ramadan2020marathon_bot')
+    hook = next(iter(list(
+        hook
+        for hook in gh_repo.get_hooks()
+        if 'revive-code-bot.ilaletdinov.ru' in hook.config['url']
+    )))
+    hook.delete()
+
+
+@pytest.mark.usefixtures('_remove_exist_webhook')
 def test_add_installation(client):
     response = client.post(
         '/hook/github',
-        Path('src/tests/fixtures/installation_added.json').read_text(),
+        Path(settings.BASE_DIR / 'tests/fixtures/installation_added.json').read_text(),
         content_type='application/json',
         headers={
             'Accept': '*/*',
@@ -24,5 +40,7 @@ def test_add_installation(client):
     )
 
     assert response.status_code == 200
-    assert GhInstallation.objects.filter(installation_id=52326552).exists()
-    assert GhRepo.objects.filter(full_name="blablatdinov/ramadan2020marathon_bot").count() == 1
+    assert GhRepo.objects.filter(
+        full_name='blablatdinov/ramadan2020marathon_bot',
+        installation_id=52326552,
+    ).count() == 1
