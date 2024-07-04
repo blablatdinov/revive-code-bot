@@ -26,7 +26,7 @@ import datetime
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import TypedDict, Protocol, final
+from typing import Protocol, TypedDict, final
 
 import attrs
 import yaml
@@ -86,34 +86,43 @@ def sync_touch_records(files: list[str], repo_id: int) -> None:
 
 
 class ClonedRepo(Protocol):
+    """Cloned git repository."""
 
-    def clone_to(self, path: Path) -> Path: ...
+    def clone_to(self, path: Path) -> Path:
+        """Run cloning."""
 
 
 class NewIssue(Protocol):
+    """New issue."""
 
-    def create(self, title: str, content: str) -> None: ...
+    def create(self, title: str, content: str) -> None:
+        """Creating issue."""
 
 
 @final
 @attrs.define(frozen=True)
 class GhNewIssue(Protocol):
+    """New issue in github."""
 
     _repo: Repository
 
     def create(self, title: str, content: str) -> None:
+        """Creating issue."""
         self._repo.create_issue(title, content)
 
 
 @final
 class FkNewIssue(Protocol):
+    """Fk issue storage."""
 
     issues: list
 
     def __init__(self) -> None:
+        """Ctor."""
         self.issues = []
 
     def create(self, title: str, content: str) -> None:
+        """Creating issue."""
         self.issues.append({
             'title': title,
             'content': content,
@@ -123,22 +132,26 @@ class FkNewIssue(Protocol):
 @final
 @attrs.define(frozen=True)
 class FkClonedRepo(ClonedRepo):
+    """Fk git repo."""
 
     _zipped_repo: Path
 
     def clone_to(self, path: Path):
+        """Unzipping repo from archieve."""
         with zipfile.ZipFile(self._zipped_repo, 'r') as zip_ref:
             zip_ref.extractall(path)
-        return path / 'iman-game-bot'  # FIXME hardcoded path
+        return path / next(iter(path.glob('*')))
 
 
 @final
 @attrs.define(frozen=True)
 class GhClonedRepo(ClonedRepo):
+    """Git repo from github."""
 
     _gh_repo: GhRepo
 
-    def clone_to(self, path: Path):
+    def clone_to(self, path: Path) -> Path:
+        """Cloning from github."""
         gh = pygithub_client(self._gh_repo.installation_id)
         repo = gh.get_repo(self._gh_repo.full_name)
         gh.close()

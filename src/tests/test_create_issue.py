@@ -23,13 +23,12 @@
 """Test create issue."""
 
 import datetime
-from operator import attrgetter
 
 import pytest
 from django.conf import settings
 
 from main.models import TouchRecord
-from main.service import process_repo, pygithub_client, FkClonedRepo, FkNewIssue
+from main.service import FkClonedRepo, FkNewIssue, process_repo
 
 pytestmark = [pytest.mark.django_db]
 
