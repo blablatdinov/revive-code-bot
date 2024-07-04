@@ -112,12 +112,26 @@ def process_repo(repo_id: int):
             ],
         })),
     )
+    exists_touched_records = TouchRecord.objects.filter(gh_repo=gh_repo).values_list('path', flat=True)
+    for_create = [
+        file
+        for file, _ in stripped_file_list
+        if file in exists_touched_records
+    ]
     TouchRecord.objects.bulk_create([
         TouchRecord(
             gh_repo_id=repo_id,
             path=file,
             date=datetime.datetime.now(tz=datetime.UTC).date(),
         )
-        for file, _ in stripped_file_list
-        if file not in TouchRecord.objects.values_list('path', flat=True)
+        for file in for_create
     ])
+    for_update = [
+        file
+        for file, _ in stripped_file_list
+        if file in exists_touched_records
+    ]
+    for file_updated in for_update:
+        tr = TouchRecord.objects.get(gh_repo=gh_repo, file=file_updated)
+        tr.date = datetime.datetime.now(tz=datetime.UTC).date()
+        tr.save()
