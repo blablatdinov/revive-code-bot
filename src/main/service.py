@@ -67,6 +67,10 @@ def config_or_default(repo_path: Path) -> ConfigDict:
     })
 
 
+def sync_touch_records():
+    pass
+
+
 def process_repo(repo_id: int):
     """Processing repo."""
     gh_repo = GhRepo.objects.get(id=repo_id)
