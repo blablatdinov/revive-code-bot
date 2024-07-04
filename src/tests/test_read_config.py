@@ -24,6 +24,8 @@ from main.service import read_config
 
 
 def test():
-    got = read_config('empty')
+    got = read_config('\n'.join([
+        'limit: 10',
+    ]))
 
-    assert got == 'empty'
+    assert got == {'limit': 10}

@@ -26,6 +26,8 @@ import datetime
 import tempfile
 from operator import itemgetter
 from pathlib import Path
+from typing import TypedDict
+import yaml
 
 from django.conf import settings
 from django.template import Context, Template
@@ -34,6 +36,11 @@ from github import Auth, Github
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
 from main.models import GhRepo, TouchRecord
+
+
+class ConfigDict(TypedDict):
+
+    limit: int
 
 
 def pygithub_client(installation_id: int) -> Github:
@@ -45,8 +52,8 @@ def pygithub_client(installation_id: int) -> Github:
     return Github(auth=auth.get_installation_auth(installation_id))
 
 
-def read_config(config: str):
-    return config
+def read_config(config: str) -> ConfigDict:
+    return yaml.safe_load(config)
 
 
 def process_repo(repo_id: int):
