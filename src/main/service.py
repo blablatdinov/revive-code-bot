@@ -101,12 +101,9 @@ def process_repo(repo_id: int):
         )
     stripped_file_list = sorted(
         [
-            (
-                str(path).replace(
-                    '{0}/'.format(tmpdirname),
-                    '',
-                ),
-                points,
+            str(path).replace(
+                '{0}/'.format(tmpdirname),
+                '',
             )
             for path, points in got.items()
         ],
@@ -122,17 +119,10 @@ def process_repo(repo_id: int):
             '2. Clean files must be marked in checklist',
             '3. Close issue',
         ])).render(Context({
-            'files': [
-                file
-                for file, _ in stripped_file_list
-            ],
+            'files': stripped_file_list,
         })),
     )
     sync_touch_records(
-        [
-            file
-            for file, _ in stripped_file_list
-            if file in stripped_file_list
-        ],
+        stripped_file_list,
         repo_id,
     )
