@@ -26,8 +26,8 @@ import datetime
 import tempfile
 from pathlib import Path
 from typing import TypedDict
-import yaml
 
+import yaml
 from django.conf import settings
 from django.template import Context, Template
 from git import Repo
@@ -38,6 +38,7 @@ from main.models import GhRepo, TouchRecord
 
 
 class ConfigDict(TypedDict):
+    """Configuration structure."""
 
     limit: int
 
@@ -52,10 +53,12 @@ def pygithub_client(installation_id: int) -> Github:
 
 
 def read_config(config: str) -> ConfigDict:
+    """Read config from yaml files."""
     return yaml.safe_load(config)
 
 
 def config_or_default(repo_path: Path) -> ConfigDict:
+    """Read or default config."""
     config_file = repo_path.glob('.revive-bot.*')
     if config_file:
         return read_config(next(iter(config_file)).read_text())
