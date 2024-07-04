@@ -24,8 +24,8 @@ import datetime
 
 import pytest
 
-from main.service import sync_touch_records
 from main.models import TouchRecord
+from main.service import sync_touch_records
 
 pytestmark = [pytest.mark.django_db]
 

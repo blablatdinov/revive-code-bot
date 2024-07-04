@@ -68,6 +68,7 @@ def config_or_default(repo_path: Path) -> ConfigDict:
 
 
 def sync_touch_records(files: list[str], repo_id: int) -> None:
+    """Synching touch records."""
     exists_touch_records = TouchRecord.objects.filter(gh_repo_id=repo_id)
     for tr in exists_touch_records:
         if tr.path in files:
