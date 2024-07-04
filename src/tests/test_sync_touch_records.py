@@ -49,7 +49,7 @@ def test(gh_repo, exist_touch_record, time_machine):
     time_machine.move_to('2024-07-04')
     sync_touch_records(['a.py', 'b.py'], gh_repo.id)
 
-    assert list(TouchRecord.objects.filter(gh_repo=gh_repo).values('path', 'date')) == [
+    assert list(TouchRecord.objects.values('path', 'date')) == [
         {'path': 'b.py', 'date': datetime.date(2024, 7, 4)},
         {'path': 'a.py', 'date': datetime.date(2024, 7, 4)},
     ]
