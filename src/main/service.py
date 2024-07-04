@@ -45,6 +45,10 @@ def pygithub_client(installation_id: int) -> Github:
     return Github(auth=auth.get_installation_auth(installation_id))
 
 
+def read_config(config: str):
+    return config
+
+
 def process_repo(repo_id: int):
     """Processing repo."""
     gh_repo = GhRepo.objects.get(id=repo_id)
