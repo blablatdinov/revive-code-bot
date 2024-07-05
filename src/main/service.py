@@ -140,7 +140,7 @@ class FkClonedRepo(ClonedRepo):
         """Unzipping repo from archieve."""
         with zipfile.ZipFile(self._zipped_repo, 'r') as zip_ref:
             zip_ref.extractall(path)
-        return path / next(iter(path.glob('*')))
+        return path
 
 
 @final
