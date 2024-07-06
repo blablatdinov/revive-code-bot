@@ -38,6 +38,8 @@ time-machine = "2.14.1"
 pygithub = "2.3.0"
 pyyaml = "6.0.1"
 attrs = "23.2.0"
+celery = "5.4.0"
+django-celery-beat = "2.6.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "8.2.2"
