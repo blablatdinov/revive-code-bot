@@ -25,6 +25,7 @@
 from typing import final
 
 from django.db import models
+from django_celery_beat.models import CrontabSchedule
 
 
 @final
@@ -34,6 +35,7 @@ class GhRepo(models.Model):
     full_name = models.CharField(max_length=512, unique=True)
     has_webhook = models.BooleanField()
     installation_id = models.BigIntegerField()
+    scheduling = models.ForeignKey(CrontabSchedule, on_delete=models.PROTECT)
 
     class Meta:
         db_table = 'gh_repos'

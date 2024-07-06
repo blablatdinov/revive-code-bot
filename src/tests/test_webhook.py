@@ -22,10 +22,12 @@
 
 """Test github webhook."""
 
+import zoneinfo
 from pathlib import Path
 
 import pytest
 from django.conf import settings
+from django_celery_beat.models import CrontabSchedule
 
 from main.models import GhRepo
 from main.service import pygithub_client
@@ -37,12 +39,11 @@ pytestmark = [pytest.mark.django_db]
 def _remove_exist_webhook():
     gh = pygithub_client(52326552)
     gh_repo = gh.get_repo('blablatdinov/ramadan2020marathon_bot')
-    hook = next(iter(
-        hook
+    [
+        hook.delete()
         for hook in gh_repo.get_hooks()
         if 'revive-code-bot.ilaletdinov.ru' in hook.config['url']
-    ))
-    hook.delete()
+    ]
 
 
 @pytest.mark.usefixtures('_remove_exist_webhook')
@@ -68,3 +69,12 @@ def test_add_installation(client):
         full_name='blablatdinov/ramadan2020marathon_bot',
         installation_id=52326552,
     ).count() == 1
+    assert CrontabSchedule.objects.values()[0] == {
+        'id': 1,
+        'minute': '0',
+        'hour': '5',
+        'day_of_month': '*',
+        'month_of_year': '*',
+        'day_of_week': '1',
+        'timezone': zoneinfo.ZoneInfo(key='UTC'),
+    }
