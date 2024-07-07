@@ -23,6 +23,9 @@
 run:
 	poetry run python src/manage.py runserver
 
+celery:
+	cd src && poetry run celery -A config worker -l INFO
+
 lint:
 	poetry run isort src
 	poetry run ruff check src --fix

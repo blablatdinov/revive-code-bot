@@ -39,10 +39,20 @@ from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_c
 from main.models import GhRepo, TouchRecord
 
 
+class _CronDict(TypedDict):
+
+    minute: str
+    hour: str
+    day_of_week: str
+    day_of_month: str
+    month_of_year: str
+
+
 class ConfigDict(TypedDict):
     """Configuration structure."""
 
     limit: int
+    cron: _CronDict
 
 
 def pygithub_client(installation_id: int) -> Github:
@@ -62,10 +72,18 @@ def read_config(config: str) -> ConfigDict:
 def config_or_default(repo_path: Path) -> ConfigDict:
     """Read or default config."""
     config_file = list(repo_path.glob('.revive-bot.*'))
+    config = {}
     if config_file:
-        return read_config(next(iter(config_file)).read_text())
+        config = read_config(next(iter(config_file)).read_text())
     return ConfigDict({
-        'limit': 10,
+        'limit': config.get('limit', 10),
+        'cron': config.get('cron', {
+            'minute': '0',
+            'hour': '5',
+            'day_of_week': '1',
+            'day_of_month': '*',
+            'month_of_year': '*',
+        }),
     })
 
 

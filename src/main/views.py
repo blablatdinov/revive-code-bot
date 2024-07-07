@@ -23,12 +23,17 @@
 """HTTP controllers."""
 
 import json
+import tempfile
+from contextlib import suppress
+from pathlib import Path
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django_celery_beat.models import CrontabSchedule
+from github.GithubException import UnknownObjectException
 
 from main.models import GhRepo
-from main.service import pygithub_client
+from main.service import config_or_default, pygithub_client
 
 
 def healthcheck(request):
@@ -47,13 +52,29 @@ def webhook(request: HttpRequest):
         new_repos = []
         gh = pygithub_client(installation_id)
         for repo in request_json['repositories_added']:
+            gh_repo = gh.get_repo(repo['full_name'])
+            config = config_or_default(Path('unknown'))
+            for name in ('.revive-bot.yml', '.revive-bot.yaml'):
+                with suppress(UnknownObjectException), tempfile.NamedTemporaryFile() as file:
+                    config = config_or_default(
+                        Path(str(file)).write_text(
+                            gh_repo.get_contents(name).decoded_content.decode('utf-8'),
+                            encoding='utf-8',
+                        ),
+                    )
             new_repos.append(GhRepo(
                 full_name=repo['full_name'],
                 installation_id=installation_id,
-                has_webhook=False),
-            )
+                has_webhook=False,
+                scheduling=CrontabSchedule.objects.create(
+                    minute=config['cron']['minute'],
+                    hour=config['cron']['hour'],
+                    day_of_week=config['cron']['day_of_week'],
+                    day_of_month=config['cron']['day_of_month'],
+                    month_of_year=config['cron']['month_of_year'],
+                ),
+            ))
             GhRepo.objects.bulk_create(new_repos)
-            gh_repo = gh.get_repo(repo['full_name'])
             gh_repo.create_hook(
                 'web', {
                     'url': 'https://www.rehttp.net/p/https%3A%2F%2Frevive-code-bot.ilaletdinov.ru%2Fhook%2Fgithub',

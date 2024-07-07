@@ -20,24 +20,12 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Manual process repo."""
+import os
 
-from django.core.management.base import BaseCommand
+from celery import Celery
 
-from main.models import GhRepo
-from main.service import GhClonedRepo, GhNewIssue, process_repo, pygithub_client
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-
-class Command(BaseCommand):
-    """CLI command."""
-
-    help = ''
-
-    def handle(self, *args, **options):
-        """Entrypoint."""
-        for repo in GhRepo.objects.all():
-            process_repo(
-                repo.id,
-                GhClonedRepo(repo),
-                GhNewIssue(pygithub_client(repo.installation_id).get_repo(repo.full_name)),
-            )
+app = Celery('revive-code-bot')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
