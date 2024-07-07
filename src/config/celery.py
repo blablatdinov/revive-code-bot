@@ -20,18 +20,12 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-run:
-	poetry run python src/manage.py runserver
+import os
 
-celery:
-	cd src && poetry run celery -A config worker -l INFO
+from celery import Celery
 
-lint:
-	poetry run isort src
-	poetry run ruff check src --fix
-	# poetry run flake8 src
-	poetry run refurb src
-	# poetry run mypy src
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-test:
-	cd src && poetry run pytest --cov=. --cov-report=term-missing:skip-covered -vv
+app = Celery('revive-code-bot')
+app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
