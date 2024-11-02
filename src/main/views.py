@@ -80,8 +80,7 @@ def _read_config_from_repo(gh_repo: Repository):
             return read_config(
                 gh_repo
                 .get_contents(variant)
-                .decoded_content()
+                .decoded_content
                 .decode('utf-8')
             )
-    else:
-        return generate_default_config()
+    return generate_default_config()
