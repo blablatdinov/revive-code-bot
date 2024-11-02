@@ -23,12 +23,15 @@
 """HTTP controllers."""
 
 import json
+from contextlib import suppress
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from github.GithubException import UnknownObjectException
+from github.Repository import Repository
 
-from main.models import GhRepo
-from main.service import pygithub_client
+from main.models import GhRepo, AnalyzeJobsSchedule
+from main.service import pygithub_client, generate_default_config, read_config
 
 
 def healthcheck(request):
@@ -39,20 +42,18 @@ def healthcheck(request):
 
 
 @csrf_exempt
-def webhook(request: HttpRequest):
+def gh_webhook(request: HttpRequest):
     """Process webhooks from github."""
     if request.headers['X-GitHub-Event'] == 'installation_repositories':
         request_json = json.loads(request.body)
         installation_id = request_json['installation']['id']
-        new_repos = []
         gh = pygithub_client(installation_id)
         for repo in request_json['repositories_added']:
-            new_repos.append(GhRepo(
+            repo_db_record = GhRepo.objects.create(
                 full_name=repo['full_name'],
                 installation_id=installation_id,
-                has_webhook=False),
+                has_webhook=False,
             )
-            GhRepo.objects.bulk_create(new_repos)
             gh_repo = gh.get_repo(repo['full_name'])
             gh_repo.create_hook(
                 'web', {
@@ -61,12 +62,26 @@ def webhook(request: HttpRequest):
                 },
                 ['issues', 'issue_comment', 'push'],
             )
+            config = _read_config_from_repo(gh_repo)
+            AnalyzeJobsSchedule.objects.create(repo=repo_db_record, cron_expression=config['cron'])
         gh.close()
     elif request.headers['X-GitHub-Event'] == 'ping':
         request_json = json.loads(request.body)
         pg_repo = GhRepo.objects.get(full_name=request_json['repository']['full_name'])
         pg_repo.has_webhook = True
         pg_repo.save()
-    elif request.headers['X-GitHub-Event'] == 'ping':
-        pass
     return HttpResponse()
+
+
+def _read_config_from_repo(gh_repo: Repository):
+    variants = ('.revive-bot.yaml', '.revive-bot.yml')
+    for variant in variants:
+        with suppress(UnknownObjectException):
+            return read_config(
+                gh_repo
+                .get_contents(variant)
+                .decoded_content()
+                .decode('utf-8')
+            )
+    else:
+        return generate_default_config()

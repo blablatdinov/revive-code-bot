@@ -25,10 +25,10 @@
 from django.contrib import admin
 from django.urls import path
 
-from main.views import healthcheck, webhook
+from main.views import healthcheck, gh_webhook
 
 urlpatterns = [
     path('health-check/', healthcheck),
-    path('hook/github', webhook),
+    path('hook/github', gh_webhook),
     path('admin/', admin.site.urls),
 ]
