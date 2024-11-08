@@ -46,6 +46,7 @@ def _remove_exist_webhook():
 
 
 @pytest.mark.usefixtures('_remove_exist_webhook')
+@pytest.mark.integration
 def test_add_installation(client):
     response = client.post(
         '/hook/github',
