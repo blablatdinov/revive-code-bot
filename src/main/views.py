@@ -44,6 +44,8 @@ def healthcheck(request):
 @csrf_exempt
 def gh_webhook(request: HttpRequest):
     """Process webhooks from github."""
+    # TODO wrap in transaction
+    # TODO handle private repos
     if request.headers['X-GitHub-Event'] == 'installation_repositories':
         request_json = json.loads(request.body)
         installation_id = request_json['installation']['id']
@@ -74,6 +76,8 @@ def gh_webhook(request: HttpRequest):
 
 
 def _read_config_from_repo(gh_repo: Repository):
+    # TODO write tests
+    # TODO invalid cron in .revive-bot.yaml case
     variants = ('.revive-bot.yaml', '.revive-bot.yml')
     for variant in variants:
         with suppress(UnknownObjectException):
