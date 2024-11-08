@@ -30,6 +30,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.csrf import csrf_exempt
 from github.GithubException import UnknownObjectException
 from github.Repository import Repository
 
@@ -93,8 +94,10 @@ def _read_config_from_repo(gh_repo: Repository):
     return generate_default_config()
 
 
+@csrf_exempt
 def process_repo_view(request, repo_id: int):
     """Webhook for process repo."""
+    print(request.headers)
     if request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN):
         raise PermissionDenied
     repo = get_object_or_404(GhRepo, id=repo_id)
