@@ -27,11 +27,14 @@ from contextlib import suppress
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from github.GithubException import UnknownObjectException
 from github.Repository import Repository
 
 from main.models import GhRepo, AnalyzeJobsSchedule
-from main.service import pygithub_client, generate_default_config, read_config
+from main.service import pygithub_client, generate_default_config, read_config, process_repo, GhClonedRepo, GhNewIssue
 
 
 def healthcheck(request):
@@ -88,3 +91,15 @@ def _read_config_from_repo(gh_repo: Repository):
                 .decode('utf-8')
             )
     return generate_default_config()
+
+
+def process_repo_view(request, repo_id: int):
+    if request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN):
+        raise PermissionDenied
+    repo = get_object_or_404(GhRepo, id=repo_id)
+    process_repo(
+        repo.id,
+        GhClonedRepo(repo),
+        GhNewIssue(pygithub_client(repo.installation_id).get_repo(repo.full_name)),
+    )
+    return HttpResponse()

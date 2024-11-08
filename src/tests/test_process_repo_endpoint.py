@@ -20,16 +20,24 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Routers."""
+import pytest
 
-from django.contrib import admin
-from django.urls import path
+from django.conf import settings
 
-from main.views import healthcheck, gh_webhook, process_repo_view
+pytestmark = [pytest.mark.django_db]
 
-urlpatterns = [
-    path('health-check/', healthcheck),
-    path('hook/github', gh_webhook),
-    path('process-repo/<int:repo_id>', process_repo_view),
-    path('admin/', admin.site.urls),
-]
+
+@pytest.fixture
+def repo(mixer):
+    return mixer.blend('main.GhRepo')
+
+
+def test(anon, repo):
+    response = anon.post(
+        '/process-repo/{0}'.format(repo.id),
+        headers={
+            'Authentication': 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN),
+        }
+    )
+
+    assert response.status_code == 200

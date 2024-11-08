@@ -112,3 +112,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CSRF_TRUSTED_ORIGINS = ['https://revive-code-bot.ilaletdinov.ru']
+
+BASIC_AUTH_TOKEN = env('BASIC_AUTH_TOKEN')
