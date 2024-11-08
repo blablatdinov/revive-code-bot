@@ -37,7 +37,7 @@ def test(anon, repo):
         '/process-repo/{0}'.format(repo.id),
         headers={
             'Authentication': 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN),
-        }
+        },
     )
 
     assert response.status_code == 200

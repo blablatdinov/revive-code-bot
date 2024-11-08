@@ -64,12 +64,3 @@ def test(gh_repo):
         '2. Clean files must be marked in checklist',
         '3. Close issue',
     ])
-
-
-def test_tmp():
-    repo = pygithub_client(52326552).get_repo('blablatdinov/iman-game-bot')
-    content = repo.get_contents('.gitignore')
-    print(content)
-    print(content.content)
-    print(content.decoded_content.decode('utf-8'))
-    assert False

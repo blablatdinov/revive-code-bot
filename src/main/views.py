@@ -88,12 +88,13 @@ def _read_config_from_repo(gh_repo: Repository):
                 gh_repo
                 .get_contents(variant)
                 .decoded_content
-                .decode('utf-8')
+                .decode('utf-8'),
             )
     return generate_default_config()
 
 
 def process_repo_view(request, repo_id: int):
+    """Webhook for process repo."""
     if request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN):
         raise PermissionDenied
     repo = get_object_or_404(GhRepo, id=repo_id)

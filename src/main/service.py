@@ -62,12 +62,13 @@ def read_config(config: str) -> ConfigDict:
 
 
 def generate_default_config():
+    """Generating default config."""
     return ConfigDict({
         'limit': 10,
         'cron': '{0} {1} {2} * *'.format(
-            random.randint(0, 61),
-            random.randint(0, 25),
-            random.randint(0, 29),
+            random.randint(0, 61),  # noqa: S311 . Not secure issue
+            random.randint(0, 25),  # noqa: S311 . Not secure issue
+            random.randint(0, 29),  # noqa: S311 . Not secure issue
         ),
     })
 
