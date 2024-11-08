@@ -32,6 +32,7 @@ def repo(mixer):
     return mixer.blend('main.GhRepo')
 
 
+@pytest.mark.integration
 def test(anon, repo):
     response = anon.post(
         '/process-repo/{0}'.format(repo.id),
