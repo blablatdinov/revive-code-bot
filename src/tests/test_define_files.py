@@ -158,7 +158,7 @@ def test_lines_count(repo_path):
 
 
 def test_code_coverage(repo_path):
-    got = code_coverage_rating(Path('tests/fixtures/coverage.xml').read_text())
+    got = code_coverage_rating(Path('src/tests/fixtures/coverage.xml').read_text())
 
     assert got == {'bar.py': 0.6667, 'foo.py': 0.5, 'test.py': 1}
 

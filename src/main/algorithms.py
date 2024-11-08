@@ -27,8 +27,8 @@ from collections import defaultdict
 from os import PathLike
 from pathlib import Path
 
-from bs4 import BeautifulSoup
 from git import Repo
+from lxml import etree
 
 from main.models import TouchRecord
 
@@ -125,7 +125,8 @@ def merge_rating(
 
 
 def code_coverage_rating(coverage_xml: str):
+    tree = etree.fromstring(coverage_xml, etree.XMLParser())
     return {
-        file['filename']: float(file['line-rate'])
-        for file in BeautifulSoup(coverage_xml, features='xml').find_all('class')
+        file.xpath('./@name')[0]: float(file.xpath('./@line-rate')[0])
+        for file in tree.xpath('.//class')
     }
