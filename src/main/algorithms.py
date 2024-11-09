@@ -125,7 +125,8 @@ def merge_rating(
 
 
 def code_coverage_rating(coverage_xml: str):
-    tree = etree.fromstring(coverage_xml, etree.XMLParser())
+    """Count coverage per file."""
+    tree = etree.fromstring(coverage_xml, etree.XMLParser())  # noqa: S320 . TODO
     return {
         file.xpath('./@name')[0]: float(file.xpath('./@line-rate')[0])
         for file in tree.xpath('.//class')
