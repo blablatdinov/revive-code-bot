@@ -1,8 +1,7 @@
 # Revive code bot
 
 ![](https://tokei.rs/b1/github/blablatdinov/revive-code-bot)
-[![Hits-of-Code](https://hitsofcode.com/github/blablatdinov/revive-code-bot)](https:
-//hitsofcode.com/github/blablatdinov/tg-quranbot/view)
+[![Hits-of-Code](https://hitsofcode.com/github/blablatdinov/revive-code-bot)](https://hitsofcode.com/github/blablatdinov/tg-quranbot/view)
 
 This bot is an automated tool designed to help maintain repositories by identifying and notifying about stagnant code files
 that might require review. It assists in keeping your projects up-to-date and promotes regular code reviews to ensure code quality.
