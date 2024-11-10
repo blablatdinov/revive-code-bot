@@ -33,7 +33,7 @@ from django.core.exceptions import PermissionDenied
 from github.GithubException import UnknownObjectException
 from github.Repository import Repository
 
-from main.models import GhRepo, AnalyzeJobsSchedule
+from main.models import GhRepo, RepoConfig
 from main.service import pygithub_client, generate_default_config, read_config, process_repo, GhClonedRepo, GhNewIssue
 
 
@@ -68,7 +68,7 @@ def gh_webhook(request: HttpRequest):
                 ['issues', 'issue_comment', 'push'],
             )
             config = _read_config_from_repo(gh_repo)
-            AnalyzeJobsSchedule.objects.create(repo=repo_db_record, cron_expression=config['cron'])
+            RepoConfig.objects.create(repo=repo_db_record, cron_expression=config['cron'])
         gh.close()
     elif request.headers['X-GitHub-Event'] == 'ping':
         request_json = json.loads(request.body)

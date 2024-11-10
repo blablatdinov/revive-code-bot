@@ -37,7 +37,7 @@ from git import Repo
 from github import Auth, Github, Repository
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
-from main.models import GhRepo, TouchRecord
+from main.models import GhRepo, TouchRecord, RepoConfig
 
 
 class ConfigDict(TypedDict):
@@ -173,9 +173,10 @@ class GhClonedRepo(ClonedRepo):
 
 def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
     """Processing repo."""
+    repo_config = RepoConfig.objects.get(repo_id=repo_id)
     with tempfile.TemporaryDirectory() as tmpdirname:
         repo_path = cloned_repo.clone_to(Path(tmpdirname))
-        files_for_search = list(repo_path.glob('**/*.py'))
+        files_for_search = list(repo_config.glob or '**/*')
         config = config_or_default(repo_path)
         got = files_sorted_by_last_changes_from_db(
             repo_id,
