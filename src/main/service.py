@@ -29,10 +29,10 @@ import zipfile
 from contextlib import suppress
 from pathlib import Path
 from typing import Protocol, TypedDict, final
-import jwt
-import requests
 
 import attrs
+import jwt
+import requests
 import yaml
 from cron_validator import CronValidator
 from django.conf import settings
@@ -183,18 +183,20 @@ class GhClonedRepo(ClonedRepo):
         gh = pygithub_client(self._gh_repo.installation_id)
         repo = gh.get_repo(self._gh_repo.full_name)
         gh.close()
-        now = int(datetime.datetime.now().timestamp())
-        # signing_key = Path(settings.BASE_DIR / 'revive-code-bot.2024-04-11.private-key.pem').read_text(encoding='utf-8'),
+        now = int(datetime.datetime.now(tz=datetime.UTC).timestamp())
         signing_key = Path(settings.BASE_DIR / 'revive-code-bot.2024-04-11.private-key.pem').read_bytes()
-        payload = {"iat": now, "exp": now + 600, "iss": 874924}
-        encoded_jwt = jwt.encode(payload, signing_key, algorithm="RS256")
+        payload = {'iat': now, 'exp': now + 600, 'iss': 874924}
+        encoded_jwt = jwt.encode(payload, signing_key, algorithm='RS256')
         response = requests.post(
-            "https://api.github.com/app/installations/" f"{self._gh_repo.installation_id}/access_tokens",
+            'https://api.github.com/app/installations/{0}/access_tokens'.format(
+                self._gh_repo.installation_id,
+            ),
             headers={
-                "Authorization": f"Bearer {encoded_jwt}",
-                "Accept": "application/vnd.github+json",
-                "X-GitHub-Api-Version": "2022-11-28",
+                'Authorization': f'Bearer {encoded_jwt}',
+                'Accept': 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28',
             },
+            timeout=5,
         )
         token = response.json()['token']
         Repo.clone_from(
@@ -210,16 +212,12 @@ class GhClonedRepo(ClonedRepo):
 def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
     """Processing repo."""
     repo_config = RepoConfig.objects.get(repo_id=repo_id)
-    print('Start processing repo')
     with tempfile.TemporaryDirectory() as tmpdirname:
-        tmpdirname = '/home/www/code/pb'
-        print(tmpdirname)
-        #repo_path = cloned_repo.clone_to(Path(tmpdirname))
-        repo_path = Path('/home/www/code/pb')
+        repo_path = cloned_repo.clone_to(Path(tmpdirname))
         files_for_search = [
             x
             for x in repo_path.glob(repo_config.files_glob or '**/*')
-            if not '.git' in str(x)
+            if '.git' not in str(x)
         ]
         config = config_or_default(repo_path)
         got = files_sorted_by_last_changes_from_db(

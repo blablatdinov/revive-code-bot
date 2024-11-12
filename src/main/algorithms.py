@@ -54,7 +54,6 @@ def files_sorted_by_last_changes(
     file_last_commit: dict[PathLike[str], datetime.datetime] = {}
     now = datetime.datetime.now(tz=datetime.UTC)
     for file in files_for_check:
-        print('file:', file)
         last_touch = next(repo.iter_commits(paths=file)).committed_datetime
         file_last_commit[file] = (now - last_touch).days
     return file_last_commit
