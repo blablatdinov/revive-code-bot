@@ -63,11 +63,14 @@ def pygithub_client(installation_id: int) -> Github:
 def read_config(config: str) -> ConfigDict:
     """Read config from yaml files."""
     parsed_config: ConfigDict = yaml.safe_load(config)
-    if parsed_config.get('cron') and not CronValidator.parse(parsed_config['cron']):
+    if parsed_config.get('cron'):
         # TODO: custom exception
         # TODO: notify repository owner
-        msg = 'Cron expression: "{0}" has invalid format'.format(parsed_config['cron'])
-        raise ValueError(msg)
+        try:
+            CronValidator.parse(parsed_config['cron'])
+        except ValueError:
+            msg = 'Cron expression: "{0}" has invalid format'.format(parsed_config['cron'])
+            raise ValueError(msg)
     return parsed_config
 
 
