@@ -20,8 +20,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from typing import final
 from collections import namedtuple
+from typing import final
 
 import attrs
 import pytest
@@ -38,8 +38,8 @@ class FkRepo:
     _origin: str
 
     def get_contents(self, filepath: str):
-        return namedtuple('Content', 'decoded_content')(
-            self._origin.encode('utf-8')
+        return namedtuple('Content', 'decoded_content')(  # noqa: PYI024. Too simple case for typing.NamedTuple
+            self._origin.encode('utf-8'),
         )
 
 
@@ -47,7 +47,7 @@ def test():
     got = read_config_from_repo(FkRepo(
         '\n'.join([
             'cron: 3 4 * * *',
-        ])
+        ]),
     ))
 
     assert got == {'cron': '3 4 * * *', 'glob': '**/*', 'limit': 10}
