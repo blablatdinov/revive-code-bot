@@ -24,15 +24,14 @@
 
 import json
 
-from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.shortcuts import get_object_or_404
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from github.Repository import Repository
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
-from main.models import GhRepo, RepoConfig
-from main.service import pygithub_client, generate_default_config, read_config, process_repo, GhClonedRepo, GhNewIssue, register_repo
+from main.models import GhRepo
+from main.service import GhClonedRepo, GhNewIssue, process_repo, pygithub_client, register_repo
 
 
 def healthcheck(request):

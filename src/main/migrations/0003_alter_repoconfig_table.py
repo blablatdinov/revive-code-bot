@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("main", "0002_analyzejobsschedule"),
+        ('main', '0002_analyzejobsschedule'),
     ]
 
     operations = [
         migrations.AlterModelTable(
-            name="repoconfig",
-            table="repo_configs",
+            name='repoconfig',
+            table='repo_configs',
         ),
         migrations.AddField(
-            model_name="repoconfig",
-            name="files_glob",
+            model_name='repoconfig',
+            name='files_glob',
             field=models.CharField(default=1, max_length=128),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name="repoconfig",
-            name="cron_expression",
+            model_name='repoconfig',
+            name='cron_expression',
             field=models.CharField(max_length=16),
         ),
     ]

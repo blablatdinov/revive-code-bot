@@ -23,12 +23,12 @@
 """Service utils."""
 
 import datetime
+import random
 import tempfile
 import zipfile
-import random
+from contextlib import suppress
 from pathlib import Path
 from typing import Protocol, TypedDict, final
-from contextlib import suppress
 
 import attrs
 import yaml
@@ -39,7 +39,7 @@ from github import Auth, Github, Repository
 from github.GithubException import UnknownObjectException
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
-from main.models import GhRepo, TouchRecord, RepoConfig
+from main.models import GhRepo, RepoConfig, TouchRecord
 
 
 class ConfigDict(TypedDict):
@@ -222,11 +222,13 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
 
 @final
 class RegisteredRepoFromGithub(TypedDict):
+    """Github webhook needed fields."""
 
     full_name: str
 
 
 def register_repo(repos: list[RegisteredRepoFromGithub], installation_id: int, gh: Github):
+    """Registering new repositories."""
     for repo in repos:
         repo_db_record = GhRepo.objects.create(
             full_name=repo['full_name'],
@@ -256,7 +258,7 @@ def _read_config_from_repo(gh_repo: Repository):
     #  ```
     #  for this case configs must be merged. Result config:
     #  ```yaml
-    #  limit: 10
+    #  limit: 10  # noqa: ERA001. It's yaml
     #  cron: 9 16 * * *
     #  glob: **/*
     #  ```
