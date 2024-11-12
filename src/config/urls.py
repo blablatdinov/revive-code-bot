@@ -25,7 +25,7 @@
 from django.contrib import admin
 from django.urls import path
 
-from main.views import connected_repos, gh_webhook, healthcheck, process_repo_view, index
+from main.views import connected_repos, gh_webhook, healthcheck, index, process_repo_view
 
 urlpatterns = [
     path('', index),

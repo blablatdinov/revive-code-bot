@@ -92,4 +92,5 @@ def connected_repos(request):
 
 
 def index(request):
+    """Show index page."""
     return render(request, 'index.html')
