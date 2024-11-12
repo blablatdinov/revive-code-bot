@@ -34,6 +34,6 @@ def test():
 def test_invalid_cron():
     got = read_config('\n'.join([
         'cron: */61 * * * *',
-    ])u
+    ]))
 
     assert got == {'limit': 10}
