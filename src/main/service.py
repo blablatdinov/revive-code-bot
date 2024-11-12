@@ -40,6 +40,7 @@ from github.GithubException import UnknownObjectException
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
 from main.models import GhRepo, RepoConfig, TouchRecord
+from cron_validator import CronValidator
 
 
 class ConfigDict(TypedDict):
@@ -61,7 +62,12 @@ def pygithub_client(installation_id: int) -> Github:
 
 def read_config(config: str) -> ConfigDict:
     """Read config from yaml files."""
-    return yaml.safe_load(config)
+    parsed_config: ConfigDict = yaml.safe_load(config)
+    if not CronValidator.parse(parsed_config['cron']):
+        # TODO: custom exception
+        # TODO: notify repository owner
+        raise ValueError('Cron expression: "{0}" has invalid format'.format(parsed_config['cron']))
+    return 
 
 
 def generate_default_config():
