@@ -68,9 +68,9 @@ def read_config(config: str) -> ConfigDict:
         # TODO: notify repository owner
         try:
             CronValidator.parse(parsed_config['cron'])
-        except ValueError:
+        except ValueError as err:
             msg = 'Cron expression: "{0}" has invalid format'.format(parsed_config['cron'])
-            raise ValueError(msg)
+            raise ValueError(msg) from err
     return parsed_config
 
 
