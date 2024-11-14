@@ -24,9 +24,9 @@
 
 import json
 
-from django.db import transaction
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
