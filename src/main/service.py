@@ -288,7 +288,6 @@ def register_repo(repos: list[RegisteredRepoFromGithub], installation_id: int, g
 
 def read_config_from_repo(gh_repo: Repository):
     """Read config from repo and fill empty fields."""
-    # TODO invalid cron in .revive-bot.yaml case
     variants = ('.revive-bot.yaml', '.revive-bot.yml')
     repo_config = {}
     default_config = generate_default_config()

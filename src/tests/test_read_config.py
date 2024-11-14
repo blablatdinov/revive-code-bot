@@ -24,6 +24,7 @@ import re
 
 import pytest
 
+from main.exceptions import InvalidaCronError
 from main.service import read_config
 
 
@@ -37,7 +38,10 @@ def test():
 
 def test_invalid_cron():
     cron_expr = '*/61 * * * *'
-    with pytest.raises(ValueError, match=re.escape('Cron expression: "{0}" has invalid format'.format(cron_expr))):
+    with pytest.raises(
+        InvalidaCronError,
+        match=re.escape('Cron expression: "{0}" has invalid format'.format(cron_expr)),
+    ):
         read_config('\n'.join([
             "cron: '{0}'".format(cron_expr),
         ]))
