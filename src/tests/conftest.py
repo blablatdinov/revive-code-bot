@@ -33,5 +33,5 @@ def anon():
 
 @pytest.fixture
 def baker():
-    from model_bakery import baker as _baker
+    from model_bakery import baker as _baker  # noqa: PLC0415. Conflict with fixture name
     return _baker
