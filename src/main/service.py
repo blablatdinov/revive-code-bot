@@ -43,6 +43,7 @@ from github.GithubException import UnknownObjectException
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
 from main.models import GhRepo, RepoConfig, TouchRecord
+from main.exceptions import InvalidaCronError
 
 
 class ConfigDict(TypedDict):
@@ -66,13 +67,12 @@ def read_config(config: str) -> ConfigDict:
     """Read config from yaml files."""
     parsed_config: ConfigDict = yaml.safe_load(config)
     if parsed_config.get('cron'):
-        # TODO: custom exception
         # TODO: notify repository owner
         try:
             CronValidator.parse(parsed_config['cron'])
         except ValueError as err:
             msg = 'Cron expression: "{0}" has invalid format'.format(parsed_config['cron'])
-            raise ValueError(msg) from err
+            raise InvalidaCronError(msg) from err
     return parsed_config
 
 
