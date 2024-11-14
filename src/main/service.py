@@ -42,8 +42,8 @@ from github import Auth, Github, Repository
 from github.GithubException import UnknownObjectException
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
-from main.models import GhRepo, RepoConfig, TouchRecord
 from main.exceptions import InvalidaCronError
+from main.models import GhRepo, RepoConfig, TouchRecord
 
 
 class ConfigDict(TypedDict):
