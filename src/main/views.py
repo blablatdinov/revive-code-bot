@@ -61,6 +61,10 @@ def gh_webhook(request: HttpRequest):
             pg_repo = GhRepo.objects.get(full_name=request_json['repository']['full_name'])
             pg_repo.has_webhook = True
             pg_repo.save()
+        elif request.headers['X-GitHub-Event'] == 'push':
+            request_json = json.loads(request.body)
+            if 'refs/heads/{0}'.format(request_json['repository']['default_branch']) != request_json['repository']['ref']:
+                return HttpResponse
         return HttpResponse()
 
 
