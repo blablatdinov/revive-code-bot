@@ -46,8 +46,11 @@ def healthcheck(request):
 def gh_webhook(request: HttpRequest):
     """Process webhooks from github."""
     with transaction.atomic():
-        if request.headers['X-GitHub-Event'] in {'installation', 'installation_repositories'}:
-            request_json = json.loads(request.body)
+        gh_event = request.headers.get('X-GitHub-Event')
+        if not gh_event:
+            return HttpResponse(status=422)
+        request_json = json.loads(request.body)
+        if gh_event in {'installation', 'installation_repositories'}:
             installation_id = request_json['installation']['id']
             gh = pygithub_client(installation_id)
             register_repo(
@@ -56,15 +59,16 @@ def gh_webhook(request: HttpRequest):
                 gh,
             )
             gh.close()
-        elif request.headers['X-GitHub-Event'] == 'ping':
-            request_json = json.loads(request.body)
+        elif gh_event == 'ping':
             pg_repo = GhRepo.objects.get(full_name=request_json['repository']['full_name'])
             pg_repo.has_webhook = True
             pg_repo.save()
-        elif request.headers['X-GitHub-Event'] == 'push':
-            request_json = json.loads(request.body)
-            if 'refs/heads/{0}'.format(request_json['repository']['default_branch']) != request_json['repository']['ref']:
-                return HttpResponse
+        elif gh_event == 'push':
+            if (
+                'refs/heads/{0}'.format(request_json['repository']['default_branch'])
+                != request_json['repository']['ref']
+            ):
+                return HttpResponse()
         return HttpResponse()
 
 
