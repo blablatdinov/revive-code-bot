@@ -32,7 +32,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 
 from main.models import GhRepo
-from main.service import GhClonedRepo, GhNewIssue, process_repo, pygithub_client, register_repo
+from main.service import GhClonedRepo, GhNewIssue, process_repo, pygithub_client, register_repo, update_config
 
 
 def healthcheck(request):
