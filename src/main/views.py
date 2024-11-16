@@ -68,6 +68,7 @@ def gh_webhook(request: HttpRequest):
                 'refs/heads/{0}'.format(request_json['repository']['default_branch'])
                 != request_json['repository']['ref']
             ):
+                update_config(GhRepo.objects.get(full_name=request_json['repository']['full_name']))
                 return HttpResponse()
         return HttpResponse()
 

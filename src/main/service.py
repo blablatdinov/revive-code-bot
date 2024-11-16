@@ -65,7 +65,9 @@ def pygithub_client(installation_id: int) -> Github:
 
 def read_config(config: str) -> ConfigDict:
     """Read config from yaml files."""
-    parsed_config: ConfigDict = yaml.safe_load(config)
+    parsed_config: ConfigDict | None = yaml.safe_load(config)
+    if not parsed_config:
+        return {}
     if parsed_config.get('cron'):
         # TODO: notify repository owner
         try:
@@ -283,7 +285,7 @@ def register_repo(repos: list[RegisteredRepoFromGithub], installation_id: int, g
             },
             ['issues', 'issue_comment', 'push'],
         )
-        config = read_config_from_repo(gh_repo)
+        config = config_or_default(read_config_from_repo(gh_repo))
         RepoConfig.objects.create(repo=repo_db_record, cron_expression=config['cron'])
 
 
