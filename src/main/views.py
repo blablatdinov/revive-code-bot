@@ -32,7 +32,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 
 from main.models import GhRepo
-from main.service import GhClonedRepo, GhNewIssue, process_repo, pygithub_client, register_repo, update_config
+from main.service import GhClonedRepo, GhNewIssue, process_repo, pygithub_client, register_repo
 
 
 def healthcheck(request):
@@ -68,7 +68,7 @@ def gh_webhook(request: HttpRequest):
                 'refs/heads/{0}'.format(request_json['repository']['default_branch'])
                 != request_json['repository']['ref']
             ):
-                update_config(GhRepo.objects.get(full_name=request_json['repository']['full_name']))
+                # update_config(GhRepo.objects.get(full_name=request_json['repository']['full_name']))
                 return HttpResponse()
         return HttpResponse()
 

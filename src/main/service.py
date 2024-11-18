@@ -46,14 +46,6 @@ from main.exceptions import InvalidaCronError
 from main.models import GhRepo, RepoConfig, TouchRecord
 
 
-class ConfigDict(TypedDict):
-    """Configuration structure."""
-
-    limit: int
-    cron: str
-    glob: str
-
-
 def pygithub_client(installation_id: int) -> Github:
     """Pygithub client."""
     auth = Auth.AppAuth(
@@ -91,12 +83,16 @@ def generate_default_config():
     })
 
 
-def config_or_default(repo_path: Path) -> ConfigDict:
-    """Read or default config."""
+def config_from_disk(repo_path: Path) -> ConfigDict:
     config_file = list(repo_path.glob('.revive-bot.*'))
-    if config_file:
-        return read_config(next(iter(config_file)).read_text())
-    return generate_default_config()
+    if not config_file:
+        raise Exception  # TODO: custom exception
+    return read_config(next(iter(config_file)).read_text())
+
+
+def config_or_default(*configs: ConfigDict) -> ConfigDict:
+    for cfg in configs:
+        return cfg
 
 
 def sync_touch_records(files: list[str], repo_id: int) -> None:
@@ -285,20 +281,26 @@ def register_repo(repos: list[RegisteredRepoFromGithub], installation_id: int, g
             },
             ['issues', 'issue_comment', 'push'],
         )
-        config = config_or_default(read_config_from_repo(gh_repo))
+        config_from_repo = read_config_from_repo(gh_repo)
+        config = config_or_default()
         RepoConfig.objects.create(repo=repo_db_record, cron_expression=config['cron'])
 
 
-def read_config_from_repo(gh_repo: Repository):
+def read_config_from_repo(gh_repo: Repository.Repository) -> ConfigDict:
     """Read config from repo and fill empty fields."""
     variants = ('.revive-bot.yaml', '.revive-bot.yml')
-    repo_config = {}
+    # TODO
+    repo_config: dict[str, str | int] = {}
     default_config = generate_default_config()
     for variant in variants:
         with suppress(UnknownObjectException):
-            repo_config = read_config(
-                gh_repo
-                .get_contents(variant)
+            file = gh_repo.get_contents(variant)
+            if isinstance(file, list):
+                # TODO
+                raise Exception
+            # TODO
+            repo_config = read_config(  # type: ignore[assignment]
+                file
                 .decoded_content
                 .decode('utf-8'),
             )
