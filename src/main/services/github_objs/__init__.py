@@ -19,36 +19,3 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
-
-from collections import namedtuple
-from typing import final
-
-import attrs
-import pytest
-
-from main.service import register_repo
-
-pytestmark = [pytest.mark.django_db]
-
-
-@final
-@attrs.define(frozen=True)
-class FkGh:
-    
-    def get_repo(self, full_name):
-        return FkRepo()
-
-
-@final
-@attrs.define(frozen=True)
-class FkRepo:
-    
-    def create_hook(self, name, config, events):
-        pass
-    
-    def get_contents(self, name):
-        return namedtuple('Content', 'decoded_content')(''.encode('utf-8'))
-
-
-def test():
-    register_repo([{'full_name': 'owner_name/repo_name'}], 1, FkGh())

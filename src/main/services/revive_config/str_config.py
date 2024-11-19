@@ -20,37 +20,32 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from typing import TypedDict, Protocol, final
-from contextlib import suppress
+from typing import final, override
 
 import attrs
-from github.Repository import Repository
+import yaml
+from cron_validator import CronValidator
 
+from main.exceptions import InvalidaCronError
 from main.services.revive_config import ConfigDict, ReviveConfig
 
 
 @final
 @attrs.define(frozen=True)
-class GhReviveConfig(ReviveConfig):
+class StrReviveConfig(ReviveConfig):
 
-    _gh_repo: Repository
-    _default_config: ReviveConfig
+    _config: str
 
+    @override
     def parse(self) -> ConfigDict:
-        variants = ('.revive-bot.yaml', '.revive-bot.yml')
-        # TODO
-        repo_config: dict[str, str | int] = {}
-        default_config = self._default_config.parse()
-        for variant in variants:
-            with suppress(UnknownObjectException):
-                file = self._gh_repo.get_contents(variant)
-                if isinstance(file, list):
-                    # TODO
-                    raise Exception
-                # TODO
-                repo_config = read_config(  # type: ignore[assignment]
-                    file
-                    .decoded_content
-                    .decode('utf-8'),
-                )
-        return default_config | repo_config
+        parsed_config: ConfigDict | None = yaml.safe_load(self._config)
+        if not parsed_config:
+            return {}
+        if parsed_config.get('cron'):
+            # TODO: notify repository owner
+            try:
+                CronValidator.parse(parsed_config['cron'])
+            except ValueError as err:
+                msg = 'Cron expression: "{0}" has invalid format'.format(parsed_config['cron'])
+                raise InvalidaCronError(msg) from err
+        return parsed_config

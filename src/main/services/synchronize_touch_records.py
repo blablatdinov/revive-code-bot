@@ -20,35 +20,35 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from collections import namedtuple
-from typing import final
+import datetime
+from typing import Protocol, final, override
 
 import attrs
-import pytest
 
-from main.service import register_repo
-
-pytestmark = [pytest.mark.django_db]
+from main.models import TouchRecord
 
 
-@final
-@attrs.define(frozen=True)
-class FkGh:
-    
-    def get_repo(self, full_name):
-        return FkRepo()
+class SynchronizeTouchRecords(Protocol):
+
+    def sync(self): ...
 
 
 @final
 @attrs.define(frozen=True)
-class FkRepo:
-    
-    def create_hook(self, name, config, events):
-        pass
-    
-    def get_contents(self, name):
-        return namedtuple('Content', 'decoded_content')(''.encode('utf-8'))
+class PgSynchronizeTouchRecords():
 
-
-def test():
-    register_repo([{'full_name': 'owner_name/repo_name'}], 1, FkGh())
+    @override
+    def sync(files: list[str], repo_id: int) -> None:
+        """Synching touch records."""
+        exists_touch_records = TouchRecord.objects.filter(gh_repo_id=repo_id)
+        for tr in exists_touch_records:
+            if tr.path in files:
+                tr.date = datetime.datetime.now(tz=datetime.UTC).date()
+                tr.save()
+        for file in files:
+            if not TouchRecord.objects.filter(gh_repo_id=repo_id, path=file).exists():
+                TouchRecord.objects.create(
+                    gh_repo_id=repo_id,
+                    path=file,
+                    date=datetime.datetime.now(tz=datetime.UTC).date(),
+                )

@@ -20,28 +20,11 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-import random
-from typing import TypedDict, Protocol, final
-
-import attrs
-from github.Repository import Repository
-
-from main.services.revive_config import ConfigDict
+from typing import Protocol
 
 
-@final
-@attrs.define(frozen=True)
-class DefaultReviveConfig(Protocol):
+class NewIssue(Protocol):
+    """New issue."""
 
-    _rnd: random.Random
-
-    def parse(self) -> ConfigDict:
-        return ConfigDict({
-            'limit': 10,
-            'cron': '{0} {1} {2} * *'.format(
-                self._rnd.randint(0, 61),  # noqa: S311 . Not secure issue
-                self._rnd.randint(0, 25),  # noqa: S311 . Not secure issue
-                self._rnd.randint(0, 29),  # noqa: S311 . Not secure issue
-            ),
-            'glob': '**/*',
-        })
+    def create(self, title: str, content: str) -> None:
+        """Creating issue."""

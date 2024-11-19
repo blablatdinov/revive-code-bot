@@ -20,35 +20,44 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from collections import namedtuple
-from typing import final
+from typing import final, override
 
 import attrs
-import pytest
+from github import Github
 
-from main.service import register_repo
-
-pytestmark = [pytest.mark.django_db]
-
-
-@final
-@attrs.define(frozen=True)
-class FkGh:
-    
-    def get_repo(self, full_name):
-        return FkRepo()
+from main.models import GhRepo, RepoConfig
+from main.services.revive_config.revive_config import ReviveConfig
 
 
 @final
 @attrs.define(frozen=True)
-class FkRepo:
-    
-    def create_hook(self, name, config, events):
-        pass
-    
-    def get_contents(self, name):
-        return namedtuple('Content', 'decoded_content')(''.encode('utf-8'))
+class GhRepoInstallation:
 
+    _repos: list
+    _installation_id: int
+    _gh: Github
+    _config: ReviveConfig
 
-def test():
-    register_repo([{'full_name': 'owner_name/repo_name'}], 1, FkGh())
+    @override
+    def register(self):
+        """Registering new repositories."""
+        for repo in self._repos:
+            repo_db_record = GhRepo.objects.create(
+                full_name=repo['full_name'],
+                installation_id=self._installation_id,
+                has_webhook=False,
+            )
+            gh_repo = self._gh.get_repo(repo['full_name'])
+            # TODO: query may be failed, because already created
+            gh_repo.create_hook(
+                'web',
+                {
+                    'url': 'https://www.rehttp.net/p/https%3A%2F%2Frevive-code-bot.ilaletdinov.ru%2Fhook%2Fgithub',
+                    'content_type': 'json',
+                },
+                ['issues', 'issue_comment', 'push'],
+            )
+            RepoConfig.objects.create(
+                repo=repo_db_record,
+                cron_expression=self._config.parse()['cron'],
+            )

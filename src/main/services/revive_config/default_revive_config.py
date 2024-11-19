@@ -20,35 +20,28 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from collections import namedtuple
-from typing import final
+import random
+from typing import final, override
 
 import attrs
-import pytest
 
-from main.service import register_repo
-
-pytestmark = [pytest.mark.django_db]
+from main.services.revive_config import ConfigDict, ReviveConfig
 
 
 @final
 @attrs.define(frozen=True)
-class FkGh:
-    
-    def get_repo(self, full_name):
-        return FkRepo()
+class DefaultReviveConfig(ReviveConfig):
 
+    _rnd: random.Random
 
-@final
-@attrs.define(frozen=True)
-class FkRepo:
-    
-    def create_hook(self, name, config, events):
-        pass
-    
-    def get_contents(self, name):
-        return namedtuple('Content', 'decoded_content')(''.encode('utf-8'))
-
-
-def test():
-    register_repo([{'full_name': 'owner_name/repo_name'}], 1, FkGh())
+    @override
+    def parse(self) -> ConfigDict:
+        return ConfigDict({
+            'limit': 10,
+            'cron': '{0} {1} {2} * *'.format(
+                self._rnd.randint(0, 61),  # noqa: S311 . Not secure issue
+                self._rnd.randint(0, 25),  # noqa: S311 . Not secure issue
+                self._rnd.randint(0, 29),  # noqa: S311 . Not secure issue
+            ),
+            'glob': '**/*',
+        })

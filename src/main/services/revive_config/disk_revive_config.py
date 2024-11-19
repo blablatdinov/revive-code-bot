@@ -20,19 +20,24 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from typing import TypedDict, Protocol
+from pathlib import Path
+from typing import final, override
 
-from main.services.revive_config import Con
+import attrs
 
-
-class ConfigDict(TypedDict):
-    """Configuration structure."""
-
-    limit: int
-    cron: str
-    glob: str
+from main.services.revive_config import ConfigDict, ReviveConfig
+from main.services.str_config import StrReviveConfig
 
 
-class ReviveConfig(Protocol):
+@final
+@attrs.define(frozen=True)
+class DefaultReviveConfig(ReviveConfig):
 
-    def parse(self) -> ConfigDict: ...
+    _repo_path: Path
+
+    @override
+    def parse(self) -> ConfigDict:
+        config_file = list(self._repo_path.glob('.revive-bot.*'))
+        if not config_file:
+            raise Exception  # TODO: custom exception
+        return StrReviveConfig(next(iter(config_file)).read_text()).parse()

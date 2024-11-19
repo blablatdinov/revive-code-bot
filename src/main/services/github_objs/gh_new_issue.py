@@ -20,35 +20,22 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from collections import namedtuple
-from typing import final
+from typing import final, override
 
 import attrs
-import pytest
+from github.Repository import Repository
 
-from main.service import register_repo
-
-pytestmark = [pytest.mark.django_db]
+from main.services.github_objs.new_issue import NewIssue
 
 
 @final
 @attrs.define(frozen=True)
-class FkGh:
-    
-    def get_repo(self, full_name):
-        return FkRepo()
+class GhNewIssue(NewIssue):
+    """New issue in github."""
 
+    _repo: Repository
 
-@final
-@attrs.define(frozen=True)
-class FkRepo:
-    
-    def create_hook(self, name, config, events):
-        pass
-    
-    def get_contents(self, name):
-        return namedtuple('Content', 'decoded_content')(''.encode('utf-8'))
-
-
-def test():
-    register_repo([{'full_name': 'owner_name/repo_name'}], 1, FkGh())
+    @override
+    def create(self, title: str, content: str) -> None:
+        """Creating issue."""
+        self._repo.create_issue(title, content)
