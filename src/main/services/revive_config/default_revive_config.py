@@ -22,7 +22,6 @@
 
 """Generating default revive bot config."""
 
-import random
 from typing import final, override, Protocol
 
 import attrs
