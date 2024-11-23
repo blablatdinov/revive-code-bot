@@ -20,6 +20,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Revive bot config from file."""
+
 from pathlib import Path
 from typing import final, override
 
@@ -32,11 +34,13 @@ from main.services.revive_config.str_config import StrReviveConfig
 @final
 @attrs.define(frozen=True)
 class DiskReviveConfig(ReviveConfig):
+    """Revive bot config from file."""
 
     _repo_path: Path
 
     @override
     def parse(self) -> ConfigDict:
+        """Parsing file from file."""
         config_file = list(self._repo_path.glob('.revive-bot.*'))
         if not config_file:
             raise Exception  # TODO: custom exception

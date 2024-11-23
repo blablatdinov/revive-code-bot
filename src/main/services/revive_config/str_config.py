@@ -20,6 +20,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Config from string."""
+
 from typing import final, override
 
 import attrs
@@ -33,11 +35,13 @@ from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 @final
 @attrs.define(frozen=True)
 class StrReviveConfig(ReviveConfig):
+    """Config from string."""
 
     _config: str
 
     @override
     def parse(self) -> ConfigDict:
+        """Parse config."""
         parsed_config: ConfigDict | None = yaml.safe_load(self._config)
         if not parsed_config:
             return {}

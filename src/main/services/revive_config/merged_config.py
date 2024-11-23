@@ -20,7 +20,7 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""Fork config."""
+"""Merged Config."""
 
 from collections.abc import Iterable
 from typing import final
@@ -33,17 +33,18 @@ from main.services.revive_config.revive_config import ReviveConfig
 @final
 @attrs.define(frozen=True)
 class MergedConfig(ReviveConfig):
+    """Merged Config."""
 
     _origins: Iterable[ReviveConfig]
 
     @classmethod
     def ctor(cls, *origins):
-        print(origins)
+        """Ctor."""
         return cls(origins)
 
     def parse(self):
+        """Merge configs."""
         result_config = {}
         for config in self._origins:
-            print('result_config:', result_config, 'config.parse():', config.parse())
             result_config |= config.parse()
         return result_config

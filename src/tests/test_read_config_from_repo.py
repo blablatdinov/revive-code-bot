@@ -52,7 +52,7 @@ def test():
                 'cron: 3 4 * * *',
             ]),
         ),
-        DefaultReviveConfig(random.Random(0)),
+        DefaultReviveConfig(random.Random(0)),  # noqa: S311. Not secure issue
     ).parse()
 
     assert got == {'cron': '3 4 * * *', 'glob': '**/*', 'limit': 10}

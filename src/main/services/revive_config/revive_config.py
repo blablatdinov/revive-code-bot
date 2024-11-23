@@ -20,6 +20,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Revive bot config."""
+
 from typing import Protocol, TypedDict
 
 
@@ -32,5 +34,7 @@ class ConfigDict(TypedDict):
 
 
 class ReviveConfig(Protocol):
+    """Revive bot config."""
 
-    def parse(self) -> ConfigDict: ...
+    def parse(self) -> ConfigDict:
+        """Parsing."""

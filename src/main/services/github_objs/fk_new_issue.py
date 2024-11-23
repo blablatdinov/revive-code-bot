@@ -20,7 +20,9 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from typing import final, override, TypedDict
+"""Fk issue storage."""
+
+from typing import TypedDict, final, override
 
 import attrs
 

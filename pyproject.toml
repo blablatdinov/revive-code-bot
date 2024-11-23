@@ -77,6 +77,7 @@ fixable = [
   "F401",   # Unused import
   "Q000",   # Quotes
   "COM812", # Trailing comma missing
+  "ALL", # Trailing comma missing
 ]
 ignore = [
   "ANN",

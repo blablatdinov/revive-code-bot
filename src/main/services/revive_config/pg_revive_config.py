@@ -20,6 +20,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Revive config stored in postgres."""
+
 from typing import final, override
 
 import attrs
@@ -31,11 +33,13 @@ from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 @final
 @attrs.define(frozen=True)
 class PgReviveConfig(ReviveConfig):
+    """Revive config stored in postgres."""
 
     _repo_id: int
 
     @override
     def parse(self) -> ConfigDict:
+        """Fetch config from DB."""
         cfg = RepoConfig.objects.get(repo_id=self._repo_id)
         return ConfigDict({
             'limit': 10,

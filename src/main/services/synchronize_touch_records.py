@@ -20,6 +20,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Synchronize touch records."""
+
 import datetime
 from typing import Protocol, final, override
 
@@ -29,13 +31,16 @@ from main.models import TouchRecord
 
 
 class SynchronizeTouchRecords(Protocol):
+    """Synchronize touch records."""
 
-    def sync(self): ...
+    def sync(self):
+        """Sync."""
 
 
 @final
 @attrs.define(frozen=True)
 class PgSynchronizeTouchRecords:
+    """Synchronize touch records."""
 
     @override
     def sync(self, files: list[str], repo_id: int) -> None:

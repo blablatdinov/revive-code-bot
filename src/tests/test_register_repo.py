@@ -20,7 +20,6 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-import random
 from collections import namedtuple
 from typing import final
 
@@ -28,7 +27,6 @@ import attrs
 import pytest
 
 from main.services.github_objs.gh_repo_installation import GhRepoInstallation
-from main.services.revive_config.default_revive_config import DefaultReviveConfig
 
 pytestmark = [pytest.mark.django_db]
 
@@ -36,7 +34,7 @@ pytestmark = [pytest.mark.django_db]
 @final
 @attrs.define(frozen=True)
 class FkGh:
-    
+
     def get_repo(self, full_name):
         return FkRepo()
 
@@ -44,12 +42,12 @@ class FkGh:
 @final
 @attrs.define(frozen=True)
 class FkRepo:
-    
+
     def create_hook(self, name, config, events):
         pass
-    
+
     def get_contents(self, name):
-        return namedtuple('Content', 'decoded_content')(''.encode('utf-8'))
+        return namedtuple('Content', 'decoded_content')(b'')  # noqa: PYI024. Simple structure for test
 
 
 def test():

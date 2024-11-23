@@ -20,6 +20,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Github repository installation."""
+
 import random
 from typing import final, override
 
@@ -35,6 +37,7 @@ from main.services.revive_config.merged_config import MergedConfig
 @final
 @attrs.define(frozen=True)
 class GhRepoInstallation:
+    """Github repository installation."""
 
     _repos: list
     _installation_id: int

@@ -20,6 +20,8 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Revive bot config from github."""
+
 from contextlib import suppress
 from typing import final, override
 
@@ -34,12 +36,14 @@ from main.services.revive_config.str_config import StrReviveConfig
 @final
 @attrs.define(frozen=True)
 class GhReviveConfig(ReviveConfig):
+    """Revive bot config from github."""
 
     _gh_repo: Repository
     _default_config: ReviveConfig
 
     @override
     def parse(self) -> ConfigDict:
+        """Read from github."""
         variants = ('.revive-bot.yaml', '.revive-bot.yml')
         # TODO
         repo_config: dict[str, str | int] = {}
