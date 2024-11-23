@@ -21,6 +21,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 import re
+from pathlib import Path
 
 import pytest
 
@@ -28,15 +29,15 @@ from main.exceptions import InvalidaCronError
 from main.services.revive_config.str_config import StrReviveConfig
 
 
-def test():
+def test() -> None:
     got = StrReviveConfig('\n'.join([
         'limit: 10',
     ])).parse()
 
-    assert got == {'limit': 10}
+    assert got == {Path('limit'): 10}
 
 
-def test_invalid_cron():
+def test_invalid_cron() -> None:
     cron_expr = '*/61 * * * *'
     with pytest.raises(
         InvalidaCronError,

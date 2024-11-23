@@ -32,6 +32,7 @@ from github.Repository import Repository
 from main.exceptions import UnexpectedGhFileContentError
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 from main.services.revive_config.str_config import StrReviveConfig
+from main.types.gh_repository import GhRepository
 
 
 @final
@@ -39,7 +40,7 @@ from main.services.revive_config.str_config import StrReviveConfig
 class GhReviveConfig(ReviveConfig):
     """Revive bot config from github."""
 
-    _gh_repo: Repository
+    _gh_repo: GhRepository
     _default_config: ReviveConfig
 
     @override

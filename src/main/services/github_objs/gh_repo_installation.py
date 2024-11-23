@@ -23,7 +23,7 @@
 """Github repository installation."""
 
 import random
-from typing import final, override, Protocol
+from typing import Protocol, final, override
 
 import attrs
 from github import Github
