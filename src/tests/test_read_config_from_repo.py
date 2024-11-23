@@ -29,7 +29,6 @@ import pytest
 
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
-from main.types.gh_repository import GhContentFile, FkContentFile
 
 pytestmark = [pytest.mark.django_db]
 
@@ -40,11 +39,13 @@ class FkRepo:
 
     _origin: str
 
-    def get_contents(self, filepath: str) -> list[GhContentFile] | GhContentFile:
-        return FkContentFile.str_ctor(self._origin)
+    def get_contents(self, filepath: str):
+        return namedtuple('Content', 'decoded_content')(  # noqa: PYI024. Too simple case for typing.NamedTuple
+            self._origin.encode('utf-8'),
+        )
 
 
-def test() -> None:
+def test():
     got = GhReviveConfig(
         FkRepo(
             '\n'.join([
