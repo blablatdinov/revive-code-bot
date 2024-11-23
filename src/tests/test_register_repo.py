@@ -47,7 +47,9 @@ class FkRepo:
         pass
 
     def get_contents(self, name):
-        return namedtuple('Content', 'decoded_content')(b'')  # noqa: PYI024. Simple structure for test
+        return namedtuple('Content', 'decoded_content')(  # noqa: PYI024. Simple structure for test
+            'limit: 5'.encode('utf-8'),
+        )
 
 
 def test():
