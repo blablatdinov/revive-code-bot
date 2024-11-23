@@ -32,6 +32,7 @@ from git import Repo
 
 from main.models import GhRepo
 from main.services.github_objs.cloned_repo import ClonedRepo
+from main.services.github_objs.github_client import pygithub_client
 
 
 @final

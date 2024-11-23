@@ -23,29 +23,22 @@
 from typing import final, override
 
 import attrs
-import yaml
-from cron_validator import CronValidator
 
-from main.exceptions import InvalidaCronError
+from main.models import RepoConfig
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 
 
 @final
 @attrs.define(frozen=True)
-class StrReviveConfig(ReviveConfig):
+class PgReviveConfig(ReviveConfig):
 
-    _config: str
+    _repo_id: int
 
     @override
     def parse(self) -> ConfigDict:
-        parsed_config: ConfigDict | None = yaml.safe_load(self._config)
-        if not parsed_config:
-            return {}
-        if parsed_config.get('cron'):
-            # TODO: notify repository owner
-            try:
-                CronValidator.parse(parsed_config['cron'])
-            except ValueError as err:
-                msg = 'Cron expression: "{0}" has invalid format'.format(parsed_config['cron'])
-                raise InvalidaCronError(msg) from err
-        return parsed_config
+        cfg = RepoConfig.objects.get(repo_id=self._repo_id)
+        return ConfigDict({
+            'limit': 10,
+            'cron': cfg.cron_expression,
+            'glob': cfg.files_glob,
+        })

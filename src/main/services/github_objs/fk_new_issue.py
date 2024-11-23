@@ -20,11 +20,17 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from typing import final, override
+from typing import final, override, TypedDict
 
 import attrs
 
 from main.services.github_objs.new_issue import NewIssue
+
+
+class _IssueDict(TypedDict):
+
+    title: str
+    content: str
 
 
 @final
@@ -32,7 +38,7 @@ from main.services.github_objs.new_issue import NewIssue
 class FkNewIssue(NewIssue):
     """Fk issue storage."""
 
-    issues: list
+    issues: list[_IssueDict]
 
     def __init__(self) -> None:
         """Ctor."""

@@ -24,9 +24,11 @@ from contextlib import suppress
 from typing import final, override
 
 import attrs
+from github.GithubException import UnknownObjectException
 from github.Repository import Repository
 
-from main.services.revive_config import ConfigDict, ReviveConfig
+from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
+from main.services.revive_config.str_config import StrReviveConfig
 
 
 @final
@@ -49,9 +51,9 @@ class GhReviveConfig(ReviveConfig):
                     # TODO
                     raise Exception
                 # TODO
-                repo_config = read_config(  # type: ignore[assignment]
+                repo_config = StrReviveConfig(  # type: ignore[assignment]
                     file
                     .decoded_content
                     .decode('utf-8'),
-                )
+                ).parse()
         return default_config | repo_config

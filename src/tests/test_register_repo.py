@@ -20,13 +20,15 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+import random
 from collections import namedtuple
 from typing import final
 
 import attrs
 import pytest
 
-from main.service import register_repo
+from main.services.github_objs.gh_repo_installation import GhRepoInstallation
+from main.services.revive_config.default_revive_config import DefaultReviveConfig
 
 pytestmark = [pytest.mark.django_db]
 
@@ -51,4 +53,8 @@ class FkRepo:
 
 
 def test():
-    register_repo([{'full_name': 'owner_name/repo_name'}], 1, FkGh())
+    GhRepoInstallation(
+        [{'full_name': 'owner_name/repo_name'}],
+        1,
+        FkGh(),
+    ).register()

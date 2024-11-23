@@ -20,32 +20,30 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from typing import final, override
+"""Fork config."""
+
+from collections.abc import Iterable
+from typing import final
 
 import attrs
-import yaml
-from cron_validator import CronValidator
 
-from main.exceptions import InvalidaCronError
-from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
+from main.services.revive_config.revive_config import ReviveConfig
 
 
 @final
 @attrs.define(frozen=True)
-class StrReviveConfig(ReviveConfig):
+class MergedConfig(ReviveConfig):
 
-    _config: str
+    _origins: Iterable[ReviveConfig]
 
-    @override
-    def parse(self) -> ConfigDict:
-        parsed_config: ConfigDict | None = yaml.safe_load(self._config)
-        if not parsed_config:
-            return {}
-        if parsed_config.get('cron'):
-            # TODO: notify repository owner
-            try:
-                CronValidator.parse(parsed_config['cron'])
-            except ValueError as err:
-                msg = 'Cron expression: "{0}" has invalid format'.format(parsed_config['cron'])
-                raise InvalidaCronError(msg) from err
-        return parsed_config
+    @classmethod
+    def ctor(cls, *origins):
+        print(origins)
+        return cls(origins)
+
+    def parse(self):
+        result_config = {}
+        for config in self._origins:
+            print('result_config:', result_config, 'config.parse():', config.parse())
+            result_config |= config.parse()
+        return result_config

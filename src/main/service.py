@@ -22,41 +22,19 @@
 
 """Service utils."""
 
-import datetime
 import tempfile
 from pathlib import Path
 
-from django.conf import settings
 from django.template import Context, Template
-from github import Auth, Github
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
-from main.models import RepoConfig, TouchRecord
-
-
-def pygithub_client(installation_id: int) -> Github:
-    """Pygithub client."""
-    auth = Auth.AppAuth(
-        874924,
-        Path(settings.BASE_DIR / 'revive-code-bot.private-key.pem').read_text(encoding='utf-8'),
-    )
-    return Github(auth=auth.get_installation_auth(installation_id))
-
-
-def sync_touch_records(files: list[str], repo_id: int) -> None:
-    """Synching touch records."""
-    exists_touch_records = TouchRecord.objects.filter(gh_repo_id=repo_id)
-    for tr in exists_touch_records:
-        if tr.path in files:
-            tr.date = datetime.datetime.now(tz=datetime.UTC).date()
-            tr.save()
-    for file in files:
-        if not TouchRecord.objects.filter(gh_repo_id=repo_id, path=file).exists():
-            TouchRecord.objects.create(
-                gh_repo_id=repo_id,
-                path=file,
-                date=datetime.datetime.now(tz=datetime.UTC).date(),
-            )
+from main.models import RepoConfig
+from main.services.github_objs.cloned_repo import ClonedRepo
+from main.services.github_objs.new_issue import NewIssue
+from main.services.revive_config.disk_revive_config import DiskReviveConfig
+from main.services.revive_config.merged_config import MergedConfig
+from main.services.revive_config.pg_revive_config import PgReviveConfig
+from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
 
 
 def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
@@ -69,7 +47,10 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
             for x in repo_path.glob(repo_config.files_glob or '**/*')
             if '.git' not in str(x)
         ]
-        config = config_or_default(repo_path)
+        config = MergedConfig.ctor(
+            DiskReviveConfig(repo_path),
+            PgReviveConfig(repo_id),
+        ).parse()
         got = files_sorted_by_last_changes_from_db(
             repo_id,
             files_sorted_by_last_changes(repo_path, files_for_search),
@@ -102,7 +83,7 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
             'files': stripped_file_list,
         })),
     )
-    sync_touch_records(
+    PgSynchronizeTouchRecords().sync(
         stripped_file_list,
         repo_id,
     )

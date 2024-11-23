@@ -20,13 +20,16 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+import random
 from typing import final, override
 
 import attrs
 from github import Github
 
 from main.models import GhRepo, RepoConfig
-from main.services.revive_config.revive_config import ReviveConfig
+from main.services.revive_config.default_revive_config import DefaultReviveConfig
+from main.services.revive_config.gh_revive_config import GhReviveConfig
+from main.services.revive_config.merged_config import MergedConfig
 
 
 @final
@@ -36,7 +39,6 @@ class GhRepoInstallation:
     _repos: list
     _installation_id: int
     _gh: Github
-    _config: ReviveConfig
 
     @override
     def register(self):
@@ -57,7 +59,13 @@ class GhRepoInstallation:
                 },
                 ['issues', 'issue_comment', 'push'],
             )
+            config = MergedConfig.ctor(
+                GhReviveConfig(
+                    gh_repo,
+                    DefaultReviveConfig(random),
+                ),
+            )
             RepoConfig.objects.create(
                 repo=repo_db_record,
-                cron_expression=self._config.parse()['cron'],
+                cron_expression=config.parse()['cron'],
             )

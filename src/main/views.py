@@ -32,7 +32,11 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 
 from main.models import GhRepo
-from main.service import GhClonedRepo, GhNewIssue, process_repo, pygithub_client, register_repo
+from main.service import process_repo
+from main.services.github_objs.gh_cloned_repo import GhClonedRepo
+from main.services.github_objs.gh_new_issue import GhNewIssue
+from main.services.github_objs.gh_repo_installation import GhRepoInstallation
+from main.services.github_objs.github_client import pygithub_client
 
 
 def healthcheck(request):
@@ -53,7 +57,7 @@ def gh_webhook(request: HttpRequest):
         if gh_event in {'installation', 'installation_repositories'}:
             installation_id = request_json['installation']['id']
             gh = pygithub_client(installation_id)
-            register_repo(
+            GhRepoInstallation(
                 request_json['repositories_added'],
                 installation_id,
                 gh,

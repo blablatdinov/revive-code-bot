@@ -25,13 +25,13 @@ from typing import final, override
 
 import attrs
 
-from main.services.revive_config import ConfigDict, ReviveConfig
-from main.services.str_config import StrReviveConfig
+from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
+from main.services.revive_config.str_config import StrReviveConfig
 
 
 @final
 @attrs.define(frozen=True)
-class DefaultReviveConfig(ReviveConfig):
+class DiskReviveConfig(ReviveConfig):
 
     _repo_path: Path
 

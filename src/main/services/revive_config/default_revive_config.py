@@ -25,7 +25,7 @@ from typing import final, override
 
 import attrs
 
-from main.services.revive_config import ConfigDict, ReviveConfig
+from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 
 
 @final

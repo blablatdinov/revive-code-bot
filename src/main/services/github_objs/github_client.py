@@ -20,32 +20,16 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from typing import final, override
+from pathlib import Path
 
-import attrs
-import yaml
-from cron_validator import CronValidator
-
-from main.exceptions import InvalidaCronError
-from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
+from django.conf import settings
+from github import Auth, Github
 
 
-@final
-@attrs.define(frozen=True)
-class StrReviveConfig(ReviveConfig):
-
-    _config: str
-
-    @override
-    def parse(self) -> ConfigDict:
-        parsed_config: ConfigDict | None = yaml.safe_load(self._config)
-        if not parsed_config:
-            return {}
-        if parsed_config.get('cron'):
-            # TODO: notify repository owner
-            try:
-                CronValidator.parse(parsed_config['cron'])
-            except ValueError as err:
-                msg = 'Cron expression: "{0}" has invalid format'.format(parsed_config['cron'])
-                raise InvalidaCronError(msg) from err
-        return parsed_config
+def pygithub_client(installation_id: int) -> Github:
+    """Pygithub client."""
+    auth = Auth.AppAuth(
+        874924,
+        Path(settings.BASE_DIR / 'revive-code-bot.private-key.pem').read_text(encoding='utf-8'),
+    )
+    return Github(auth=auth.get_installation_auth(installation_id))

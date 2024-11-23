@@ -35,10 +35,10 @@ class SynchronizeTouchRecords(Protocol):
 
 @final
 @attrs.define(frozen=True)
-class PgSynchronizeTouchRecords():
+class PgSynchronizeTouchRecords:
 
     @override
-    def sync(files: list[str], repo_id: int) -> None:
+    def sync(self, files: list[str], repo_id: int) -> None:
         """Synching touch records."""
         exists_touch_records = TouchRecord.objects.filter(gh_repo_id=repo_id)
         for tr in exists_touch_records:

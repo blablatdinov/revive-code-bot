@@ -20,13 +20,15 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+import random
 from collections import namedtuple
 from typing import final
 
 import attrs
 import pytest
 
-from main.service import read_config_from_repo
+from main.services.revive_config.default_revive_config import DefaultReviveConfig
+from main.services.revive_config.gh_revive_config import GhReviveConfig
 
 pytestmark = [pytest.mark.django_db]
 
@@ -44,10 +46,13 @@ class FkRepo:
 
 
 def test():
-    got = read_config_from_repo(FkRepo(
-        '\n'.join([
-            'cron: 3 4 * * *',
-        ]),
-    ))
+    got = GhReviveConfig(
+        FkRepo(
+            '\n'.join([
+                'cron: 3 4 * * *',
+            ]),
+        ),
+        DefaultReviveConfig(random.Random(0)),
+    ).parse()
 
     assert got == {'cron': '3 4 * * *', 'glob': '**/*', 'limit': 10}
