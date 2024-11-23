@@ -24,10 +24,10 @@
 
 import datetime
 import tempfile
+from collections.abc import Generator
 from itertools import cycle
 from pathlib import Path
 from types import ModuleType
-from collections.abc import Generator
 
 import pytest
 from django.conf import settings

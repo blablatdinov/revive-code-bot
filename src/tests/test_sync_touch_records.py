@@ -24,9 +24,9 @@ import datetime
 from types import ModuleType
 
 import pytest
-
-from main.models import TouchRecord, GhRepo
 from time_machine import TimeMachineFixture
+
+from main.models import GhRepo, TouchRecord
 from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
 
 pytestmark = [pytest.mark.django_db]

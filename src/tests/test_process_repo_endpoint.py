@@ -21,10 +21,10 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 from types import ModuleType
-from django.test.client import Client
 
 import pytest
 from django.conf import settings
+from django.test.client import Client
 
 from main.models import GhRepo
 

@@ -21,7 +21,6 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 import re
-from pathlib import Path
 
 import pytest
 

@@ -21,8 +21,7 @@
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
 import random
-from collections import namedtuple
-from typing import final, Self
+from typing import Self, final
 
 import attrs
 import pytest

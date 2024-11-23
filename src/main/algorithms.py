@@ -24,7 +24,6 @@
 
 import datetime
 from collections import defaultdict
-from os import PathLike
 from pathlib import Path
 
 from git import Repo

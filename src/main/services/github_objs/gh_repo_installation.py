@@ -29,10 +29,10 @@ import attrs
 from github import Github
 
 from main.models import GhRepo, RepoConfig
+from main.services.github_objs.repo_installation import RegisteredRepoFromGithub
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
-from main.services.github_objs.repo_installation import RegisteredRepoFromGithub
 
 
 class RepoInstallation(Protocol):

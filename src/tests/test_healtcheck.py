@@ -23,7 +23,6 @@
 """Test healthcheck."""
 
 import pytest
-
 from django.test.client import Client
 
 pytestmark = [pytest.mark.django_db]
