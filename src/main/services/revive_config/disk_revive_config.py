@@ -27,9 +27,9 @@ from typing import final, override
 
 import attrs
 
+from main.exceptions import ConfigFileNotFoundError
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 from main.services.revive_config.str_config import StrReviveConfig
-from main.exceptions import ConfigFileNotFoundError
 
 
 @final

@@ -29,9 +29,9 @@ import attrs
 from github.GithubException import UnknownObjectException
 from github.Repository import Repository
 
+from main.exceptions import UnexpectedGhFileContentError
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 from main.services.revive_config.str_config import StrReviveConfig
-from main.exceptions import UnexpectedGhFileContentError
 
 
 @final
