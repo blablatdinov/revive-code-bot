@@ -124,7 +124,7 @@ def merge_rating(
     for file_points_map in file_point_maps:
         for file, points in file_points_map.items():
             res[file] += points
-    return dict(res)
+    return res
 
 
 def code_coverage_rating(coverage_xml: str):

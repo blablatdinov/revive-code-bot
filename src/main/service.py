@@ -24,13 +24,17 @@
 
 import tempfile
 from pathlib import Path
+from typing import TypedDict
 
 from django.template import Context, Template
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
+from main.models import GhRepo
 from main.services.github_objs.cloned_repo import ClonedRepo
+from main.services.github_objs.github_client import pygithub_client
 from main.services.github_objs.new_issue import NewIssue
 from main.services.revive_config.disk_revive_config import DiskReviveConfig
+from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
 from main.services.revive_config.pg_revive_config import PgReviveConfig
 from main.services.revive_config.pg_updated_revive_config import PgUpdatedReviveConfig
@@ -38,29 +42,38 @@ from main.services.revive_config.revive_config import ConfigDict
 from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
 
 
-def _define_files_for_search(repo_path: Path, config: ConfigDict) -> list[Path]:
-    return [
-        x
-        for x in repo_path.glob(config['glob'] or '**/*')
-        if '.git' not in str(x)  # TODO .github/workflows dir case
-    ]
+def update_config(repo_full_name: str):
+    """Update config."""
+    repo = GhRepo.objects.get(full_name=repo_full_name)
+    pg_revive_config = PgReviveConfig(repo.id)
+    PgUpdatedReviveConfig(
+        repo.id,
+        MergedConfig.ctor(
+            pg_revive_config,
+            GhReviveConfig(
+                pygithub_client(repo.installation_id).get_repo(repo.full_name),
+                pg_revive_config,
+            ),
+        ),
+    ).parse()
 
 
-def _sorted_file_list(repo_path: Path, file_list: dict[Path, int]):
-    return sorted(
-        [
-            (
-                str(path).replace(
-                    '{0}/'.format(repo_path),
-                    '',
-                ),
-                points,
-            )
-            for path, points in file_list.items()
-        ],
-        key=lambda x: (x[1], str(x[0])),
-        reverse=True,
-    )
+class _Repository(TypedDict):
+
+    default_branch: str
+    ref: str
+
+
+class _RequestForCheckBranchDefault(TypedDict):
+
+    repository: _Repository
+
+
+def is_default_branch(request_json: _RequestForCheckBranchDefault):
+    """Check repo branch is default."""
+    actual = 'refs/heads/{0}'.format(request_json['repository']['default_branch'])
+    default_branch = request_json['repository']['ref']
+    return actual == default_branch
 
 
 def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
@@ -99,4 +112,29 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
     PgSynchronizeTouchRecords().sync(
         file_list,
         repo_id,
+    )
+
+
+def _define_files_for_search(repo_path: Path, config: ConfigDict) -> list[Path]:
+    return [
+        x
+        for x in repo_path.glob(config['glob'] or '**/*')
+        if '.git' not in str(x)  # TODO .github/workflows dir case
+    ]
+
+
+def _sorted_file_list(repo_path: Path, file_list: dict[Path, int]):
+    return sorted(
+        [
+            (
+                str(path).replace(
+                    '{0}/'.format(repo_path),
+                    '',
+                ),
+                points,
+            )
+            for path, points in file_list.items()
+        ],
+        key=lambda x: (x[1], str(x[0])),
+        reverse=True,
     )

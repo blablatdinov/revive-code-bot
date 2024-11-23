@@ -32,7 +32,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 
 from main.models import GhRepo
-from main.service import process_repo
+from main.service import is_default_branch, process_repo, update_config
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
 from main.services.github_objs.gh_repo_installation import GhRepoInstallation
@@ -68,12 +68,9 @@ def gh_webhook(request: HttpRequest):
             pg_repo.has_webhook = True
             pg_repo.save()
         elif gh_event == 'push':
-            if (
-                'refs/heads/{0}'.format(request_json['repository']['default_branch'])
-                != request_json['repository']['ref']
-            ):
-                # update_config(GhRepo.objects.get(full_name=request_json['repository']['full_name']))
+            if not is_default_branch(request_json):
                 return HttpResponse()
+            update_config(request_json['repository']['full_name'])
         return HttpResponse()
 
 
