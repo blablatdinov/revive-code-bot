@@ -29,3 +29,11 @@ class AppError(Exception):
 
 class InvalidaCronError(AppError):
     """Invalid cron error."""
+
+
+class ConfigFileNotFoundError(AppError):
+    """Config file not found error."""
+
+
+class UnexpectedGhFileContentError(AppError):
+    """Unexpected github file content error."""

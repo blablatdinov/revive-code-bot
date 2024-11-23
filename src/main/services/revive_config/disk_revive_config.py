@@ -29,6 +29,7 @@ import attrs
 
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 from main.services.revive_config.str_config import StrReviveConfig
+from main.exceptions import ConfigFileNotFoundError
 
 
 @final
@@ -43,5 +44,5 @@ class DiskReviveConfig(ReviveConfig):
         """Parsing file from file."""
         config_file = list(self._repo_path.glob('.revive-bot.*'))
         if not config_file:
-            raise Exception  # TODO: custom exception
+            raise ConfigFileNotFoundError
         return StrReviveConfig(next(iter(config_file)).read_text()).parse()

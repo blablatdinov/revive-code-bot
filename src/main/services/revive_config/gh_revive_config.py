@@ -31,6 +31,7 @@ from github.Repository import Repository
 
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 from main.services.revive_config.str_config import StrReviveConfig
+from main.exceptions import UnexpectedGhFileContentError
 
 
 @final
@@ -52,8 +53,7 @@ class GhReviveConfig(ReviveConfig):
             with suppress(UnknownObjectException):
                 file = self._gh_repo.get_contents(variant)
                 if isinstance(file, list):
-                    # TODO
-                    raise Exception
+                    raise UnexpectedGhFileContentError
                 # TODO
                 repo_config = StrReviveConfig(  # type: ignore[assignment]
                     file
