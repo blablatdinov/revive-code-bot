@@ -33,13 +33,13 @@ from main.models import TouchRecord
 class SynchronizeTouchRecords(Protocol):
     """Synchronize touch records."""
 
-    def sync(self):
+    def sync(self, files: list[str], repo_id: int):
         """Sync."""
 
 
 @final
 @attrs.define(frozen=True)
-class PgSynchronizeTouchRecords:
+class PgSynchronizeTouchRecords(SynchronizeTouchRecords):
     """Synchronize touch records."""
 
     @override

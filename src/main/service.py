@@ -34,6 +34,7 @@ from main.services.github_objs.new_issue import NewIssue
 from main.services.revive_config.disk_revive_config import DiskReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
 from main.services.revive_config.pg_revive_config import PgReviveConfig
+from main.services.revive_config.pg_updated_revive_config import PgUpdatedReviveConfig
 from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
 
 
@@ -47,16 +48,19 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
             for x in repo_path.glob(repo_config.files_glob or '**/*')
             if '.git' not in str(x)
         ]
-        config = MergedConfig.ctor(
-            DiskReviveConfig(repo_path),
-            PgReviveConfig(repo_id),
+        config = PgUpdatedReviveConfig(
+            repo_id,
+            MergedConfig.ctor(
+                PgReviveConfig(repo_id),
+                DiskReviveConfig(repo_path),
+            ),
         ).parse()
         got = files_sorted_by_last_changes_from_db(
             repo_id,
             files_sorted_by_last_changes(repo_path, files_for_search),
             repo_path,
         )
-    stripped_file_list = sorted(
+    stripped_file_list: list[tuple[str, int]] = sorted(
         [
             (
                 str(path).replace(
@@ -70,7 +74,7 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
         key=lambda x: (x[1], str(x[0])),
         reverse=True,
     )[:config['limit']]
-    stripped_file_list = [file for file, _ in stripped_file_list]
+    file_list: list[str] = [file for file, _ in stripped_file_list]
     new_issue.create(
         'Issue from revive-code-bot',
         Template('\n'.join([
@@ -80,10 +84,10 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue):
             '2. Clean files must be marked in checklist',
             '3. Close issue',
         ])).render(Context({
-            'files': stripped_file_list,
+            'files': file_list,
         })),
     )
     PgSynchronizeTouchRecords().sync(
-        stripped_file_list,
+        file_list,
         repo_id,
     )

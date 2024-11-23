@@ -36,15 +36,16 @@ class _IssueDict(TypedDict):
 
 
 @final
-@attrs.define(frozen=True)
+@attrs.define
 class FkNewIssue(NewIssue):
     """Fk issue storage."""
 
     issues: list[_IssueDict]
 
-    def __init__(self) -> None:
+    @classmethod
+    def ctor(cls) -> NewIssue:
         """Ctor."""
-        self.issues = []
+        return cls([])
 
     @override
     def create(self, title: str, content: str) -> None:

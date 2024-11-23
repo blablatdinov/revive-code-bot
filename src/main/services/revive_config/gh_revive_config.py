@@ -46,18 +46,15 @@ class GhReviveConfig(ReviveConfig):
     def parse(self) -> ConfigDict:
         """Read from github."""
         variants = ('.revive-bot.yaml', '.revive-bot.yml')
-        # TODO
-        repo_config: dict[str, str | int] = {}
-        default_config = self._default_config.parse()
+        config = self._default_config.parse()
         for variant in variants:
             with suppress(UnknownObjectException):
                 file = self._gh_repo.get_contents(variant)
                 if isinstance(file, list):
                     raise UnexpectedGhFileContentError
-                # TODO
-                repo_config = StrReviveConfig(  # type: ignore[assignment]
+                config |= StrReviveConfig(
                     file
                     .decoded_content
                     .decode('utf-8'),
                 ).parse()
-        return default_config | repo_config
+        return config

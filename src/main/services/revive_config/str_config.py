@@ -26,9 +26,9 @@ from typing import final, override
 
 import attrs
 import yaml
-from cron_validator import CronValidator
+from cron_validator import CronValidator  # type: ignore [import-untyped]
 
-from main.exceptions import InvalidaCronError
+from main.exceptions import InvalidaCronError, InvalidConfigError
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 
 
@@ -44,7 +44,7 @@ class StrReviveConfig(ReviveConfig):
         """Parse config."""
         parsed_config: ConfigDict | None = yaml.safe_load(self._config)
         if not parsed_config:
-            return {}
+            raise InvalidConfigError
         if parsed_config.get('cron'):
             # TODO: notify repository owner
             try:
