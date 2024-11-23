@@ -33,28 +33,35 @@ pytestmark = [pytest.mark.django_db]
 
 @final
 @attrs.define(frozen=True)
-class FkGh:
+class FkContent:
 
-    def get_repo(self, full_name):
-        return FkRepo()
+    decoded_content: bytes
 
 
 @final
 @attrs.define(frozen=True)
 class FkRepo:
 
-    def create_hook(self, name, config, events):
+    def create_hook(self, name: str, config: dict[str, str], events: list[str]) -> None:
         pass
 
-    def get_contents(self, name):
-        return namedtuple('Content', 'decoded_content')(  # noqa: PYI024. Simple structure for test
-            b'limit: 5',
-        )
+    def get_contents(self, name: str) -> FkContent:
+        return FkContent(b'limit: 5')
 
 
-def test():
+@final
+@attrs.define(frozen=True)
+class FkGh:
+
+    def get_repo(self, full_name: str) -> FkRepo:
+        return FkRepo()
+
+
+# TODO: create asserts
+def test() -> None:
     GhRepoInstallation(
         [{'full_name': 'owner_name/repo_name'}],
         1,
-        FkGh(),
+        # Too hard create Protocol for github.Github
+        FkGh(),  # type: ignore [arg-type]
     ).register()

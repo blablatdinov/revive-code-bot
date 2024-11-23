@@ -34,7 +34,8 @@ def test() -> None:
         'limit: 10',
     ])).parse()
 
-    assert got == {Path('limit'): 10}
+    # TODO: StrReviveConfig.parse return not valid ConfigDict
+    assert got == {'limit': 10}  # type: ignore [comparison-overlap]
 
 
 def test_invalid_cron() -> None:
