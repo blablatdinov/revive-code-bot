@@ -20,38 +20,34 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-import random
-from collections import namedtuple
-from typing import final
+"""Github repository protocol."""
+
+from typing import Protocol, final
 
 import attrs
-import pytest
 
-from main.services.revive_config.default_revive_config import DefaultReviveConfig
-from main.services.revive_config.gh_revive_config import GhReviveConfig
-from main.types.gh_repository import GhContentFile, FkContentFile
 
-pytestmark = [pytest.mark.django_db]
+class GhContentFile(Protocol):
+
+    @property
+    def decoded_content(self) -> bytes: ...
 
 
 @final
 @attrs.define(frozen=True)
-class FkRepo:
+class FkContentFile(GhContentFile):
 
-    _origin: str
+    _origin: bytes
 
-    def get_contents(self, filepath: str) -> list[GhContentFile] | GhContentFile:
-        return FkContentFile.str_ctor(self._origin)
+    @classmethod
+    def str_ctor(cls, str_input: str) -> GhContentFile:
+        return cls(str_input.encode('utf-8'))
+
+    @property
+    def decoded_content(self) -> bytes:
+        return self._origin
 
 
-def test() -> None:
-    got = GhReviveConfig(
-        FkRepo(
-            '\n'.join([
-                'cron: 3 4 * * *',
-            ]),
-        ),
-        DefaultReviveConfig(random.Random(0)),  # noqa: S311. Not secure issue
-    ).parse()
+class GhRepository(Protocol):
 
-    assert got == {'cron': '3 4 * * *', 'glob': '**/*', 'limit': 10}
+    def get_contents(self, filepath: str) -> list[GhContentFile] | GhContentFile: ...
