@@ -65,7 +65,7 @@ def files_sorted_by_last_changes(
 def files_sorted_by_last_changes_from_db(
     repo_id: int,
     real_points: dict[Path, int],
-    relative_to: PathLike,
+    relative_to: Path,
 ) -> dict[Path, int]:
     """Count days after last file changing."""
     today = datetime.datetime.now(tz=datetime.UTC).date()
@@ -132,5 +132,5 @@ def code_coverage_rating(coverage_xml: str) -> dict[Path, int]:
     tree = etree.fromstring(coverage_xml, etree.XMLParser())  # noqa: S320 . TODO
     return {
         Path(file.xpath('./@name')[0]): int(float(file.xpath('./@line-rate')[0]) * 100)  # type: ignore [union-attr,index,arg-type]
-        for file in tree.xpath('.//class')  # type: ignore [union-attr,index,arg-type]
+        for file in tree.xpath('.//class')  # type: ignore [union-attr]
     }
