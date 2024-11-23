@@ -43,7 +43,7 @@ cron-validator = "1.0.8"
 [tool.poetry.group.dev.dependencies]
 pytest = "8.3.3"
 isort = "5.13.2"
-ruff = "0.7.3"
+ruff = "0.8.0"
 wemake-python-styleguide = "0.19.2"
 refurb = "2.0.0"
 pytest-cov = "6.0.0"
@@ -80,7 +80,7 @@ fixable = [
   "ALL", # Trailing comma missing
 ]
 ignore = [
-  "ANN",
+  # "ANN",
   # --------------------
   "ANN101",  # Missing type annotation for `self` in method
   "ANN102",  # Missing type annotation for `cls` in classmethod
