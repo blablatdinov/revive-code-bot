@@ -31,7 +31,6 @@ import jwt
 import requests
 from django.conf import settings
 from git import Repo
-from django.conf import settings
 
 from main.models import GhRepo
 from main.services.github_objs.cloned_repo import ClonedRepo
