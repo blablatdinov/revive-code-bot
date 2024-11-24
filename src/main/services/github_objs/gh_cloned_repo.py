@@ -31,6 +31,7 @@ import jwt
 import requests
 from django.conf import settings
 from git import Repo
+from django.conf import settings
 
 from main.models import GhRepo
 from main.services.github_objs.cloned_repo import ClonedRepo
@@ -51,9 +52,12 @@ class GhClonedRepo(ClonedRepo):
         repo = gh.get_repo(self._gh_repo.full_name)
         gh.close()
         now = int(datetime.datetime.now(tz=datetime.UTC).timestamp())
-        signing_key = Path(settings.BASE_DIR / 'revive-code-bot.private-key.pem').read_bytes()
         payload = {'iat': now, 'exp': now + 600, 'iss': 874924}
-        encoded_jwt = jwt.encode(payload, signing_key, algorithm='RS256')
+        encoded_jwt = jwt.encode(
+            payload,
+            settings.GH_APP_KEY.encode('utf-8'),
+            algorithm='RS256',
+        )
         response = requests.post(
             'https://api.github.com/app/installations/{0}/access_tokens'.format(
                 self._gh_repo.installation_id,
