@@ -71,8 +71,10 @@ class _RequestForCheckBranchDefault(TypedDict):
 
 def is_default_branch(request_json: _RequestForCheckBranchDefault) -> bool:
     """Check repo branch is default."""
+    from pprint import pprint
+    pprint(request_json)
     actual = 'refs/heads/{0}'.format(request_json['repository']['default_branch'])
-    default_branch = request_json['repository']['ref']
+    default_branch = request_json['ref']
     return actual == default_branch
 
 
