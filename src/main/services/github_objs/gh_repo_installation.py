@@ -27,8 +27,8 @@ from typing import Protocol, final, override
 
 import attrs
 import requests
-from github import Github
 from django.conf import settings
+from github import Github
 
 from main.models import GhRepo, RepoConfig
 from main.services.github_objs.repo_installation import RegisteredRepoFromGithub

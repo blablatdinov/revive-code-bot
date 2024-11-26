@@ -27,8 +27,8 @@ from pathlib import Path
 from typing import TypedDict
 
 import requests
-from django.template import Context, Template
 from django.conf import settings
+from django.template import Context, Template
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
 from main.models import GhRepo
