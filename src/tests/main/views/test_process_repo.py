@@ -28,7 +28,7 @@ from pathlib import Path
 import pytest
 from django.conf import settings
 
-from main.models import GhRepo, RepoStatusEnum
+from main.models import RepoStatusEnum
 
 pytestmark = [pytest.mark.django_db]
 
@@ -56,20 +56,7 @@ def mock_github(mock_http):
         'https://api.github.com:443/repos/blablatdinov/gotemir',
         status_code=403,
     )
-    # mock_http.post(
-    #     'https://api.github.com:443/repos/blablatdinov/gotemir/hooks',
-    #     text=Path(settings.BASE_DIR / 'tests/fixtures/gh_hooks_response.json').read_text(encoding='utf-8'),
-    # )
     return mock_http
-
-
-# @pytest.fixture
-# def mock_permission_denied(mock_http):
-#     mock_http.register_uri(
-#         'POST',
-#         re.compile(r'https://api.github.com:443/app/installations/\d+/access_tokens'),
-#         text=Path(settings.BASE_DIR / 'tests/fixtures/gh_app_access_tokens_response.json').read_text(encoding='utf-8'),
-#     )
 
 
 @pytest.mark.integration
