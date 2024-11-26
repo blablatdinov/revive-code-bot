@@ -42,11 +42,11 @@ def gh_repo(baker):
 def mock_github(mock_http):
     mock_http.post(
         'https://api.github.com:443/app/installations/1/access_tokens',
-        text=Path('src/tests/fixtures/gh_app_access_tokens_response.json').read_text(encoding='utf-8'),
+        text=Path(settings.BASE_DIR / 'tests/fixtures/gh_app_access_tokens_response.json').read_text(encoding='utf-8'),
     )
     mock_http.get(
         'https://api.github.com:443/repos/blablatdinov/gotemir',
-        text=Path('src/tests/fixtures/gh_repos_response.json').read_text(encoding='utf-8'),
+        text=Path(settings.BASE_DIR / 'tests/fixtures/gh_repos_response.json').read_text(encoding='utf-8'),
     )
     return mock_http
 
