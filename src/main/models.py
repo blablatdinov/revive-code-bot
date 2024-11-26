@@ -29,6 +29,7 @@ from django.db import models
 
 @final
 class RepoStatusEnum(models.TextChoices):
+    """Repository status."""
 
     active = 'active'
     inactive = 'inactive'
