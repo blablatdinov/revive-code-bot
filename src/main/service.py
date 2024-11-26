@@ -28,6 +28,7 @@ from typing import TypedDict
 
 import requests
 from django.template import Context, Template
+from django.conf import settings
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
 from main.models import GhRepo
@@ -58,7 +59,7 @@ def update_config(repo_full_name: str) -> None:
         ),
     ).parse()
     response = requests.put(
-        '{0}/api/jobs',
+        '{0}/api/jobs'.format(settings.SCHEDULER_HOST),
         {
             'repo_id': repo.id,
             'cron_expression': config['cron'],

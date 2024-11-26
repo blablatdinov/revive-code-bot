@@ -28,6 +28,7 @@ from typing import Protocol, final, override
 import attrs
 import requests
 from github import Github
+from django.conf import settings
 
 from main.models import GhRepo, RepoConfig
 from main.services.github_objs.repo_installation import RegisteredRepoFromGithub
@@ -82,7 +83,7 @@ class GhRepoInstallation(RepoInstallation):
                 cron_expression=config.parse()['cron'],
             )
             response = requests.put(
-                '{0}/api/jobs',
+                '{0}/api/jobs'.format(settings.SCHEDULER_HOST),
                 {
                     'repo_id': gh_repo.id,
                     'cron_expression': config.parse()['cron'],
