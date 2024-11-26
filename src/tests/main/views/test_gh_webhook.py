@@ -27,6 +27,7 @@ from pathlib import Path
 
 import pytest
 from django.conf import settings
+
 from main.models import GhRepo
 
 pytestmark = [pytest.mark.django_db]
@@ -147,8 +148,6 @@ def test_filled_revive_config(anon, gh_repo):
     assert config.cron_expression == '16 4 * * *'
 
 
-# @pytest.mark.usefixtures('_remove_exist_webhook')
-# @pytest.mark.integration
 def test_add_installation(client, empty_revive_config) -> None:
     response = client.post(
         '/hook/github',
