@@ -85,7 +85,7 @@ class GhRepoInstallation(RepoInstallation):
             response = requests.put(
                 '{0}/api/jobs'.format(settings.SCHEDULER_HOST),
                 {
-                    'repo_id': gh_repo.id,
+                    'repo_id': repo_db_record.id,
                     'cron_expression': config.parse()['cron'],
                 },
                 timeout=1,
