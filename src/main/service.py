@@ -66,6 +66,7 @@ class _Repository(TypedDict):
 
 class _RequestForCheckBranchDefault(TypedDict):
 
+    ref: str
     repository: _Repository
 
 
