@@ -35,7 +35,12 @@ pytestmark = [pytest.mark.django_db]
 
 @pytest.fixture
 def gh_repo(baker):
-    repo = baker.make('main.GhRepo', full_name='blablatdinov/gotemir', installation_id=1)
+    repo = baker.make(
+        'main.GhRepo',
+        full_name='blablatdinov/gotemir',
+        installation_id=1,
+        status=RepoStatusEnum.active,
+    )
     baker.make('main.RepoConfig', repo=repo)
     return repo
 
@@ -185,6 +190,7 @@ def test_filled_revive_config(anon, gh_repo):
     config = gh_repo.repoconfig_set.earliest('id')
 
     assert response.status_code == 200
+    assert response.content == b'Config updated'
     assert config.cron_expression == '16 4 * * *'
 
 
