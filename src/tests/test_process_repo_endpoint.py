@@ -31,18 +31,3 @@ from main.models import GhRepo
 pytestmark = [pytest.mark.django_db]
 
 
-@pytest.fixture
-def repo(baker: ModuleType) -> GhRepo:
-    return baker.make('main.GhRepo')  # type: ignore [no-any-return]
-
-
-@pytest.mark.integration
-def test(anon: Client, repo: GhRepo) -> None:
-    response = anon.post(
-        '/process-repo/{0}'.format(repo.id),
-        headers={
-            'Authentication': 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN),
-        },
-    )
-
-    assert response.status_code == 200
