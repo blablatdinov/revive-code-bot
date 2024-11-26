@@ -20,27 +20,28 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-from main.services.revive_config.fk_revive_config import FkReviveConfig
-from main.services.revive_config.merged_config import MergedConfig
-from main.services.revive_config.revive_config import ConfigDict
+"""Revive bot config from file."""
+
+from typing import final, override
+
+import attrs
+
+from main.exceptions import ConfigFileNotFoundError
+from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 
 
-def test() -> None:
-    got = MergedConfig.ctor(
-        FkReviveConfig(ConfigDict({
-            'cron': '* * * * *',
-            'limit': 20,
-            'glob': '**/*.js',
-        })),
-        FkReviveConfig(ConfigDict({
-            'cron': '1 1 1 1 1',
-            'limit': 10,
-            'glob': '**/*.py',
-        })),
-    ).parse()
+@final
+@attrs.define(frozen=True)
+class SafeDiskReviveConfig(ReviveConfig):
+    """Handle exception for DiskReviveConfig."""
 
-    assert got == {
-        'cron': '1 1 1 1 1',
-        'glob': '**/*.py',
-        'limit': 10,
-    }
+    _origin: ReviveConfig
+    _analog: ReviveConfig
+
+    @override
+    def parse(self) -> ConfigDict:
+        """Parsing file from file."""
+        try:
+            return self._origin.parse()
+        except ConfigFileNotFoundError:
+            return self._analog.parse()
