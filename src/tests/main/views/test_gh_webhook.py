@@ -25,9 +25,8 @@
 import re
 from pathlib import Path
 
-from django.conf import settings
-
 import pytest
+from django.conf import settings
 
 pytestmark = [pytest.mark.django_db]
 
@@ -43,13 +42,13 @@ def gh_repo(baker):
 def mock_github(mock_http):
     mock_http.post(
         'https://api.github.com:443/app/installations/1/access_tokens',
-        text=Path('src/tests/fixtures/gh_app_access_tokens_response.json').read_text(),
+        text=Path('src/tests/fixtures/gh_app_access_tokens_response.json').read_text(encoding='utf-8'),
     )
     mock_http.get(
         'https://api.github.com:443/repos/blablatdinov/gotemir',
-        text=Path('src/tests/fixtures/gh_repos_response.json').read_text(),
+        text=Path('src/tests/fixtures/gh_repos_response.json').read_text(encoding='utf-8'),
     )
-    yield mock_http
+    return mock_http
 
 
 @pytest.fixture
