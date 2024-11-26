@@ -26,6 +26,7 @@ import random
 from typing import Protocol, final, override
 
 import attrs
+import requests
 from github import Github
 
 from main.models import GhRepo, RepoConfig
@@ -80,3 +81,12 @@ class GhRepoInstallation(RepoInstallation):
                 repo=repo_db_record,
                 cron_expression=config.parse()['cron'],
             )
+            response = requests.put(
+                '{0}/api/jobs',
+                {
+                    'repo_id': gh_repo.id,
+                    'cron_expression': config.parse()['cron'],
+                },
+                timeout=1,
+            )
+            response.raise_for_status()

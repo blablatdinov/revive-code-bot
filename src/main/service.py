@@ -26,6 +26,7 @@ import tempfile
 from pathlib import Path
 from typing import TypedDict
 
+import requests
 from django.template import Context, Template
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
@@ -46,7 +47,7 @@ def update_config(repo_full_name: str) -> None:
     """Update config."""
     repo = GhRepo.objects.get(full_name=repo_full_name)
     pg_revive_config = PgReviveConfig(repo.id)
-    PgUpdatedReviveConfig(
+    config = PgUpdatedReviveConfig(
         repo.id,
         MergedConfig.ctor(
             pg_revive_config,
@@ -56,6 +57,15 @@ def update_config(repo_full_name: str) -> None:
             ),
         ),
     ).parse()
+    response = requests.put(
+        '{0}/api/jobs',
+        {
+            'repo_id': repo.id,
+            'cron_expression': config['cron'],
+        },
+        timeout=1,
+    )
+    response.raise_for_status()
 
 
 class _Repository(TypedDict):
