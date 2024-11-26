@@ -76,7 +76,6 @@ def mock_github_permission_denied(mock_github):
     return mock_github
 
 
-
 @pytest.fixture
 def empty_revive_config(mock_github):
     mock_github.register_uri(
