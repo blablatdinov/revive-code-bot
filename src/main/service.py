@@ -22,8 +22,8 @@
 
 """Service utils."""
 
-import tempfile
 import random
+import tempfile
 from pathlib import Path
 from typing import TypedDict
 
@@ -33,10 +33,11 @@ from django.template import Context, Template
 from github.GithubException import GithubException
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
-from main.models import GhRepo, RepoStatusEnum, RepoConfig
+from main.models import GhRepo, RepoConfig, RepoStatusEnum
 from main.services.github_objs.cloned_repo import ClonedRepo
 from main.services.github_objs.github_client import github_repo
 from main.services.github_objs.new_issue import NewIssue
+from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.disk_revive_config import DiskReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
@@ -44,11 +45,11 @@ from main.services.revive_config.pg_revive_config import PgReviveConfig
 from main.services.revive_config.pg_updated_revive_config import PgUpdatedReviveConfig
 from main.services.revive_config.revive_config import ConfigDict
 from main.services.revive_config.safe_disk_revive_config import SafeDiskReviveConfig
-from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
 
 
 def get_or_create_repo(repo_full_name: str, installation_id: int) -> GhRepo:
+    """Get or create repository db record."""
     pg_repo = GhRepo.objects.filter(full_name=repo_full_name)
     if pg_repo.exists():
         return pg_repo.earliest('id')

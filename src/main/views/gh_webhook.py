@@ -28,10 +28,9 @@ from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from main.models import GhRepo, RepoStatusEnum
-from main.service import is_default_branch, update_config, get_or_create_repo
+from main.models import RepoStatusEnum
+from main.service import get_or_create_repo, is_default_branch, update_config
 from main.services.github_objs.gh_repo_installation import GhRepoInstallation
-from main.services.github_objs.github_client import github_repo
 
 
 @csrf_exempt

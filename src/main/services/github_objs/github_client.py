@@ -28,8 +28,8 @@ from pathlib import Path
 
 from django.conf import settings
 from github import Auth, Github
-from github.Repository import Repository
 from github.GithubException import GithubException, UnknownObjectException
+from github.Repository import Repository
 
 
 def github_repo(installation_id: int, full_name: str) -> Repository:
