@@ -51,23 +51,23 @@ from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
 def get_or_create_repo(repo_full_name, installation_id) -> GhRepo:
     pg_repo = GhRepo.objects.filter(full_name=repo_full_name)
     if pg_repo.exists():
-        return pg_repo.first()
-    pg_repo = GhRepo.objects.create(
+        return pg_repo.earliest('id')
+    new_repo = GhRepo.objects.create(
         full_name=repo_full_name,
         installation_id=installation_id,
         has_webhook=True,
     )
     config = MergedConfig.ctor(
         GhReviveConfig(
-            pg_repo,
+            github_repo(installation_id, repo_full_name),
             DefaultReviveConfig(random),
         ),
     )
     RepoConfig.objects.create(
-        repo=pg_repo,
+        repo=new_repo,
         cron_expression=config.parse()['cron'],
     )
-    return pg_repo
+    return new_repo
 
 
 def update_config(repo_full_name: str) -> None:
