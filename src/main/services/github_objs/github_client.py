@@ -29,7 +29,7 @@ from pathlib import Path
 from django.conf import settings
 from github import Auth, Github
 from github.Repository import Repository
-from github.GithubException import GithubException
+from github.GithubException import GithubException, UnknownObjectException
 
 
 def github_repo(installation_id: int, full_name: str) -> Repository:
@@ -44,10 +44,7 @@ def github_repo(installation_id: int, full_name: str) -> Repository:
                 Path(settings.BASE_DIR / 'revive-code-bot.private-key.pem').read_text(encoding='utf-8'),
             ).get_installation_auth(installation_id),
         ).get_repo(full_name)
-    except GithubException:
+    except (GithubException, UnknownObjectException):
         return Github(
-            auth=Auth.Login(
-                settings.GH_LOGIN,
-                settings.GH_PASSWORD,
-            ).get_installation_auth(installation_id),
+            auth=Auth.Token(settings.GH_TOKEN),
         ).get_repo(full_name)

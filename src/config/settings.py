@@ -119,6 +119,4 @@ GH_APP_KEY = (BASE_DIR / 'revive-code-bot.private-key.pem').read_text()
 
 SCHEDULER_HOST = env('SCHEDULER_HOST')
 
-GH_LOGIN = env('GH_LOGIN')
-
-GH_PASSWORD = env('GH_PASSWORD')
+GH_TOKEN = env('GH_TOKEN')
