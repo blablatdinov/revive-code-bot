@@ -48,7 +48,7 @@ from main.services.revive_config.default_revive_config import DefaultReviveConfi
 from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
 
 
-def get_or_create_repo(repo_full_name, installation_id) -> GhRepo:
+def get_or_create_repo(repo_full_name: str, installation_id: int) -> GhRepo:
     pg_repo = GhRepo.objects.filter(full_name=repo_full_name)
     if pg_repo.exists():
         return pg_repo.earliest('id')

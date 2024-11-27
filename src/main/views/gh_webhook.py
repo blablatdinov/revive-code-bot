@@ -50,8 +50,8 @@ def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911. TODO
             ).register()
             return HttpResponse('Repos installed')
         pg_repo = get_or_create_repo(
-            request_json['repository']['full_name'],
             request.headers['X-Github-Hook-Installation-Target-Id'],
+            request_json['repository']['full_name'],
         )
         if gh_event == 'ping':
             return HttpResponse('Webhooks installed')
