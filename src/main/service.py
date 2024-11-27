@@ -167,7 +167,7 @@ def _define_files_for_search(repo_path: Path, config: ConfigDict) -> list[Path]:
     return [
         x
         for x in repo_path.glob(config['glob'] or '**/*')
-        if '.git' not in str(x)  # TODO .github/workflows dir case
+        if '.git' not in str(x) and x.is_file()  # TODO .github/workflows dir case
     ]
 
 
