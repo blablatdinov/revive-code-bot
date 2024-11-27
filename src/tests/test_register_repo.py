@@ -72,6 +72,4 @@ def test() -> None:
     GhRepoInstallation(
         [{'full_name': 'owner_name/repo_name'}],
         1,
-        # Too hard create Protocol for github.Github
-        FkGh(),  # type: ignore [arg-type]
     ).register()

@@ -31,7 +31,7 @@ from django.views.decorators.csrf import csrf_exempt
 from main.models import GhRepo, RepoStatusEnum
 from main.service import is_default_branch, update_config
 from main.services.github_objs.gh_repo_installation import GhRepoInstallation
-from main.services.github_objs.github_client import pygithub_client
+from main.services.github_objs.github_client import github_repo
 
 
 @csrf_exempt
@@ -44,13 +44,10 @@ def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911. TODO
         request_json = json.loads(request.body)
         if gh_event in {'installation', 'installation_repositories'}:
             installation_id = request_json['installation']['id']
-            gh = pygithub_client(installation_id)
             GhRepoInstallation(
                 request_json['repositories_added'],
                 installation_id,
-                gh,
             ).register()
-            gh.close()
             return HttpResponse('Repos installed')
         elif gh_event == 'ping':
             pg_repo = GhRepo.objects.get(full_name=request_json['repository']['full_name'])

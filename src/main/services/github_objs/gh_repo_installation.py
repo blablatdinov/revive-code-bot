@@ -35,6 +35,7 @@ from main.services.github_objs.repo_installation import RegisteredRepoFromGithub
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
+from main.services.github_objs.github_client import github_repo
 
 
 class RepoInstallation(Protocol):
@@ -51,7 +52,6 @@ class GhRepoInstallation(RepoInstallation):
 
     _repos: list[RegisteredRepoFromGithub]
     _installation_id: int
-    _gh: Github
 
     @override
     def register(self) -> None:
@@ -62,7 +62,7 @@ class GhRepoInstallation(RepoInstallation):
                 installation_id=self._installation_id,
                 has_webhook=False,
             )
-            gh_repo = self._gh.get_repo(repo['full_name'])
+            gh_repo = github_repo(self._installation_id, repo['full_name'])
             # TODO: query may be failed, because already created
             gh_repo.create_hook(
                 'web',

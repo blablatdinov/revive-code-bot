@@ -34,7 +34,7 @@ from git import Repo
 
 from main.models import GhRepo
 from main.services.github_objs.cloned_repo import ClonedRepo
-from main.services.github_objs.github_client import pygithub_client
+from main.services.github_objs.github_client import github_repo
 
 
 @final
@@ -47,9 +47,7 @@ class GhClonedRepo(ClonedRepo):
     @override
     def clone_to(self, path: Path) -> Path:
         """Cloning from github."""
-        gh = pygithub_client(self._gh_repo.installation_id)
-        repo = gh.get_repo(self._gh_repo.full_name)
-        gh.close()
+        repo = github_repo(self._gh_repo.installation_id, self._gh_repo.full_name)
         now = int(datetime.datetime.now(tz=datetime.UTC).timestamp())
         payload = {'iat': now, 'exp': now + 600, 'iss': 874924}
         encoded_jwt = jwt.encode(

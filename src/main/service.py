@@ -34,7 +34,7 @@ from github.GithubException import GithubException
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
 from main.models import GhRepo, RepoStatusEnum
 from main.services.github_objs.cloned_repo import ClonedRepo
-from main.services.github_objs.github_client import pygithub_client
+from main.services.github_objs.github_client import github_repo
 from main.services.github_objs.new_issue import NewIssue
 from main.services.revive_config.disk_revive_config import DiskReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
@@ -50,7 +50,7 @@ def update_config(repo_full_name: str) -> None:
     """Update config."""
     repo = GhRepo.objects.get(full_name=repo_full_name)
     pg_revive_config = PgReviveConfig(repo.id)
-    gh_repo = pygithub_client(repo.installation_id).get_repo(repo.full_name)
+    gh_repo = github_repo(repo.installation_id, repo.full_name)
     try:
         config = PgUpdatedReviveConfig(
             repo.id,
