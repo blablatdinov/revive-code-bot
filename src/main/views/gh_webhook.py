@@ -49,13 +49,15 @@ def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911. TODO
                 installation_id,
             ).register()
             return HttpResponse('Repos installed')
-        elif gh_event == 'ping':
-            pg_repo = GhRepo.objects.get(full_name=request_json['repository']['full_name'])
-            pg_repo.has_webhook = True
-            pg_repo.save()
+        pg_repo, _ = GhRepo.objects.get_or_create(
+            full_name=request_json['repository']['full_name'],
+            installation_id=request.headers['X-Github-Hook-Installation-Target-Id'],
+            has_webhook=True,
+        )
+        if gh_event == 'ping':
             return HttpResponse('Webhooks installed')
         elif gh_event == 'push':
-            if GhRepo.objects.get(full_name=request_json['repository']['full_name']).status != RepoStatusEnum.active:
+            if pg_repo.status != RepoStatusEnum.active:
                 return HttpResponse('Skip as inactive')
             if not is_default_branch(request_json):
                 return HttpResponse('Skip not default branch')
