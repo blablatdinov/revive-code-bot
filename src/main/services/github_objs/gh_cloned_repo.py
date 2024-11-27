@@ -31,6 +31,7 @@ import jwt
 import requests
 from django.conf import settings
 from git import Repo
+from requests.exceptions import HTTPError
 
 from main.models import GhRepo
 from main.services.github_objs.cloned_repo import ClonedRepo
@@ -48,30 +49,38 @@ class GhClonedRepo(ClonedRepo):
     def clone_to(self, path: Path) -> Path:
         """Cloning from github."""
         repo = github_repo(self._gh_repo.installation_id, self._gh_repo.full_name)
-        now = int(datetime.datetime.now(tz=datetime.UTC).timestamp())
-        payload = {'iat': now, 'exp': now + 600, 'iss': 874924}
-        encoded_jwt = jwt.encode(
-            payload,
-            settings.GH_APP_KEY.encode('utf-8'),
-            algorithm='RS256',
-        )
-        response = requests.post(
-            'https://api.github.com/app/installations/{0}/access_tokens'.format(
-                self._gh_repo.installation_id,
-            ),
-            headers={
-                'Authorization': f'Bearer {encoded_jwt}',
-                'Accept': 'application/vnd.github+json',
-                'X-GitHub-Api-Version': '2022-11-28',
-            },
-            timeout=5,
-        )
-        token = response.json()['token']
-        Repo.clone_from(
-            repo.clone_url.replace(
+        try:
+            now = int(datetime.datetime.now(tz=datetime.UTC).timestamp())
+            payload = {'iat': now, 'exp': now + 600, 'iss': 874924}
+            encoded_jwt = jwt.encode(
+                payload,
+                settings.GH_APP_KEY.encode('utf-8'),
+                algorithm='RS256',
+            )
+            response = requests.post(
+                'https://api.github.com/app/installations/{0}/access_tokens'.format(
+                    self._gh_repo.installation_id,
+                ),
+                headers={
+                    'Authorization': f'Bearer {encoded_jwt}',
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                },
+                timeout=5,
+            )
+            response.raise_for_status()
+            token = response.json()['token']
+            clone_url = repo.clone_url.replace(
                 'https://',
                 'https://x-access-token:{0}@'.format(token),
-            ),
+            )
+        except HTTPError:
+            clone_url = repo.clone_url.replace(
+                'https://',
+                'https://{0}@'.format(settings.GH_TOKEN),
+            )
+        Repo.clone_from(
+            clone_url,
             path,
         )
         return path
