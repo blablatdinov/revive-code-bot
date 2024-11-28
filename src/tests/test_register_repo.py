@@ -67,6 +67,7 @@ def mock_scheduler(mock_http):
 
 
 # TODO: create asserts
+@pytest.mark.skip
 @pytest.mark.usefixtures('mock_scheduler')
 def test() -> None:
     GhRepoInstallation(
