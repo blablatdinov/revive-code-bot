@@ -41,3 +41,7 @@ class UnexpectedGhFileContentError(AppError):
 
 class InvalidConfigError(AppError):
     """Invalid config error."""
+
+
+class RepoUnavailableError(AppError):
+    """Repository unavailable error."""
