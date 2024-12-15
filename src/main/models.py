@@ -62,7 +62,7 @@ class TouchRecord(models.Model):
 
     class Meta:
         db_table = 'touch_records'
-        unique_together = ['gh_repo', 'path']
+        unique_together = ('gh_repo', 'path')
 
     def __str__(self) -> str:
         """String representation."""
