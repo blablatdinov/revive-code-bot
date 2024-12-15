@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("main", "0004_ghrepo_status"),
+        ('main', '0004_ghrepo_status'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="touchrecord",
-            name="path",
+            model_name='touchrecord',
+            name='path',
             field=models.CharField(max_length=1024),
         ),
         migrations.AlterUniqueTogether(
-            name="touchrecord",
-            unique_together={("gh_repo", "path")},
+            name='touchrecord',
+            unique_together={('gh_repo', 'path')},
         ),
     ]
