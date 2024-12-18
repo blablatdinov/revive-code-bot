@@ -31,20 +31,24 @@ from github import Auth, Github
 from github.GithubException import GithubException, UnknownObjectException
 from github.Repository import Repository
 
+from main.exceptions import RepoUnavailableError
+
 
 def github_repo(installation_id: int, full_name: str) -> Repository:
     """Fetch github repo.
 
     TODO: make object
     """
-    try:
-        return Github(
-            auth=Auth.AppAuth(
-                874924,
-                Path(settings.BASE_DIR / 'revive-code-bot.private-key.pem').read_text(encoding='utf-8'),
-            ).get_installation_auth(installation_id),
-        ).get_repo(full_name)
-    except (GithubException, UnknownObjectException):
-        return Github(
-            auth=Auth.Token(settings.GH_TOKEN),
-        ).get_repo(full_name)
+    auth_methods = (
+        Auth.AppAuth(
+            874924,
+            Path(settings.BASE_DIR / 'revive-code-bot.private-key.pem').read_text(encoding='utf-8'),
+        ).get_installation_auth(installation_id),
+        Auth.Token(settings.GH_TOKEN),
+    )
+    for auth_method in auth_methods:
+        try:
+            return Github(auth=auth_method).get_repo(full_name)
+        except (GithubException, UnknownObjectException):
+            continue
+    raise RepoUnavailableError
