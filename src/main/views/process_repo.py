@@ -27,7 +27,6 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from github.GithubException import GithubException
 
 from main.models import GhRepo, RepoStatusEnum
 from main.service import process_repo
