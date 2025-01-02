@@ -34,6 +34,7 @@ from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
 from main.services.github_objs.github_client import github_repo
+from main.exceptions import UnavailableRepoError
 
 
 @csrf_exempt
@@ -48,7 +49,7 @@ def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
             GhClonedRepo(repo),
             GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
         )
-    except GithubException:
+    except UnavailableRepoError:
         repo.status = RepoStatusEnum.inactive
         repo.save()
     return HttpResponse(status=201)
