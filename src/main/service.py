@@ -30,9 +30,9 @@ from typing import TypedDict
 import requests
 from django.conf import settings
 from django.template import Context, Template
-from github.GithubException import GithubException
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
+from main.exceptions import UnavailableRepoError
 from main.models import GhRepo, RepoConfig, RepoStatusEnum
 from main.services.github_objs.cloned_repo import ClonedRepo
 from main.services.github_objs.github_client import github_repo
@@ -46,7 +46,6 @@ from main.services.revive_config.pg_updated_revive_config import PgUpdatedRevive
 from main.services.revive_config.revive_config import ConfigDict
 from main.services.revive_config.safe_disk_revive_config import SafeDiskReviveConfig
 from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
-from main.exceptions import UnavailableRepoError
 
 
 def get_or_create_repo(repo_full_name: str, installation_id: int) -> GhRepo:

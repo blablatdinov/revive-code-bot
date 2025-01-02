@@ -28,10 +28,10 @@ from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+from main.exceptions import UnavailableRepoError
 from main.models import RepoStatusEnum
 from main.service import get_or_create_repo, is_default_branch, update_config
 from main.services.github_objs.gh_repo_installation import GhRepoInstallation
-from main.exceptions import UnavailableRepoError
 
 
 @csrf_exempt

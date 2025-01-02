@@ -28,12 +28,12 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
+from main.exceptions import UnavailableRepoError
 from main.models import GhRepo, RepoStatusEnum
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
 from main.services.github_objs.github_client import github_repo
-from main.exceptions import UnavailableRepoError
 
 
 @csrf_exempt
