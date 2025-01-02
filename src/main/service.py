@@ -46,6 +46,7 @@ from main.services.revive_config.pg_updated_revive_config import PgUpdatedRevive
 from main.services.revive_config.revive_config import ConfigDict
 from main.services.revive_config.safe_disk_revive_config import SafeDiskReviveConfig
 from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
+from main.exceptions import UnavailableRepoError
 
 
 def get_or_create_repo(repo_full_name: str, installation_id: int) -> GhRepo:
@@ -87,7 +88,7 @@ def update_config(repo_full_name: str) -> None:
                 ),
             ),
         ).parse()
-    except GithubException:
+    except UnavailableRepoError:
         repo.status = RepoStatusEnum.inactive
         repo.save()
         return
