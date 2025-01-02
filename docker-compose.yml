@@ -40,7 +40,7 @@ services:
       - redis
 
   postgres:
-    image: postgres:13
+    image: postgres:17
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
