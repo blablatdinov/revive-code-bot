@@ -22,11 +22,10 @@
 
 """Django settings."""
 
-import sentry_sdk
-
 from pathlib import Path
 
 import environ  # type: ignore [import-untyped]
+import sentry_sdk
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
