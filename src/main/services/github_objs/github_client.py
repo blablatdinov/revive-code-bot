@@ -102,7 +102,7 @@ def github_repo(installation_id: int, full_name: str) -> Repository:
 
     TODO: make object
     """
-    return RepoFetchStrategy(
+    return RepoFetchStrategy.ctor(
         InstallationFetchRepo(installation_id, full_name),
         GhUserBotFetchRepo(full_name),
     ).fetch()
