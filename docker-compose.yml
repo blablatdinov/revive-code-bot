@@ -51,7 +51,7 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
 
   redis:
-    image: redis:6
+    image: redis:7
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
