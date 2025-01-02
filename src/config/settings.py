@@ -127,9 +127,9 @@ SENTRY_KEY = env('SENTRY_KEY', str, default=None)
 
 if SENTRY_KEY:
     sentry_sdk.init(
-        dsn=f"https://{SENTRY_KEY}@o1351389.ingest.us.sentry.io/4508574747656192",
+        dsn=f'https://{SENTRY_KEY}@o1351389.ingest.us.sentry.io/4508574747656192',
         traces_sample_rate=1.0,
         _experiments={
-            "continuous_profiling_auto_start": True,
+            'continuous_profiling_auto_start': True,
         },
     )
