@@ -26,13 +26,12 @@ from contextlib import suppress
 from typing import final, override
 
 import attrs
-from github.GithubException import UnknownObjectException, GithubException
+from github.GithubException import GithubException, UnknownObjectException
 from github.Repository import Repository
 
-from main.exceptions import UnexpectedGhFileContentError
+from main.exceptions import UnavailableRepoError, UnexpectedGhFileContentError
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 from main.services.revive_config.str_config import StrReviveConfig
-from main.exceptions import UnavailableRepoError
 
 
 @final
@@ -52,8 +51,8 @@ class GhReviveConfig(ReviveConfig):
             with suppress(UnknownObjectException):
                 try:
                     file = self._gh_repo.get_contents(variant)
-                except GithubException:
-                    raise UnavailableRepoError
+                except GithubException as err:
+                    raise UnavailableRepoError from err
                 if isinstance(file, list):
                     raise UnexpectedGhFileContentError
                 config |= StrReviveConfig(
