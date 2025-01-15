@@ -892,7 +892,6 @@ files = [
 ]
 
 [package.dependencies]
-typing-extensions = {version = ">=4.6", markers = "python_version < \"3.13\""}
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
 [package.extras]
@@ -1554,5 +1553,5 @@ files = [
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.12,<3.13"
-content-hash = "52b1ea12bd645448be9fd297830e11aa03dbbf53e98e7512b37fdc495ff2b5ad"
+python-versions = ">=3.13,<3.14"
+content-hash = "a7fb0ddaa97cc8e6a49dd3d2bc399faad4ebd035dfa0a0679e8236f356e9afac"
