@@ -42,7 +42,7 @@ cron-validator = "1.0.8"
 sentry-sdk = {extras = ["django"], version = "^2.19.2"}
 
 [tool.poetry.group.dev.dependencies]
-pytest = "8.3.4"
+pytest = "8.3.5"
 ruff = "0.9.9"
 wemake-python-styleguide = "1.0.0"
 refurb = "2.0.0"
