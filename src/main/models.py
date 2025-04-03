@@ -83,3 +83,16 @@ class RepoConfig(models.Model):
     def __str__(self) -> str:
         """String representation."""
         return 'RepoConfig repo={0}. cron={1}'.format(self.repo.full_name, self.cron_expression)
+
+
+@final
+class ProcessTask(models.Model):
+
+    repo = models.OneToOneField(GhRepo, on_delete=models.PROTECT)
+    status = models.CharField(max_length=8)  # TODO: enum
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+    traceback = models.TextField()
+
+    class Meta:
+        db_table = 'process_tasks'
