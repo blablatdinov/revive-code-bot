@@ -20,24 +20,23 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-"""HTTP controller for process repo."""
 
-from django.conf import settings
-from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse
-from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
-
-from main.models import GhRepo
+from main.exceptions import UnavailableRepoError
+from main.models import GhRepo, RepoStatusEnum
+from main.service import process_repo
+from main.services.github_objs.gh_cloned_repo import GhClonedRepo
+from main.services.github_objs.gh_new_issue import GhNewIssue
+from main.services.github_objs.github_client import github_repo
 
 
-@csrf_exempt
-def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
-    """Webhook for process repo."""
-    if request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN):
-        raise PermissionDenied
-    return HttpResponse(status=201)
-    repo = get_object_or_404(GhRepo, id=repo_id)
-    # TODO: send id to rabbitmmq
-    # TODO: create db record about task status
-    return HttpResponse(status=201)
+def handle(repo_id: int):
+    repo = GhRepo.objects.get(id=repo_id)
+    try:
+        process_repo(
+            repo.id,
+            GhClonedRepo(repo),
+            GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
+        )
+    except UnavailableRepoError:
+        repo.status = RepoStatusEnum.inactive
+        repo.save()
