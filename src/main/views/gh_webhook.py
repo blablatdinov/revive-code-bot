@@ -35,7 +35,7 @@ from main.services.github_objs.gh_repo_installation import GhRepoInstallation
 
 
 @csrf_exempt
-def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911. TODO
+def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911 . TODO
     """Process webhooks from github."""
     with transaction.atomic():
         gh_event = request.headers.get('X-GitHub-Event')

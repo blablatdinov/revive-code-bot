@@ -36,7 +36,7 @@ def anon() -> Client:
 
 @pytest.fixture
 def baker() -> ModuleType:
-    from model_bakery import baker as _baker  # noqa: PLC0415. Conflict with fixture name
+    from model_bakery import baker as _baker  # noqa: PLC0415 . Conflict with fixture name
     return _baker
 
 
