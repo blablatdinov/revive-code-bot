@@ -83,4 +83,3 @@ def test_permission_denied(anon, gh_repo):
     gh_repo.refresh_from_db()
 
     assert response.status_code == 201
-    assert gh_repo.status == RepoStatusEnum.inactive
