@@ -7,35 +7,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("main", "0005_alter_touchrecord_path_and_more"),
+        ('main', '0005_alter_touchrecord_path_and_more'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="ProcessTask",
+            name='ProcessTask',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("status", models.CharField(max_length=8)),
-                ("created_at", models.DateTimeField()),
-                ("updated_at", models.DateTimeField()),
-                ("traceback", models.TextField()),
+                ('status', models.CharField(max_length=8)),
+                ('created_at', models.DateTimeField()),
+                ('updated_at', models.DateTimeField()),
+                ('traceback', models.TextField()),
                 (
-                    "repo",
+                    'repo',
                     models.OneToOneField(
-                        on_delete=django.db.models.deletion.PROTECT, to="main.ghrepo"
+                        on_delete=django.db.models.deletion.PROTECT, to='main.ghrepo',
                     ),
                 ),
             ],
             options={
-                "db_table": "process_tasks",
+                'db_table': 'process_tasks',
             },
         ),
     ]

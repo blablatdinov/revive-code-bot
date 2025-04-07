@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_extensions',
+
     'main',
 ]
 
@@ -173,10 +175,14 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'main': {  # Можно задать отдельный логгер для приложения
+        'main': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
     },
 }
+RABBITMQ_HOST = env('RABBITMQ_HOST', str, default='localhost')
+RABBITMQ_PORT = env('RABBITMQ_PORT', int, default=5672)
+RABBITMQ_USER = env('RABBITMQ_USER', str, default='admin')
+RABBITMQ_PASS = env('RABBITMQ_PASS', int, default='admin')

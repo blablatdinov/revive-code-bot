@@ -22,40 +22,49 @@
 
 """HTTP controller for process repo."""
 
+import uuid
+import logging
 import pika
 import traceback
+import json
+import datetime
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
 
-from main.models import GhRepo, ProcessTask
+from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum
+
+logger = logging.getLogger(__name__)
 
 
 def publish_event(event_data):
     try:
-        connection = pika.BlockingConnection(
-            pika.ConnectionParameters(
-                host=settings.RABBITMQ_HOST,
-                port=settings.RABBITMQ_PORT,
-            )
-        )
+        print(settings.RABBITMQ_HOST, settings.RABBITMQ_PORT)
+        connection = pika.BlockingConnection(pika.ConnectionParameters(
+            host=settings.RABBITMQ_HOST,
+            port=settings.RABBITMQ_PORT,
+            credentials=pika.PlainCredentials(
+                settings.RABBITMQ_USER,
+                settings.RABBITMQ_PASS,
+            ),
+        ))
+        exchange_name = 'ordered_repos'
         channel = connection.channel()
         channel.exchange_declare(exchange=exchange_name, exchange_type='direct', durable=True)
         channel.basic_publish(
-            exchange='ordered_repos',
-            routing_key=routing_key,
+            exchange=exchange_name,
+            routing_key='ordered_repos',
             body=json.dumps(event_data),
             properties=pika.BasicProperties(
                 delivery_mode=2,
-                content_type='application/json'
-            )
+                content_type='application/json',
+            ),
         )
         logger.info('Message "{0}" published'.format(event_data))
     except Exception as e:
-        logger.error('Error on publishing message: "{0}". Traceback: {1}'.format(str(e), traceback.exc_info()))
+        logger.error('Error on publishing message: "{0}". Traceback: {1}'.format(str(e), traceback.format_exc()))
     finally:
         connection.close()
 
@@ -63,13 +72,15 @@ def publish_event(event_data):
 @csrf_exempt
 def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
     """Webhook for process repo."""
-    if request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN):
+    if (
+        not request.headers.get('Authentication')
+        or request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN)
+    ):
         raise PermissionDenied
-    return HttpResponse(status=201)
     repo = get_object_or_404(GhRepo, id=repo_id)
     process_task = ProcessTask.objects.create(
         repo=repo,
-        status = models.CharField(max_length=8, choices=ProcessTaskStatusEnum.pending),
+        status=ProcessTaskStatusEnum.pending,
     )
     publish_event({
         'event_id': str(uuid.uuid4()),

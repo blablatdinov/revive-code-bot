@@ -59,6 +59,8 @@ lxml-stubs = "0.5.1"
 types-requests = "2.32.0.20250328"
 requests-mock = "1.12.1"
 pytest-randomly = "3.16.0"
+django-extensions = "3.2.3"
+ipython = "9.1.0"
 
 [build-system]
 requires = ["poetry-core"]

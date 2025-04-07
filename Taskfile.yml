@@ -52,6 +52,10 @@ tasks:
     cmds:
       - poetry run pytest src -m 'not integration' -vv
 
+  shell:
+    cmds:
+      - poetry run python src/manage.py shell_plus
+
   migrate:
     cmds:
       - poetry run python src/manage.py makemigrations

@@ -97,11 +97,11 @@ class ProcessTaskStatusEnum(models.TextChoices):
 @final
 class ProcessTask(models.Model):
 
-    repo = models.OneToOneField(GhRepo, on_delete=models.PROTECT)
+    repo = models.ForeignKey(GhRepo, on_delete=models.PROTECT)
     status = models.CharField(max_length=8, choices=ProcessTaskStatusEnum.choices)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField()
-    traceback = models.TextField()
+    updated_at = models.DateTimeField(auto_now_add=True)
+    traceback = models.TextField(default=str)
 
     class Meta:
         db_table = 'process_tasks'

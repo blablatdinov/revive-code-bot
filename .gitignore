@@ -183,3 +183,4 @@ pyrightconfig.json
 # docker volumes
 postgres-data
 redis-data
+rabbitmq-data
