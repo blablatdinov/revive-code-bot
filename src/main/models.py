@@ -86,11 +86,20 @@ class RepoConfig(models.Model):
 
 
 @final
+class ProcessTaskStatusEnum(models.TextChoices):
+    """Process task status."""
+
+    pending = 'pending'
+    success = 'success'
+    failed = 'failed'
+
+
+@final
 class ProcessTask(models.Model):
 
     repo = models.OneToOneField(GhRepo, on_delete=models.PROTECT)
-    status = models.CharField(max_length=8)  # TODO: enum
-    created_at = models.DateTimeField()
+    status = models.CharField(max_length=8, choices=ProcessTaskStatusEnum.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField()
     traceback = models.TextField()
 

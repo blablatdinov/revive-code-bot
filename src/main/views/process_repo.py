@@ -24,11 +24,11 @@
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
-from main.models import GhRepo
+from main.models import GhRepo, ProcessTask
 
 
 @csrf_exempt
@@ -38,6 +38,12 @@ def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
         raise PermissionDenied
     return HttpResponse(status=201)
     repo = get_object_or_404(GhRepo, id=repo_id)
+    process_task = ProcessTask.objects.create(
+        repo=repo,
+        status = models.CharField(max_length=8, choices=ProcessTaskStatusEnum.pending),
+    )
     # TODO: send id to rabbitmmq
-    # TODO: create db record about task status
-    return HttpResponse(status=201)
+    return JsonResponse(
+        {'process_task_id': process_task.id},
+        status=201,
+    )
