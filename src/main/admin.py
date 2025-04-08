@@ -24,7 +24,7 @@
 
 from django.contrib import admin
 
-from main.models import GhRepo, RepoConfig, TouchRecord, ProcessTask
+from main.models import GhRepo, ProcessTask, RepoConfig, TouchRecord
 
 admin.site.register(GhRepo)
 admin.site.register(TouchRecord)

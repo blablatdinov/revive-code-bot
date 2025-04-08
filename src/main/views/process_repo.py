@@ -22,12 +22,14 @@
 
 """HTTP controller for process repo."""
 
-import uuid
-import logging
-import pika
-import traceback
-import json
 import datetime
+import json
+import logging
+import traceback
+import uuid
+from contextlib import closing
+
+import pika
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
@@ -41,32 +43,36 @@ logger = logging.getLogger(__name__)
 
 def publish_event(event_data):
     try:
-        print(settings.RABBITMQ_HOST, settings.RABBITMQ_PORT)
-        connection = pika.BlockingConnection(pika.ConnectionParameters(
-            host=settings.RABBITMQ_HOST,
-            port=settings.RABBITMQ_PORT,
-            credentials=pika.PlainCredentials(
-                settings.RABBITMQ_USER,
-                settings.RABBITMQ_PASS,
-            ),
-        ))
-        exchange_name = 'ordered_repos'
-        channel = connection.channel()
-        channel.exchange_declare(exchange=exchange_name, exchange_type='direct', durable=True)
-        channel.basic_publish(
-            exchange=exchange_name,
-            routing_key='ordered_repos',
-            body=json.dumps(event_data),
-            properties=pika.BasicProperties(
-                delivery_mode=2,
-                content_type='application/json',
-            ),
-        )
-        logger.info('Message "{0}" published'.format(event_data))
+        with closing(
+            pika.BlockingConnection(pika.ConnectionParameters(
+                virtual_host=settings.RABBITMQ_VHOST,
+                host=settings.RABBITMQ_HOST,
+                port=settings.RABBITMQ_PORT,
+                credentials=pika.PlainCredentials(
+                    settings.RABBITMQ_USER,
+                    settings.RABBITMQ_PASS,
+                ),
+            )),
+        ) as connection:
+            exchange_name = 'ordered_repos'
+            channel = connection.channel()
+            channel.exchange_declare(exchange=exchange_name, exchange_type='direct', durable=True)
+            channel.basic_publish(
+                exchange=exchange_name,
+                routing_key='ordered_repos',
+                body=json.dumps(event_data),
+                properties=pika.BasicProperties(
+                    delivery_mode=2,
+                    content_type='application/json',
+                ),
+            )
+            logger.info('Message "{0}" published'.format(event_data))
     except Exception as e:
         logger.error('Error on publishing message: "{0}". Traceback: {1}'.format(str(e), traceback.format_exc()))
-    finally:
-        connection.close()
+        task = ProcessTask.objects.get(id=event_data['data']['process_task_id'])
+        task.status = ProcessTaskStatusEnum.failed
+        task.traceback = traceback.format_exc()
+        task.save()
 
 
 @csrf_exempt
