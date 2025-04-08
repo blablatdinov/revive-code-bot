@@ -59,8 +59,8 @@ def publish_event(event_data):
             channel.exchange_declare(exchange=exchange_name, exchange_type='direct', durable=True)
             channel.basic_publish(
                 exchange=exchange_name,
-                routing_key='ordered_repos',
                 body=json.dumps(event_data),
+                routing_key='ordered_repos',
                 properties=pika.BasicProperties(
                     delivery_mode=2,
                     content_type='application/json',

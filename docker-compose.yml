@@ -40,6 +40,22 @@ services:
       - redis
       - rabbitmq
 
+  worker:
+    container_name: 'revive-code-bot-worker'
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    command: poetry run python src/manage.py worker
+    ports:
+      - "8000:8000"
+    volumes:
+      - .env:/.env
+      - ./:/app
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
   postgres:
     image: postgres:17
     container_name: 'revive-code-bot-postgres'

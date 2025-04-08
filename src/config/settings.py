@@ -187,3 +187,38 @@ RABBITMQ_PORT = env('RABBITMQ_PORT', int, default=5672)
 RABBITMQ_USER = env('RABBITMQ_USER', str, default='admin')
 RABBITMQ_PASS = env('RABBITMQ_PASS', int, default='admin')
 RABBITMQ_VHOST = env('RABBITMQ_VHOST', str, default='revive_code_bot')
+REPO_PROCESS_ORDER_QUEUE_NAME = 'revive_code_bot.ordered_repos'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'main': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
