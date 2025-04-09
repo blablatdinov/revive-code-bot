@@ -61,6 +61,7 @@ requests-mock = "1.12.1"
 pytest-randomly = "3.16.0"
 django-extensions = "3.2.3"
 ipython = "9.1.0"
+types-pika = "1.2.0b1"
 
 [build-system]
 requires = ["poetry-core"]

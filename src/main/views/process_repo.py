@@ -35,6 +35,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from pika.exchange_type import ExchangeType
 
 from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum
 
@@ -57,7 +58,7 @@ def publish_event(event_data: dict) -> None:
         ) as connection:
             exchange_name = 'ordered_repos'
             channel = connection.channel()
-            channel.exchange_declare(exchange=exchange_name, exchange_type='direct', durable=True)
+            channel.exchange_declare(exchange=exchange_name, exchange_type=ExchangeType.direct, durable=True)
             channel.basic_publish(
                 exchange=exchange_name,
                 body=json.dumps(event_data),

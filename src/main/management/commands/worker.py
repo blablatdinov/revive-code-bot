@@ -71,7 +71,10 @@ class Command(BaseCommand):
             process_task_record.status = ProcessTaskStatusEnum.failed
             process_task_record.traceback = traceback.format_exc() or ''
             process_task_record.save()
-        ch.basic_ack(delivery_tag=method.delivery_tag)
+        if method.delivery_tag is not None:
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+        else:
+            logger.warning('Received message with None delivery_tag')
 
     # "Any" annotation taken from
     # https://github.com/typeddjango/django-stubs/blob/c7df64/django-stubs/core/management/commands/check.pyi#L6
