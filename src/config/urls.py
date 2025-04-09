@@ -23,13 +23,15 @@
 """Routers."""
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
+from django.templatetags.static import static
 
 from main.views.connected_repos import connected_repos
 from main.views.gh_webhook import gh_webhook
 from main.views.healthcheck import healthcheck
 from main.views.index import index
 from main.views.process_repo import process_repo_view
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('', index),
@@ -38,4 +40,5 @@ urlpatterns = [
     path('process-repo/<int:repo_id>', process_repo_view),
     path('connected-repos/', connected_repos),
     path('admin/', admin.site.urls),
+    # re_path(r'^favicon\.ico$', RedirectView.as_view(url=static('favicon.ico'), permanent=True)),
 ]
