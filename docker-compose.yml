@@ -79,7 +79,7 @@ services:
       - ./redis-data:/data
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:4-management-alpine
     container_name: 'revive-code-bot-rabbitmq'
     environment:
       RABBITMQ_DEFAULT_USER: admin
