@@ -185,7 +185,7 @@ LOGGING = {
 RABBITMQ_HOST = env('RABBITMQ_HOST', str, default='localhost')
 RABBITMQ_PORT = env('RABBITMQ_PORT', int, default=5672)
 RABBITMQ_USER = env('RABBITMQ_USER', str, default='admin')
-RABBITMQ_PASS = env('RABBITMQ_PASS', int, default='admin')
+RABBITMQ_PASS = env('RABBITMQ_PASS', str, default='admin')
 RABBITMQ_VHOST = env('RABBITMQ_VHOST', str, default='revive_code_bot')
 REPO_PROCESS_ORDER_QUEUE_NAME = 'revive_code_bot.ordered_repos'
 
