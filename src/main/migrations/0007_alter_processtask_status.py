@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('main', '0006_processtask'),
     ]
@@ -13,6 +12,14 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='processtask',
             name='status',
-            field=models.CharField(choices=[('pending', 'Pending'), ('in_process', 'In Process'), ('success', 'Success'), ('failed', 'Failed')], max_length=16),
+            field=models.CharField(
+                choices=[
+                    ('pending', 'Pending'),
+                    ('in_process', 'In Process'),
+                    ('success', 'Success'),
+                    ('failed', 'Failed'),
+                ],
+                max_length=16,
+            ),
         ),
     ]

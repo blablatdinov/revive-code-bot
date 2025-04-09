@@ -97,6 +97,7 @@ class ProcessTaskStatusEnum(models.TextChoices):
 
 @final
 class ProcessTask(models.Model):
+    """Represents an asynchronous processing task for a GitHub repository."""
 
     repo = models.ForeignKey(GhRepo, on_delete=models.PROTECT)
     status = models.CharField(max_length=16, choices=ProcessTaskStatusEnum.choices)
@@ -106,3 +107,7 @@ class ProcessTask(models.Model):
 
     class Meta:
         db_table = 'process_tasks'
+
+    def __str__(self) -> str:
+        """String representation."""
+        return 'Process task <{0}>'.format(self.id)

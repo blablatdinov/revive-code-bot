@@ -71,6 +71,7 @@ def messages_in_queue():
                 pika.ConnectionParameters(host=settings.RABBITMQ_HOST, port=settings.RABBITMQ_PORT),
             )
             channel = connection.channel()
+            max_messages = 10
             for _ in range(max_messages):
                 method_frame, header_frame, body = channel.basic_get(queue=queue_name, auto_ack=False)
 
@@ -100,7 +101,6 @@ def test(anon, repo) -> None:
     )
 
     assert response.status_code == 201
-    assert False, messages_in_queue('ordered_repos')
 
 
 @pytest.mark.usefixtures('mock_github')

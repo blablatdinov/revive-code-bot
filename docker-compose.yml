@@ -46,8 +46,6 @@ services:
       context: .
       dockerfile: ./Dockerfile.dev
     command: poetry run python src/manage.py worker
-    ports:
-      - "8000:8000"
     volumes:
       - .env:/.env
       - ./:/app

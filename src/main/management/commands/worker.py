@@ -20,32 +20,25 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
+"""Worker for read process repo."""
+
 import json
-import traceback
 import logging
+import traceback
+from contextlib import closing
 from typing import Any
 
+import pika
+from django.conf import settings
 from django.core.management.base import BaseCommand
+from pika.adapters.blocking_connection import BlockingChannel
+from pika.spec import Basic, BasicProperties
 
-from contextlib import closing
-
-import pika
-from django.conf import settings
 from main.models import ProcessTask, ProcessTaskStatusEnum
-from main.service import process_repo
-import json
-import logging
-import traceback
-from contextlib import closing
-
-import pika
-from django.conf import settings
-
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
 from main.services.github_objs.github_client import github_repo
-from main.models import ProcessTask, ProcessTaskStatusEnum
 
 logger = logging.getLogger(__name__)
 
@@ -55,8 +48,8 @@ class Command(BaseCommand):
 
     help = ''
 
-    def _callback(self, ch, method, properties, body):
-        logger.info(f'Message {body} received, handling...')
+    def _callback(self, ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes) -> None:
+        logger.info('Message %s received, handling...', body)
         data = json.loads(body.decode('utf-8'))
         process_task_record = ProcessTask.objects.get(id=data['data']['process_task_id'])
         repo = process_task_record.repo
@@ -69,12 +62,12 @@ class Command(BaseCommand):
                 GhClonedRepo(repo),
                 GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
             )
-            logger.info(f'Repository {repo} processed')
+            logger.info('Repository %s processed', repo)
             process_task_record.status = ProcessTaskStatusEnum.success
             process_task_record.traceback = ''
             process_task_record.save()
-        except Exception as err:
-            logger.error(f'Fail process repo: {traceback.format_exc()}')
+        except Exception:  # noqa: BLE001
+            logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
             process_task_record.status = ProcessTaskStatusEnum.failed
             process_task_record.traceback = traceback.format_exc() or ''
             process_task_record.save()
@@ -95,7 +88,6 @@ class Command(BaseCommand):
                 ),
             )),
         ) as connection:
-            exchange_name = 'ordered_repos'
             channel = connection.channel()
             queue_name = settings.REPO_PROCESS_ORDER_QUEUE_NAME
             channel.queue_declare(queue=queue_name, durable=True)

@@ -41,7 +41,8 @@ from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum
 logger = logging.getLogger(__name__)
 
 
-def publish_event(event_data):
+def publish_event(event_data: dict) -> None:
+    """Publishing event in rabbitmq."""
     try:
         with closing(
             pika.BlockingConnection(pika.ConnectionParameters(
@@ -66,9 +67,9 @@ def publish_event(event_data):
                     content_type='application/json',
                 ),
             )
-            logger.info('Message "{0}" published'.format(event_data))
-    except Exception as e:
-        logger.error('Error on publishing message: "{0}". Traceback: {1}'.format(str(e), traceback.format_exc()))
+            logger.info('Message "%s" published', event_data)
+    except Exception:
+        logger.exception('Error on publishing message. Traceback: %s', traceback.format_exc())
         task = ProcessTask.objects.get(id=event_data['data']['process_task_id'])
         task.status = ProcessTaskStatusEnum.failed
         task.traceback = traceback.format_exc()
@@ -92,7 +93,7 @@ def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
         'event_id': str(uuid.uuid4()),
         'event_version': 1,
         'event_name': 'RepoOrdered',
-        'event_time': str(datetime.datetime.now()),
+        'event_time': str(datetime.datetime.now(tz=datetime.UTC)),
         'producer': 'revive_bot.django',
         'data': {'process_task_id': process_task.id},
     })

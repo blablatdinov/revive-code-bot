@@ -27,7 +27,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('main', '0005_alter_touchrecord_path_and_more'),
     ]
@@ -37,7 +36,12 @@ class Migration(migrations.Migration):
             name='ProcessTask',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('success', 'Success'), ('failed', 'Failed')], max_length=8)),
+                (
+                    'status',
+                    models.CharField(
+                        choices=[('pending', 'Pending'), ('success', 'Success'), ('failed', 'Failed')], max_length=8,
+                    ),
+                ),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now_add=True)),
                 ('traceback', models.TextField(default=str)),
