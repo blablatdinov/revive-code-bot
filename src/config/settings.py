@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_extensions',
+
     'main',
 ]
 
@@ -173,9 +175,49 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'main': {  # Можно задать отдельный логгер для приложения
+        'main': {
             'handlers': ['console'],
             'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+RABBITMQ_HOST = env('RABBITMQ_HOST', str, default='localhost')
+RABBITMQ_PORT = env('RABBITMQ_PORT', int, default=5672)
+RABBITMQ_USER = env('RABBITMQ_USER', str, default='admin')
+RABBITMQ_PASS = env('RABBITMQ_PASS', str, default='admin')
+RABBITMQ_VHOST = env('RABBITMQ_VHOST', str, default='revive_code_bot')
+REPO_PROCESS_ORDER_QUEUE_NAME = 'revive_code_bot.ordered_repos'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'main': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     },

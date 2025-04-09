@@ -22,9 +22,11 @@
 
 """Test process repo."""
 
+import json
 import re
 from pathlib import Path
 
+import pika
 import pytest
 from django.conf import settings
 
@@ -59,6 +61,36 @@ def mock_github(mock_http):
     return mock_http
 
 
+@pytest.fixture
+def messages_in_queue():
+    def _messages_in_queue(queue_name):
+        messages = []
+        connection = None
+        try:
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host=settings.RABBITMQ_HOST, port=settings.RABBITMQ_PORT),
+            )
+            channel = connection.channel()
+            max_messages = 10
+            for _ in range(max_messages):
+                method_frame, header_frame, body = channel.basic_get(queue=queue_name, auto_ack=False)
+
+                if method_frame:
+                    messages.append({
+                        'body': json.loads(body.decode()),
+                        'headers': header_frame.headers if header_frame else None,
+                        'routing_key': method_frame.routing_key,
+                    })
+                    channel.basic_ack(method_frame.delivery_tag)
+                else:
+                    break
+            return messages
+        finally:
+            if connection and not connection.is_closed:
+                connection.close()
+    return _messages_in_queue
+
+
 @pytest.mark.integration
 def test(anon, repo) -> None:
     response = anon.post(
@@ -83,4 +115,3 @@ def test_permission_denied(anon, gh_repo):
     gh_repo.refresh_from_db()
 
     assert response.status_code == 201
-    assert gh_repo.status == RepoStatusEnum.inactive

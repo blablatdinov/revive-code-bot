@@ -83,3 +83,31 @@ class RepoConfig(models.Model):
     def __str__(self) -> str:
         """String representation."""
         return 'RepoConfig repo={0}. cron={1}'.format(self.repo.full_name, self.cron_expression)
+
+
+@final
+class ProcessTaskStatusEnum(models.TextChoices):
+    """Process task status."""
+
+    pending = 'pending'
+    in_process = 'in_process'
+    success = 'success'
+    failed = 'failed'
+
+
+@final
+class ProcessTask(models.Model):
+    """Represents an asynchronous processing task for a GitHub repository."""
+
+    repo = models.ForeignKey(GhRepo, on_delete=models.PROTECT)
+    status = models.CharField(max_length=16, choices=ProcessTaskStatusEnum.choices)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    traceback = models.TextField(default=str)
+
+    class Meta:
+        db_table = 'process_tasks'
+
+    def __str__(self) -> str:
+        """String representation."""
+        return 'Process task <{0}>'.format(self.id)

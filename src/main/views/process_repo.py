@@ -22,33 +22,83 @@
 
 """HTTP controller for process repo."""
 
+import datetime
+import json
+import logging
+import traceback
+import uuid
+from contextlib import closing
+
+import pika
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
+from pika.exchange_type import ExchangeType
 
-from main.exceptions import UnavailableRepoError
-from main.models import GhRepo, RepoStatusEnum
-from main.service import process_repo
-from main.services.github_objs.gh_cloned_repo import GhClonedRepo
-from main.services.github_objs.gh_new_issue import GhNewIssue
-from main.services.github_objs.github_client import github_repo
+from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum
+
+logger = logging.getLogger(__name__)
+
+
+def publish_event(event_data: dict) -> None:
+    """Publishing event in rabbitmq."""
+    try:
+        with closing(
+            pika.BlockingConnection(pika.ConnectionParameters(
+                virtual_host=settings.RABBITMQ_VHOST,
+                host=settings.RABBITMQ_HOST,
+                port=settings.RABBITMQ_PORT,
+                credentials=pika.PlainCredentials(
+                    settings.RABBITMQ_USER,
+                    settings.RABBITMQ_PASS,
+                ),
+            )),
+        ) as connection:
+            exchange_name = 'ordered_repos'
+            channel = connection.channel()
+            channel.exchange_declare(exchange=exchange_name, exchange_type=ExchangeType.direct, durable=True)
+            channel.basic_publish(
+                exchange=exchange_name,
+                body=json.dumps(event_data),
+                routing_key='ordered_repos',
+                properties=pika.BasicProperties(
+                    delivery_mode=2,
+                    content_type='application/json',
+                ),
+            )
+            logger.info('Message "%s" published', event_data)
+    except Exception:
+        logger.exception('Error on publishing message. Traceback: %s', traceback.format_exc())
+        task = ProcessTask.objects.get(id=event_data['data']['process_task_id'])
+        task.status = ProcessTaskStatusEnum.failed
+        task.traceback = traceback.format_exc()
+        task.save()
 
 
 @csrf_exempt
 def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
     """Webhook for process repo."""
-    if request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN):
+    if (
+        not request.headers.get('Authentication')
+        or request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN)
+    ):
         raise PermissionDenied
     repo = get_object_or_404(GhRepo, id=repo_id)
-    try:
-        process_repo(
-            repo.id,
-            GhClonedRepo(repo),
-            GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
-        )
-    except UnavailableRepoError:
-        repo.status = RepoStatusEnum.inactive
-        repo.save()
-    return HttpResponse(status=201)
+    process_task = ProcessTask.objects.create(
+        repo=repo,
+        status=ProcessTaskStatusEnum.pending,
+    )
+    publish_event({
+        'event_id': str(uuid.uuid4()),
+        'event_version': 1,
+        'event_name': 'RepoOrdered',
+        'event_time': str(datetime.datetime.now(tz=datetime.UTC)),
+        'producer': 'revive_bot.django',
+        'data': {'process_task_id': process_task.id},
+    })
+    return JsonResponse(
+        {'process_task_id': process_task.id},
+        status=201,
+    )

@@ -38,9 +38,25 @@ services:
     depends_on:
       - postgres
       - redis
+      - rabbitmq
+
+  worker:
+    container_name: 'revive-code-bot-worker'
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    command: poetry run python src/manage.py worker
+    volumes:
+      - .env:/.env
+      - ./:/app
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
 
   postgres:
-    image: postgres:13
+    image: postgres:17
+    container_name: 'revive-code-bot-postgres'
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -52,6 +68,7 @@ services:
 
   redis:
     image: redis:6
+    container_name: 'revive-code-bot-redis'
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -61,6 +78,21 @@ services:
     volumes:
       - ./redis-data:/data
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'revive-code-bot-rabbitmq'
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+      RABBITMQ_DEFAULT_VHOST: default_vhost
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./rabbitmq-data/data/:/var/lib/rabbitmq/
+      - ./rabbitmq-data/log/:/var/log/rabbitmq/
+
 volumes:
   postgres-data:
   redis-data:
+  rabbitmq-data:
