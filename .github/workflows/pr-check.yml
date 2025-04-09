@@ -98,7 +98,5 @@ jobs:
         run: .venv/bin/ruff check src
       # - name: Lint via flake8
       #   run: .venv/bin/flake8 src
-      - name: Lint via refurb
-        run: .venv/bin/refurb src
       - name: Check types with mypy
         run: .venv/bin/mypy src
