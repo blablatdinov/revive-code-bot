@@ -68,7 +68,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -148,36 +148,35 @@ STORAGES = {
 }
 
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "[{asctime}] {levelname} {module} {message}",
-            "style": "{",
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {module} {message}',
+            'style': '{',
         },
-        "simple": {
-            "format": "{levelname}: {message}",
-            "style": "{",
-        },
-    },
-    "handlers": {
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
+        'simple': {
+            'format': '{levelname}: {message}',
+            'style': '{',
         },
     },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": True,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
-        "main": {  # Можно задать отдельный логгер для приложения
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'main': {  # Можно задать отдельный логгер для приложения
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }
-
