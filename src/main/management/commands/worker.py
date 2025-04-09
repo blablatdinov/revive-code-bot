@@ -61,6 +61,9 @@ class Command(BaseCommand):
         process_task_record = ProcessTask.objects.get(id=data['data']['process_task_id'])
         repo = process_task_record.repo
         try:
+            process_task_record.status = ProcessTaskStatusEnum.in_process
+            process_task_record.traceback = ''
+            process_task_record.save()
             process_repo(
                 repo.id,
                 GhClonedRepo(repo),

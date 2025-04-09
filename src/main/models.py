@@ -90,6 +90,7 @@ class ProcessTaskStatusEnum(models.TextChoices):
     """Process task status."""
 
     pending = 'pending'
+    in_process = 'in_process'
     success = 'success'
     failed = 'failed'
 
@@ -98,7 +99,7 @@ class ProcessTaskStatusEnum(models.TextChoices):
 class ProcessTask(models.Model):
 
     repo = models.ForeignKey(GhRepo, on_delete=models.PROTECT)
-    status = models.CharField(max_length=8, choices=ProcessTaskStatusEnum.choices)
+    status = models.CharField(max_length=16, choices=ProcessTaskStatusEnum.choices)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     traceback = models.TextField(default=str)
