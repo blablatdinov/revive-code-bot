@@ -59,7 +59,7 @@ lxml-stubs = "0.5.1"
 types-requests = "2.32.0.20250328"
 requests-mock = "1.12.1"
 pytest-randomly = "3.16.0"
-django-extensions = "4.0"
+django-extensions = "4.1"
 ipython = "9.1.0"
 types-pika = "1.2.0b1"
 
