@@ -26,6 +26,7 @@ import json
 import logging
 import traceback
 from contextlib import closing
+from time import sleep
 from typing import Any
 
 import pika
@@ -33,7 +34,6 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from main.models import ProcessTask, ProcessTaskStatusEnum
 from main.service import process_repo
@@ -49,11 +49,6 @@ class Command(BaseCommand):
 
     help = ''
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type(Exception),
-    )
     def _callback(self, ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes) -> None:
         logger.info('Message %s received, handling...', body)
         data = json.loads(body.decode('utf-8'))
@@ -86,25 +81,30 @@ class Command(BaseCommand):
     # https://github.com/typeddjango/django-stubs/blob/c7df64/django-stubs/core/management/commands/check.pyi#L6
     def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Entrypoint."""
-        with closing(
-            pika.BlockingConnection(pika.ConnectionParameters(
-                virtual_host=settings.RABBITMQ_VHOST,
-                host=settings.RABBITMQ_HOST,
-                port=settings.RABBITMQ_PORT,
-                credentials=pika.PlainCredentials(
-                    settings.RABBITMQ_USER,
-                    settings.RABBITMQ_PASS,
-                ),
-            )),
-        ) as connection:
-            channel = connection.channel()
-            queue_name = settings.REPO_PROCESS_ORDER_QUEUE_NAME
-            channel.queue_declare(queue=queue_name, durable=True)
-            channel.basic_qos(prefetch_count=1)
-            channel.basic_consume(queue=queue_name, on_message_callback=self._callback)
-            logger.info('Starting consuming...')
+        while True:
             try:
-                channel.start_consuming()
-            except KeyboardInterrupt:
-                logger.info('Stopped by user')
-                channel.stop_consuming()
+                with closing(
+                    pika.BlockingConnection(pika.ConnectionParameters(
+                        virtual_host=settings.RABBITMQ_VHOST,
+                        host=settings.RABBITMQ_HOST,
+                        port=settings.RABBITMQ_PORT,
+                        credentials=pika.PlainCredentials(
+                            settings.RABBITMQ_USER,
+                            settings.RABBITMQ_PASS,
+                        ),
+                    )),
+                ) as connection:
+                    channel = connection.channel()
+                    queue_name = settings.REPO_PROCESS_ORDER_QUEUE_NAME
+                    channel.queue_declare(queue=queue_name, durable=True)
+                    channel.basic_qos(prefetch_count=1)
+                    channel.basic_consume(queue=queue_name, on_message_callback=self._callback)
+                    logger.info('Starting consuming...')
+                    try:
+                        channel.start_consuming()
+                    except KeyboardInterrupt:
+                        logger.info('Stopped by user')
+                        channel.stop_consuming()
+            except Exception:
+                logger.exception('Fail read events. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
+                sleep(5)
