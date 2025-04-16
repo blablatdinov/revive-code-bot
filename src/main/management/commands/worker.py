@@ -26,8 +26,8 @@ import json
 import logging
 import traceback
 from contextlib import closing
-from typing import Any
 from time import sleep
+from typing import Any
 
 import pika
 from django.conf import settings
