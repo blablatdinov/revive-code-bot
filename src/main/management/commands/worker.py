@@ -29,11 +29,11 @@ from contextlib import closing
 from typing import Any
 
 import pika
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, RetryError
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from main.models import ProcessTask, ProcessTaskStatusEnum
 from main.service import process_repo
