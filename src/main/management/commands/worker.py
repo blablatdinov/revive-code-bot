@@ -29,6 +29,7 @@ from contextlib import closing
 from typing import Any
 
 import pika
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, RetryError
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from pika.adapters.blocking_connection import BlockingChannel
@@ -48,6 +49,11 @@ class Command(BaseCommand):
 
     help = ''
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        retry=retry_if_exception_type(Exception),
+    )
     def _callback(self, ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes) -> None:
         logger.info('Message %s received, handling...', body)
         data = json.loads(body.decode('utf-8'))
