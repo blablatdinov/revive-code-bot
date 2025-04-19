@@ -40,17 +40,23 @@ tasks:
     cmds:
       - docker compose run app bash
 
-  compose-test:
+  compose-tests:
     cmds:
-      - docker compose run app task test
+      - docker compose run app task tests
 
   compose-lint:
     cmds:
       - docker compose run app task lint
 
-  test:
+  tests:
+    deps: [syntax-check,type-check]
     cmds:
       - poetry run pytest src -m 'not integration' -vv
+
+  test:
+    deps: [syntax-check,type-check]
+    cmds:
+      - poetry run pytest {{.CLI_ARGS}}
 
   shell:
     cmds:
@@ -69,6 +75,14 @@ tasks:
     cmds:
       - poetry run ruff check src --output-format=concise
       - poetry run flake8 src
+      - poetry run mypy src
+
+  syntax-check:
+    cmds:
+      - poetry run ruff check src --select=F --ignore=F401,F841
+
+  type-check:
+    cmds:
       - poetry run mypy src
 
   clean:
