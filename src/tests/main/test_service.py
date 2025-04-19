@@ -23,14 +23,15 @@
 """Test service utils."""
 
 import tempfile
-import pytest
-from django.conf import settings
 from pathlib import Path
 
-from main.service import process_repo, define_files_for_search
+import pytest
+from django.conf import settings
+from git import Repo
+
+from main.service import define_files_for_search, process_repo
 from main.services.github_objs.fk_cloned_repo import FkClonedRepo
 from main.services.github_objs.fk_new_issue import FkNewIssue
-from git import Repo
 
 pytestmark = [pytest.mark.django_db]
 
@@ -117,7 +118,7 @@ def test_define_files_for_search_ignore_git_dir(tmp_dir):
         {'glob': '**/*'},
     )
 
-    assert (tmp_dir / '.git/hooks/pre-commit.sample')
+    assert (tmp_dir / '.git/hooks/pre-commit.sample') not in got
 
 
 def test_define_files_for_search_contain_github_dir(tmp_dir):
