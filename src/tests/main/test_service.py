@@ -105,7 +105,6 @@ def test_process_repo_without_disk_config(gh_repo):
     )
 
 
-
 def test_define_files(tmp_dir, file_list):
     got = define_files_for_search(
         tmp_dir,
