@@ -140,7 +140,7 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue) -> 
             repo_id,
             files_sorted_by_last_changes(
                 repo_path,
-                _define_files_for_search(repo_path, config),
+                define_files_for_search(repo_path, config),
             ),
             repo_path,
         )
@@ -170,11 +170,12 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue) -> 
     )
 
 
-def _define_files_for_search(repo_path: Path, config: ConfigDict) -> list[Path]:
+def define_files_for_search(repo_path: Path, config: ConfigDict) -> list[Path]:
+    """Define files for search."""
     return [
-        x
-        for x in repo_path.glob(config['glob'] or '**/*')
-        if '.git' not in str(x) and x.is_file()  # TODO .github/workflows dir case
+        pth
+        for pth in repo_path.glob(config['glob'] or '**/*')
+        if '.git/' not in str(pth) and pth.is_file()  # TODO .github/workflows dir case
     ]
 
 
