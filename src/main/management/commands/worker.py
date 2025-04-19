@@ -34,6 +34,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
+from django.db.utils import OperationalError
+from django.db import close_old_connections
 
 from main.models import ProcessTask, ProcessTaskStatusEnum
 from main.service import process_repo
@@ -105,6 +107,7 @@ class Command(BaseCommand):
                     except KeyboardInterrupt:
                         logger.info('Stopped by user')
                         channel.stop_consuming()
-            except Exception:
-                logger.exception('Fail read events. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
+            except OperationalError:
+                logger.exception('Django OperationalError. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
+                close_old_connections()
                 sleep(5)
