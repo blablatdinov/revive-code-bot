@@ -83,31 +83,34 @@ class Command(BaseCommand):
     # https://github.com/typeddjango/django-stubs/blob/c7df64/django-stubs/core/management/commands/check.pyi#L6
     def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Entrypoint."""
-        while True:
-            try:
-                with closing(
-                    pika.BlockingConnection(pika.ConnectionParameters(
-                        virtual_host=settings.RABBITMQ_VHOST,
-                        host=settings.RABBITMQ_HOST,
-                        port=settings.RABBITMQ_PORT,
-                        credentials=pika.PlainCredentials(
-                            settings.RABBITMQ_USER,
-                            settings.RABBITMQ_PASS,
-                        ),
-                    )),
-                ) as connection:
-                    channel = connection.channel()
-                    queue_name = settings.REPO_PROCESS_ORDER_QUEUE_NAME
-                    channel.queue_declare(queue=queue_name, durable=True)
-                    channel.basic_qos(prefetch_count=1)
-                    channel.basic_consume(queue=queue_name, on_message_callback=self._callback)
-                    logger.info('Starting consuming...')
-                    try:
-                        channel.start_consuming()
-                    except KeyboardInterrupt:
-                        logger.info('Stopped by user')
-                        channel.stop_consuming()
-            except OperationalError:
-                logger.exception('Django OperationalError. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
-                close_old_connections()
-                sleep(5)
+        try:
+            while True:
+                try:
+                    with closing(
+                        pika.BlockingConnection(pika.ConnectionParameters(
+                            virtual_host=settings.RABBITMQ_VHOST,
+                            host=settings.RABBITMQ_HOST,
+                            port=settings.RABBITMQ_PORT,
+                            credentials=pika.PlainCredentials(
+                                settings.RABBITMQ_USER,
+                                settings.RABBITMQ_PASS,
+                            ),
+                        )),
+                    ) as connection:
+                        channel = connection.channel()
+                        queue_name = settings.REPO_PROCESS_ORDER_QUEUE_NAME
+                        channel.queue_declare(queue=queue_name, durable=True)
+                        channel.basic_qos(prefetch_count=1)
+                        channel.basic_consume(queue=queue_name, on_message_callback=self._callback)
+                        logger.info('Starting consuming...')
+                        try:
+                            channel.start_consuming()
+                        except KeyboardInterrupt:
+                            logger.info('Stopped by user')
+                            channel.stop_consuming()
+                except OperationalError:
+                    logger.exception('Django OperationalError. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
+                    close_old_connections()
+                    sleep(5)
+        except KeyboardInterrupt:
+            logger.info('Stop handler')
