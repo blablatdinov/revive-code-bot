@@ -24,6 +24,7 @@
 
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
 
 from main.views.connected_repos import connected_repos
 from main.views.gh_webhook import gh_webhook
@@ -37,5 +38,5 @@ urlpatterns = [
     path('hook/github', gh_webhook),
     path('process-repo/<int:repo_id>', process_repo_view),
     path('connected-repos/', connected_repos),
-    path('admin/', admin.site.urls),
+    path('{0}admin/'.format(settings.ADMIN_SECRET_PATH), admin.site.urls),
 ]

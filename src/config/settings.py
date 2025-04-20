@@ -222,3 +222,5 @@ LOGGING = {
         },
     },
 }
+
+ADMIN_SECRET_PATH = env('ADMIN_SECRET_PATH', str, default='')
