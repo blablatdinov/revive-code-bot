@@ -236,15 +236,25 @@ def test_files_sorted_by_last_changes_from_db(gh_repo: GhRepo, time_machine: Tim
 
 
 def test_calculate_rating(repo_path: Path):
-    calculate_rating(
-        repo_path,
-        ConfigDict({
-            'limit': 5,
-            'cron': '* * * * *',
-            'glob': '**/*.py',
-            # 'algorithms': list[dict[str, dict[Literal['weight'], float]]]
-            'algorithms': [
-                {'last_changes': {'weight': 1.0}}
-            ]
-        })
-    )
+    got = {
+        Path(str(file).replace(str(repo_path), '')[1:]): rating
+        for file, rating in calculate_rating(
+            repo_path,
+            ConfigDict({
+                'limit': 5,
+                'cron': '* * * * *',
+                'glob': '**/*.py',
+                # 'algorithms': list[dict[str, dict[Literal['weight'], float]]]
+                'algorithms': [
+                    {'last_changes': {'weight': 0.8}},
+                    {'editors_count': {'weight': -0.5}},
+                ]
+            })
+        ).items()
+    }
+
+    assert got == {
+        Path('dir1/file_in_dir.py'): 1,
+        Path('first.py'): -1,
+        Path('third.py'): 13,
+    }

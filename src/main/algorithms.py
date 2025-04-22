@@ -49,7 +49,7 @@ def calculate_rating(repo_path: Path, config: ConfigDict) -> dict[Path, int]:
     for algo in algorithms:
         algo_name = next(iter(algo.keys()))
         weight = algo[algo_name]['weight']
-        merge_rating(
+        result = merge_rating(
             result,
             apply_coefficient(
                 alg_funcs[algo_name](repo_path, files_for_check),
