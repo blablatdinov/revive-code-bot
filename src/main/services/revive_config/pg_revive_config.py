@@ -47,6 +47,6 @@ class PgReviveConfig(ReviveConfig):
             'glob': cfg.files_glob,
             # TODO: save it
             'algorithms': [
-                {'last_changes': {'weight': 1.0}}
-            ]
+                {'last_changes': {'weight': 1.0}},
+            ],
         })

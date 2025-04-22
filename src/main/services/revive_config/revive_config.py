@@ -22,7 +22,7 @@
 
 """Revive bot config."""
 
-from typing import Protocol, TypedDict, Literal
+from typing import Literal, Protocol, TypedDict
 
 
 class ConfigDict(TypedDict):

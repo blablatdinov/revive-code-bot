@@ -22,10 +22,11 @@
 
 """Algorithms for define files."""
 
-from typing import Protocol, TypeAlias, Callable
 import datetime
+from abc.collections import Callable
 from collections import defaultdict
 from pathlib import Path
+from typing import TypeAlias
 
 from git import Repo
 from lxml import etree
@@ -37,12 +38,13 @@ Algorithm: TypeAlias = Callable[[Path, list[Path]], dict[Path, int]]
 
 
 def calculate_rating(repo_path: Path, config: ConfigDict) -> dict[Path, int]:
+    """Calculates file priority ratings based on configured algorithms and weights."""
     files_for_check = list(repo_path.glob(config['glob']))
     alg_funcs: dict[str, Algorithm] = {
-        "last_changes": files_sorted_by_last_changes,
-        "changes_count": files_changes_count,
-        "editors_count": file_editors_count,
-        "lines_count": lines_count,
+        'last_changes': files_sorted_by_last_changes,
+        'changes_count': files_changes_count,
+        'editors_count': file_editors_count,
+        'lines_count': lines_count,
     }
     result: dict[Path, int] = {}
     algorithms = config.get('algorithms', [])

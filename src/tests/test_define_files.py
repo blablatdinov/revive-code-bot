@@ -37,6 +37,7 @@ from time_machine import TimeMachineFixture
 
 from main.algorithms import (
     apply_coefficient,
+    calculate_rating,
     code_coverage_rating,
     file_editors_count,
     files_changes_count,
@@ -44,7 +45,6 @@ from main.algorithms import (
     files_sorted_by_last_changes_from_db,
     lines_count,
     merge_rating,
-    calculate_rating,
 )
 from main.models import GhRepo, TouchRecord
 from main.services.revive_config.revive_config import ConfigDict
@@ -248,8 +248,8 @@ def test_calculate_rating(repo_path: Path):
                 'algorithms': [
                     {'last_changes': {'weight': 0.8}},
                     {'editors_count': {'weight': -0.5}},
-                ]
-            })
+                ],
+            }),
         ).items()
     }
 

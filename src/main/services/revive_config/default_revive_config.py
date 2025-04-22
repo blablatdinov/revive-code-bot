@@ -55,6 +55,6 @@ class DefaultReviveConfig(ReviveConfig):
             ),
             'glob': '**/*',
             'algorithms': [
-                {'last_changes': {'weight': 1.0}}
-            ]
+                {'last_changes': {'weight': 1.0}},
+            ],
         })

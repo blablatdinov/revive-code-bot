@@ -49,7 +49,7 @@ class MergedConfig(ReviveConfig):
              'cron': '',
              'glob': '',
              'algorithms': [
-                {'last_changes': {'weight': 1.0}}
+                {'last_changes': {'weight': 1.0}},
              ]})
         for config in self._origins:
             result_config |= config.parse()
