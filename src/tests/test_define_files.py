@@ -177,7 +177,7 @@ def test_merge_real_ratings(repo_path: Path) -> None:
 def test_lines_count(repo_path: Path) -> None:
     got = {
         Path(str(file).replace(str(repo_path), '')[1:]): rating
-        for file, rating in lines_count(list(repo_path.glob('**/*.py'))).items()
+        for file, rating in lines_count(repo_path, list(repo_path.glob('**/*.py'))).items()
     }
 
     assert got == {

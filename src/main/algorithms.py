@@ -22,7 +22,7 @@
 
 """Algorithms for define files."""
 
-from typing import Protocol
+from typing import Protocol, TypeAlias, Callable
 import datetime
 from collections import defaultdict
 from pathlib import Path
@@ -33,24 +33,30 @@ from lxml import etree
 from main.models import TouchRecord
 from main.services.revive_config.revive_config import ConfigDict
 
-
-class Algorithm(Protocol):
-
-    def __call__(self, repo_path: Path, files_for_check: list[Path]): ...
+Algorithm: TypeAlias = Callable[[Path, list[Path]], dict[Path, int]]
 
 
 def calculate_rating(repo_path: Path, config: ConfigDict) -> dict[Path, int]:
     files_for_check = list(repo_path.glob(config['glob']))
-    alg_classes = {
+    alg_funcs: dict[str, Algorithm] = {
         "last_changes": files_sorted_by_last_changes,
         "changes_count": files_changes_count,
         "editors_count": file_editors_count,
         "lines_count": lines_count,
     }
-    # ratings = []
+    result: dict[Path, int] = {}
     algorithms = config.get('algorithms', [])
-    # for alg in alg_classes:
-    return {}
+    for algo in algorithms:
+        algo_name = next(iter(algo.keys()))
+        weight = algo[algo_name]['weight']
+        merge_rating(
+            result,
+            apply_coefficient(
+                alg_funcs[algo_name](repo_path, files_for_check),
+                weight,
+            ),
+        )
+    return result
 
 
 def files_changes_count(repo_path: Path, files_for_check: list[Path]) -> dict[Path, int]:
@@ -125,7 +131,7 @@ def file_editors_count(repo_path: Path, files_for_check: list[Path]) -> dict[Pat
     }
 
 
-def lines_count(files_for_check: list[Path]) -> dict[Path, int]:
+def lines_count(repo_path: Path, files_for_check: list[Path]) -> dict[Path, int]:
     """Count lines for each file."""
     return {
         file: file.read_text().count('\n')
