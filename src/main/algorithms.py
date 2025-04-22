@@ -22,6 +22,7 @@
 
 """Algorithms for define files."""
 
+from typing import Protocol
 import datetime
 from collections import defaultdict
 from pathlib import Path
@@ -30,6 +31,11 @@ from git import Repo
 from lxml import etree
 
 from main.models import TouchRecord
+
+
+class Algorithm(Protocol):
+
+    def __call__(self, repo_path: Path, files_for_check: list[Path]): ...
 
 
 def files_changes_count(repo_path: Path, files_for_check: list[Path]) -> dict[Path, int]:
