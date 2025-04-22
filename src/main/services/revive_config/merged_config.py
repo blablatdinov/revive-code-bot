@@ -44,7 +44,13 @@ class MergedConfig(ReviveConfig):
 
     def parse(self) -> ConfigDict:
         """Merge configs."""
-        result_config = ConfigDict({'limit': 0, 'cron': '', 'glob': ''})
+        result_config = ConfigDict(
+            {'limit': 0,
+             'cron': '',
+             'glob': '',
+             'algorithms': [
+                {'last_changes': {'weight': 1.0}}
+             ]})
         for config in self._origins:
             result_config |= config.parse()
         return result_config

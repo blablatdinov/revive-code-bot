@@ -40,6 +40,16 @@ class Algorithm(Protocol):
 
 
 def calculate_rating(repo_path: Path, config: ConfigDict) -> dict[Path, int]:
+    files_for_check = list(repo_path.glob(config['glob']))
+    alg_classes = {
+        "last_changes": files_sorted_by_last_changes,
+        "changes_count": files_changes_count,
+        "editors_count": file_editors_count,
+        "lines_count": lines_count,
+    }
+    # ratings = []
+    algorithms = config.get('algorithms', [])
+    # for alg in alg_classes:
     return {}
 
 

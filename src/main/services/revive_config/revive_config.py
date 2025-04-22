@@ -22,7 +22,7 @@
 
 """Revive bot config."""
 
-from typing import Protocol, TypedDict
+from typing import Protocol, TypedDict, Literal
 
 
 class ConfigDict(TypedDict):
@@ -31,6 +31,7 @@ class ConfigDict(TypedDict):
     limit: int
     cron: str
     glob: str
+    algorithms: list[dict[str, dict[Literal['weight'], float]]]
 
 
 class ReviveConfig(Protocol):

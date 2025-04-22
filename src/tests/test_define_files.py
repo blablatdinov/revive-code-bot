@@ -44,8 +44,10 @@ from main.algorithms import (
     files_sorted_by_last_changes_from_db,
     lines_count,
     merge_rating,
+    calculate_rating,
 )
 from main.models import GhRepo, TouchRecord
+from main.services.revive_config.revive_config import ConfigDict
 
 pytestmark = [pytest.mark.django_db]
 
@@ -231,3 +233,18 @@ def test_files_sorted_by_last_changes_from_db(gh_repo: GhRepo, time_machine: Tim
         Path('src/main.py'): 0,
         Path('src/lib.py'): 73,
     }
+
+
+def test_calculate_rating(repo_path: Path):
+    calculate_rating(
+        repo_path,
+        ConfigDict({
+            'limit': 5,
+            'cron': '* * * * *',
+            'glob': '**/*.py',
+            # 'algorithms': list[dict[str, dict[Literal['weight'], float]]]
+            'algorithms': [
+                {'last_changes': {'weight': 1.0}}
+            ]
+        })
+    )
