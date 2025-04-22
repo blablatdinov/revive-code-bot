@@ -23,7 +23,7 @@
 """Algorithms for define files."""
 
 import datetime
-from abc.collections import Callable
+from collections.abc import Callable
 from collections import defaultdict
 from pathlib import Path
 from typing import TypeAlias
