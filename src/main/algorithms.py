@@ -31,11 +31,16 @@ from git import Repo
 from lxml import etree
 
 from main.models import TouchRecord
+from main.services.revive_config.revive_config import ConfigDict
 
 
 class Algorithm(Protocol):
 
     def __call__(self, repo_path: Path, files_for_check: list[Path]): ...
+
+
+def calculate_rating(repo_path: Path, config: ConfigDict) -> dict[Path, int]:
+    return {}
 
 
 def files_changes_count(repo_path: Path, files_for_check: list[Path]) -> dict[Path, int]:
