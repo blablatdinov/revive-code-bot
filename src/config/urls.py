@@ -22,9 +22,9 @@
 
 """Routers."""
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path
-from django.conf import settings
 
 from main.views.connected_repos import connected_repos
 from main.views.gh_webhook import gh_webhook
