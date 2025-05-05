@@ -67,7 +67,7 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
 
   redis:
-    image: redis:6
+    image: redis:8
     container_name: 'revive-code-bot-redis'
     environment:
       POSTGRES_USER: admin
