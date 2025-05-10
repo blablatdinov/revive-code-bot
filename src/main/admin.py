@@ -50,4 +50,4 @@ class ProcessTaskAdmin(admin.ModelAdmin):
         """Calculate process time."""
         if process_task.status != ProcessTaskStatusEnum.success:
             return 'none'
-        return process_task.updated_at - process_task.created_at
+        return str(process_task.updated_at - process_task.created_at)
