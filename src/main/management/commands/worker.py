@@ -34,6 +34,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import close_old_connections
 from django.db.utils import OperationalError
+from django.utils import timezone
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
 
@@ -59,6 +60,7 @@ class Command(BaseCommand):
         try:
             process_task_record.status = ProcessTaskStatusEnum.in_process
             process_task_record.traceback = ''
+            process_task_record.updated_at = timezone.now()
             process_task_record.save()
             process_repo(
                 repo.id,
@@ -67,11 +69,13 @@ class Command(BaseCommand):
             )
             logger.info('Repository %s processed', repo)
             process_task_record.status = ProcessTaskStatusEnum.success
+            process_task_record.updated_at = timezone.now()
             process_task_record.traceback = ''
             process_task_record.save()
         except Exception:  # noqa: BLE001
             logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
             process_task_record.status = ProcessTaskStatusEnum.failed
+            process_task_record.updated_at = timezone.now()
             process_task_record.traceback = traceback.format_exc() or ''
             process_task_record.save()
         if method.delivery_tag is not None:

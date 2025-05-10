@@ -22,11 +22,33 @@
 
 """Revive bot admin configuration."""
 
+
 from django.contrib import admin
 
-from main.models import GhRepo, ProcessTask, RepoConfig, TouchRecord
+from main.models import GhRepo, ProcessTask, RepoConfig, RepoStatusEnum, TouchRecord
 
 admin.site.register(GhRepo)
 admin.site.register(TouchRecord)
 admin.site.register(RepoConfig)
-admin.site.register(ProcessTask)
+
+
+@admin.register(ProcessTask)
+class ProcessTaskAdmin(admin.ModelAdmin):
+    """Admin panel for process task model."""
+
+    list_display = ('__str__', 'status', 'process_time', 'repo')
+    readonly_fields = ('formatted_created_at', 'formatted_updated_at')
+
+    def formatted_created_at(self, process_task: ProcessTask) -> str:
+        """Created at field."""
+        return process_task.created_at.isoformat()
+
+    def formatted_updated_at(self, process_task: ProcessTask) -> str:
+        """Updated at field."""
+        return process_task.updated_at.isoformat()
+
+    def process_time(self, process_task: ProcessTask) -> str:
+        """Calculate process time."""
+        if process_task.status != RepoStatusEnum.active:
+            return 'none'
+        return process_task.updated_at - process_task.created_at
