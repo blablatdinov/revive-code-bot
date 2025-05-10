@@ -25,7 +25,7 @@
 
 from django.contrib import admin
 
-from main.models import GhRepo, ProcessTask, RepoConfig, RepoStatusEnum, TouchRecord
+from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum, RepoConfig, TouchRecord
 
 admin.site.register(GhRepo)
 admin.site.register(TouchRecord)
@@ -49,6 +49,7 @@ class ProcessTaskAdmin(admin.ModelAdmin):
 
     def process_time(self, process_task: ProcessTask) -> str:
         """Calculate process time."""
-        if process_task.status != RepoStatusEnum.active:
+        print('!!!', process_task.status, ProcessTaskStatusEnum.success)
+        if process_task.status != ProcessTaskStatusEnum.success:
             return 'none'
         return process_task.updated_at - process_task.created_at
