@@ -48,6 +48,7 @@ class MergedConfig(ReviveConfig):
             {'limit': 0,
              'cron': '',
              'glob': '',
+             # TODO: how to merge algorithms?
              'algorithms': [
                 {'last_changes': {'weight': 1.0}},
              ]})
