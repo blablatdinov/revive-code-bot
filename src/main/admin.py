@@ -49,7 +49,6 @@ class ProcessTaskAdmin(admin.ModelAdmin):
 
     def process_time(self, process_task: ProcessTask) -> str:
         """Calculate process time."""
-        print('!!!', process_task.status, ProcessTaskStatusEnum.success)
         if process_task.status != ProcessTaskStatusEnum.success:
             return 'none'
         return process_task.updated_at - process_task.created_at
