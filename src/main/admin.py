@@ -22,7 +22,6 @@
 
 """Revive bot admin configuration."""
 
-
 from django.contrib import admin
 
 from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum, RepoConfig, TouchRecord
