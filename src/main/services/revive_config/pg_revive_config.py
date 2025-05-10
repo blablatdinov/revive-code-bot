@@ -45,4 +45,8 @@ class PgReviveConfig(ReviveConfig):
             'limit': 10,
             'cron': cfg.cron_expression,
             'glob': cfg.files_glob,
+            # TODO: save it
+            'algorithms': [
+                {'last_changes': {'weight': 1.0}},
+            ],
         })

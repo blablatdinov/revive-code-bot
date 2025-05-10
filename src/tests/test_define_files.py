@@ -37,6 +37,7 @@ from time_machine import TimeMachineFixture
 
 from main.algorithms import (
     apply_coefficient,
+    calculate_rating,
     code_coverage_rating,
     file_editors_count,
     files_changes_count,
@@ -46,6 +47,7 @@ from main.algorithms import (
     merge_rating,
 )
 from main.models import GhRepo, TouchRecord
+from main.services.revive_config.revive_config import ConfigDict
 
 pytestmark = [pytest.mark.django_db]
 
@@ -175,7 +177,7 @@ def test_merge_real_ratings(repo_path: Path) -> None:
 def test_lines_count(repo_path: Path) -> None:
     got = {
         Path(str(file).replace(str(repo_path), '')[1:]): rating
-        for file, rating in lines_count(list(repo_path.glob('**/*.py'))).items()
+        for file, rating in lines_count(repo_path, list(repo_path.glob('**/*.py'))).items()
     }
 
     assert got == {
@@ -230,4 +232,29 @@ def test_files_sorted_by_last_changes_from_db(gh_repo: GhRepo, time_machine: Tim
     assert got == {
         Path('src/main.py'): 0,
         Path('src/lib.py'): 73,
+    }
+
+
+def test_calculate_rating(repo_path: Path):
+    got = {
+        Path(str(file).replace(str(repo_path), '')[1:]): rating
+        for file, rating in calculate_rating(
+            repo_path,
+            ConfigDict({
+                'limit': 5,
+                'cron': '* * * * *',
+                'glob': '**/*.py',
+                # 'algorithms': list[dict[str, dict[Literal['weight'], float]]]
+                'algorithms': [
+                    {'last_changes': {'weight': 0.8}},
+                    {'editors_count': {'weight': -0.5}},
+                ],
+            }),
+        ).items()
+    }
+
+    assert got == {
+        Path('dir1/file_in_dir.py'): 1,
+        Path('first.py'): -1,
+        Path('third.py'): 13,
     }

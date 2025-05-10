@@ -31,11 +31,17 @@ def test() -> None:
             'cron': '* * * * *',
             'limit': 20,
             'glob': '**/*.js',
+            'algorithms': [
+                {'last_changes': {'weight': 1.0}},
+            ],
         })),
         FkReviveConfig(ConfigDict({
             'cron': '1 1 1 1 1',
             'limit': 10,
             'glob': '**/*.py',
+            'algorithms': [
+                {'last_changes': {'weight': 1.0}},
+            ],
         })),
     ).parse()
 

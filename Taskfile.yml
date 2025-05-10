@@ -53,6 +53,9 @@ tasks:
     cmds:
       - poetry run pytest src -m 'not integration' -vv
 
+  fcheck:  # fast check
+    deps: [syntax-check,type-check]
+
   test:
     deps: [syntax-check,type-check]
     cmds:

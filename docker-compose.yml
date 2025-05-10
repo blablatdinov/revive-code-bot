@@ -29,6 +29,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.dev
+    image: revive-code-bot
     command: poetry run python src/manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
@@ -45,6 +46,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.dev
+    image: revive-code-bot
     command: poetry run python src/manage.py worker
     volumes:
       - .env:/.env
