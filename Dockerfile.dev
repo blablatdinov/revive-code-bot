@@ -20,14 +20,20 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 
-FROM python:3.13-slim
+FROM python:3.13.3-slim
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true
 # https://stackoverflow.com/questions/61863806/stuck-in-watching-for-file-changes-with-statreloader
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 RUN pip install poetry==1.8.5
-RUN apt-get update && apt-get install gcc=4:12.2.0-3 curl -y
+RUN apt-get update && apt-get install -y \
+  gcc=4:12.2.0-3 \
+  curl \
+  git \
+  libxml2-dev \
+  libpq-dev \
+  libxslt-dev
 RUN sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /bin
 COPY poetry.lock pyproject.toml /app
 RUN poetry lock --no-update
