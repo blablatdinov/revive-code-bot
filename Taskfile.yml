@@ -55,8 +55,9 @@ tasks:
       - poetry run pytest src -m 'not integration' -vv
 
   test:
-    deps: [syntax-check,type-check]
-    dir: src
+    deps: 
+      - syntax-check
+      - type-check
     cmds:
       - poetry run pytest {{.CLI_ARGS}}
 

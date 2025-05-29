@@ -133,3 +133,26 @@ def code_coverage_rating(coverage_xml: str) -> dict[Path, int]:
         Path(file.xpath('./@name')[0]): int(float(file.xpath('./@line-rate')[0]) * 100)  # type: ignore [union-attr,index,arg-type]
         for file in tree.xpath('.//class')  # type: ignore [union-attr]
     }
+
+
+def files_sorted_by_avg_line_age(repo_path: Path, files_for_check: list[Path]) -> dict[Path, float]:
+    """Calculate average age of lines in days for each file.
+    
+    For each line in file, finds when it was last modified,
+    then calculates average age of all lines in the file.
+    """
+    repo = Repo(repo_path)
+    now = datetime.datetime.now(tz=datetime.UTC)
+    file_avg_age = {}
+    for file in files_for_check:
+        blame = repo.blame_incremental(repo.head.commit, str(file.relative_to(repo_path)))
+        line_ages = []
+        for entry in blame:
+            commit_time = entry.commit.committed_datetime  # type: ignore [attr-defined]
+            age_days = (now - commit_time).days
+            line_ages.extend([age_days] * len(entry.linenos))
+        if line_ages:
+            file_avg_age[file] = sum(line_ages) / len(line_ages)
+        else:
+            file_avg_age[file] = 0.0
+    return file_avg_age
