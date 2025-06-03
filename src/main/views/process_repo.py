@@ -35,6 +35,14 @@ from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum
 logger = logging.getLogger(__name__)
 
 
+def create_process_task(repo: GhRepo, trigger_issue_id: int | None = None) -> ProcessTask:
+    """Create a process task for a repository."""
+    return ProcessTask.objects.create(
+        repo=repo,
+        status=ProcessTaskStatusEnum.pending,
+    )
+
+
 @csrf_exempt
 def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
     """Webhook for process repo."""
@@ -44,10 +52,7 @@ def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
     ):
         raise PermissionDenied
     repo = get_object_or_404(GhRepo, id=repo_id)
-    process_task = ProcessTask.objects.create(
-        repo=repo,
-        status=ProcessTaskStatusEnum.pending,
-    )
+    create_process_task(repo)
     return JsonResponse(
         {'process_task_id': process_task.id},
         status=201,
