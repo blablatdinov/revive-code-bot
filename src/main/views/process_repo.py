@@ -78,7 +78,7 @@ def publish_event(event_data: dict) -> None:
 
 
 # TODO: move to service layer
-def send_process_repo_event(repo_id: int) -> int:
+def send_process_repo_event(repo_id: int, trigger_issue_id: int | None = None) -> int:
     repo = get_object_or_404(GhRepo, id=repo_id)
     process_task = ProcessTask.objects.create(
         repo=repo,
@@ -90,7 +90,7 @@ def send_process_repo_event(repo_id: int) -> int:
         'event_name': 'RepoOrdered',
         'event_time': str(datetime.datetime.now(tz=datetime.UTC)),
         'producer': 'revive_bot.django',
-        'data': {'process_task_id': process_task.id},
+        'data': {'process_task_id': process_task.id, 'trigger_issue_id': trigger_issue_id},
     })
     return process_task.id
 
