@@ -76,6 +76,6 @@ def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911 . TODO
         elif gh_event == 'issue_comment':
             comment_body = request_json['comment']['body']
             if '@revive-code-bot scan repo' in comment_body.lower():
-                send_process_repo_event(pg_repo.id)
+                send_process_repo_event(pg_repo.id, request_json['issue']['number'])
                 return HttpResponse('Manual scan triggered')
         return HttpResponse('Unprocessable event type')
