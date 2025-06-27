@@ -43,6 +43,7 @@ from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
 from main.services.github_objs.github_client import github_repo
+from main.services.github_objs.gh_issue_comment import GhIssueComment
 
 logger = logging.getLogger(__name__)
 
@@ -58,20 +59,28 @@ class Command(BaseCommand):
         process_task_record = ProcessTask.objects.get(id=data['data']['process_task_id'])
         repo = process_task_record.repo
         try:
+            gh_repo = github_repo(repo.installation_id, repo.full_name)
             process_task_record.status = ProcessTaskStatusEnum.in_process
             process_task_record.traceback = ''
             process_task_record.updated_at = timezone.now()
             process_task_record.save()
             process_repo(
                 repo.id,
-                GhClonedRepo(repo),
-                GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
+                GhClonedRepo(repo), GhNewIssue(gh_repo),
             )
             logger.info('Repository %s processed', repo)
             process_task_record.status = ProcessTaskStatusEnum.success
             process_task_record.updated_at = timezone.now()
             process_task_record.traceback = ''
             process_task_record.save()
+            if data['data']['trigger_issue_id']:
+                GhIssueComment(
+                    gh_repo,
+                    data['data']['trigger_issue_id'],
+                    # TODO: tag comment author
+                    # TODO: send link to new issue
+                    'Issue created',
+                ).publish()
         except Exception:  # noqa: BLE001
             logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
             process_task_record.status = ProcessTaskStatusEnum.failed
