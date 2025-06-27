@@ -54,4 +54,7 @@ class DefaultReviveConfig(ReviveConfig):
                 self._rnd.randint(0, 29),  # noqa: S311 . Not secure issue
             ),
             'glob': '**/*',
+            'algorithms': [
+                {'last_changes': {'weight': 1.0}},
+            ],
         })
