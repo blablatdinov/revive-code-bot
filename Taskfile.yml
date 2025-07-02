@@ -55,6 +55,7 @@ tasks:
 
   test:
     deps: [syntax-check,type-check]
+    dir: src
     cmds:
       - poetry run pytest {{.CLI_ARGS}}
 
