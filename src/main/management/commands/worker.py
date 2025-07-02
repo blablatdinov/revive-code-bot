@@ -102,8 +102,8 @@ class Command(BaseCommand):
                             settings.RABBITMQ_PASS,
                         ),
                     )),
-                ) as connection:
-                    channel = connection.channel()
+                ) as rq_connection:
+                    channel = rq_connection.channel()
                     queue_name = settings.REPO_PROCESS_ORDER_QUEUE_NAME
                     channel.queue_declare(queue=queue_name, durable=True)
                     channel.basic_qos(prefetch_count=1)
