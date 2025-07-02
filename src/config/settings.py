@@ -224,3 +224,6 @@ LOGGING = {
 }
 
 ADMIN_SECRET_PATH = env('ADMIN_SECRET_PATH', str, default='')
+
+CRONIQ_API_KEY = env('CRONIQ_API_KEY', str)
+CRONIQ_DOMAIN = env('CRONIQ_DOMAIN', str, 'https://croniq.ilaletdinov.ru')

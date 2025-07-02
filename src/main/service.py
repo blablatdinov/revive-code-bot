@@ -46,6 +46,7 @@ from main.services.revive_config.pg_updated_revive_config import PgUpdatedRevive
 from main.services.revive_config.revive_config import ConfigDict
 from main.services.revive_config.safe_disk_revive_config import SafeDiskReviveConfig
 from main.services.synchronize_touch_records import PgSynchronizeTouchRecords
+from main.services.croniq_task import CroniqTask
 
 
 def get_or_create_repo(repo_full_name: str, installation_id: int) -> GhRepo:
@@ -91,15 +92,7 @@ def update_config(repo_full_name: str) -> None:
         repo.status = RepoStatusEnum.inactive
         repo.save()
         return
-    response = requests.put(
-        '{0}/api/jobs'.format(settings.SCHEDULER_HOST),
-        {
-            'repo_id': repo.id,
-            'cron_expression': config['cron'],
-        },
-        timeout=1,
-    )
-    response.raise_for_status()
+    CroniqTask(repo.id).apply(repo.id, config['cron'])
 
 
 class _Repository(TypedDict):
