@@ -34,6 +34,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import close_old_connections
 from django.db.utils import OperationalError
+from django.db import connection
 from django.utils import timezone
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.spec import Basic, BasicProperties
@@ -89,6 +90,8 @@ class Command(BaseCommand):
         """Entrypoint."""
         while True:
             try:
+                if connection.connection and not connection.is_usable():
+                    connection.close()
                 with closing(
                     pika.BlockingConnection(pika.ConnectionParameters(
                         virtual_host=settings.RABBITMQ_VHOST,
