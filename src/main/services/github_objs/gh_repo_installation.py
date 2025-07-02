@@ -26,16 +26,14 @@ import random
 from typing import Protocol, final, override
 
 import attrs
-import requests
-from django.conf import settings
 
 from main.models import GhRepo, RepoConfig
+from main.services.croniq_task import CroniqTask
 from main.services.github_objs.github_client import github_repo
 from main.services.github_objs.repo_installation import RegisteredRepoFromGithub
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
-from main.services.croniq_task import CroniqTask
 
 
 class RepoInstallation(Protocol):
@@ -83,6 +81,5 @@ class GhRepoInstallation(RepoInstallation):
                 cron_expression=config.parse()['cron'],
             )
             CroniqTask(repo_db_record.id).apply(
-                repo_db_record.id,
                 config.parse()['cron'],
             )

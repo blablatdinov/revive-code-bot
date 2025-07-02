@@ -62,8 +62,8 @@ def mock_scheduler(mock_http):
     mock_http.post(
         f'{settings.CRONIQ_DOMAIN}/api/v1/tasks',
         status_code=200,
-        json={"id": "fake-task-id"},
-        headers={"Authorization": f"Basic {settings.CRONIQ_API_KEY}"},
+        json={'id': 'fake-task-id'},
+        headers={'Authorization': f'Basic {settings.CRONIQ_API_KEY}'},
     )
     return mock_http
 
