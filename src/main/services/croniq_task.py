@@ -25,7 +25,7 @@
 from typing import final
 
 import attrs
-import httpx
+import requests
 from django.conf import settings
 
 
@@ -48,13 +48,13 @@ class CroniqTask:
         """
         name = 'repo_{0}'.format(self._repo_id)
         auth_headers = {'Authorization': 'Basic {0}'.format(settings.CRONIQ_API_KEY)}
-        response = httpx.get(
+        response = requests.get(
             '{0}/api/v1/tasks?name={1}'.format(settings.CRONIQ_DOMAIN, name),
             headers=auth_headers,
         )
         response.raise_for_status()
         if not response.json()['results']:
-            response = httpx.post(
+            response = requests.post(
                 '{0}/api/v1/tasks'.format(settings.CRONIQ_DOMAIN),
                 json={
                     'name': name,
@@ -64,7 +64,7 @@ class CroniqTask:
             )
             response.raise_for_status()
         else:
-            response = httpx.put(
+            response = requests.put(
                 '{0}/api/v1/tasks/{1}'.format(settings.CRONIQ_DOMAIN, response.json()['results'][0]['id']),
                 json={'schedule': cron},
                 headers=auth_headers,
