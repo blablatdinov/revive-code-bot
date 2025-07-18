@@ -51,6 +51,7 @@ class CroniqTask:
         response = requests.get(
             '{0}/api/v1/tasks?name={1}'.format(settings.CRONIQ_DOMAIN, name),
             headers=auth_headers,
+            timeout=5,
         )
         response.raise_for_status()
         if not response.json()['results']:
@@ -61,6 +62,7 @@ class CroniqTask:
                     'schedule': cron,
                 },
                 headers=auth_headers,
+                timeout=5,
             )
             response.raise_for_status()
         else:
@@ -68,5 +70,6 @@ class CroniqTask:
                 '{0}/api/v1/tasks/{1}'.format(settings.CRONIQ_DOMAIN, response.json()['results'][0]['id']),
                 json={'schedule': cron},
                 headers=auth_headers,
+                timeout=5,
             )
             response.raise_for_status()
