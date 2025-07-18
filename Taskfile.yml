@@ -26,7 +26,8 @@ tasks:
 
   compose-setup:
     cmds:
-      - docker compose build
+      - docker compose build app
+      - docker compose pull postgres rabbitmq redis
 
   compose-run:
     cmds:
@@ -55,6 +56,7 @@ tasks:
 
   test:
     deps: [syntax-check,type-check]
+    dir: src
     cmds:
       - poetry run pytest {{.CLI_ARGS}}
 

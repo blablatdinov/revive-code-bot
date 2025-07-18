@@ -27,13 +27,12 @@ import tempfile
 from pathlib import Path
 from typing import TypedDict
 
-import requests
-from django.conf import settings
 from django.template import Context, Template
 
 from main.algorithms import files_sorted_by_last_changes, files_sorted_by_last_changes_from_db
 from main.exceptions import UnavailableRepoError
 from main.models import GhRepo, RepoConfig, RepoStatusEnum
+from main.services.croniq_task import CroniqTask
 from main.services.github_objs.cloned_repo import ClonedRepo
 from main.services.github_objs.github_client import github_repo
 from main.services.github_objs.new_issue import NewIssue
@@ -91,15 +90,7 @@ def update_config(repo_full_name: str) -> None:
         repo.status = RepoStatusEnum.inactive
         repo.save()
         return
-    response = requests.put(
-        '{0}/api/jobs'.format(settings.SCHEDULER_HOST),
-        {
-            'repo_id': repo.id,
-            'cron_expression': config['cron'],
-        },
-        timeout=1,
-    )
-    response.raise_for_status()
+    CroniqTask(repo.id).apply(config['cron'])
 
 
 class _Repository(TypedDict):
