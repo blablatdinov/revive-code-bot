@@ -59,8 +59,10 @@ def inactive_gh_repo(baker):
 
 @pytest.fixture
 def mock_scheduler(mock_http):
-    mock_http.get(
-        f'{settings.CRONIQ_DOMAIN}/api/v1/tasks?name=repo_\\d+',
+    print('!!!', re.compile(r'{0}/api/v1/tasks?name=repo_\d+'.format(settings.CRONIQ_DOMAIN)))
+    mock_http.register_uri(
+        'GET',
+        re.compile(r'{0}/api/v1/tasks\?name=repo_\d+'.format(settings.CRONIQ_DOMAIN)),
         json={'results': []},
     )
     mock_http.post(

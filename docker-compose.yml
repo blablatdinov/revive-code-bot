@@ -20,12 +20,11 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 # OR OTHER DEALINGS IN THE SOFTWARE.
 ---
-version: '3.3'
-
 services:
 
   app:
     container_name: 'revive-code-bot'
+    image: revive-code-bot:dev
     build:
       context: .
       dockerfile: ./Dockerfile.dev
@@ -42,9 +41,7 @@ services:
 
   worker:
     container_name: 'revive-code-bot-worker'
-    build:
-      context: .
-      dockerfile: ./Dockerfile.dev
+    image: revive-code-bot:dev
     command: poetry run python src/manage.py worker
     volumes:
       - .env:/.env
