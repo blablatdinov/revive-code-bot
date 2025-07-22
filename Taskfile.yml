@@ -27,7 +27,7 @@ tasks:
   compose-setup:
     cmds:
       - docker compose build app
-      - docker compose pull postgres rabbitmq redis
+      - docker compose pull postgres redis
 
   compose-run:
     cmds:
