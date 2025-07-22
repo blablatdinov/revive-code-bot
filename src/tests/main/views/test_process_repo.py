@@ -22,11 +22,9 @@
 
 """Test process repo."""
 
-import json
 import re
 from pathlib import Path
 
-import pika
 import pytest
 from django.conf import settings
 

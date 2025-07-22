@@ -22,21 +22,15 @@
 
 """Worker for read process repo."""
 
-import json
 import logging
 import traceback
-from contextlib import closing
 from time import sleep
 from typing import Any
 
-import pika
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import close_old_connections
 from django.db.utils import OperationalError
 from django.utils import timezone
-from pika.adapters.blocking_connection import BlockingChannel
-from pika.spec import Basic, BasicProperties
 
 from main.models import ProcessTask, ProcessTaskStatusEnum
 from main.service import process_repo
@@ -56,7 +50,12 @@ class Command(BaseCommand):
         """Entrypoint."""
         while True:
             try:
-                process_task_record = ProcessTask.objects.filter(status=ProcessTaskStatusEnum.pending).order_by('created_at').first()
+                process_task_record = (
+                    ProcessTask.objects
+                    .filter(status=ProcessTaskStatusEnum.pending)
+                    .order_by('created_at')
+                    .first()
+                )
                 if not process_task_record:
                     sleep(2)
                     continue

@@ -22,20 +22,13 @@
 
 """HTTP controller for process repo."""
 
-import datetime
-import json
 import logging
-import traceback
-import uuid
-from contextlib import closing
 
-import pika
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from pika.exchange_type import ExchangeType
 
 from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum
 
@@ -44,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
-    """Webhook для запуска обработки репозитория."""
+    """Webhook for process repo."""
     if (
         not request.headers.get('Authentication')
         or request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN)
