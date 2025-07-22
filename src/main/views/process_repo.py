@@ -42,44 +42,9 @@ from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum
 logger = logging.getLogger(__name__)
 
 
-def publish_event(event_data: dict) -> None:
-    """Publishing event in rabbitmq."""
-    try:
-        with closing(
-            pika.BlockingConnection(pika.ConnectionParameters(
-                virtual_host=settings.RABBITMQ_VHOST,
-                host=settings.RABBITMQ_HOST,
-                port=settings.RABBITMQ_PORT,
-                credentials=pika.PlainCredentials(
-                    settings.RABBITMQ_USER,
-                    settings.RABBITMQ_PASS,
-                ),
-            )),
-        ) as connection:
-            exchange_name = 'ordered_repos'
-            channel = connection.channel()
-            channel.exchange_declare(exchange=exchange_name, exchange_type=ExchangeType.direct, durable=True)
-            channel.basic_publish(
-                exchange=exchange_name,
-                body=json.dumps(event_data),
-                routing_key='ordered_repos',
-                properties=pika.BasicProperties(
-                    delivery_mode=2,
-                    content_type='application/json',
-                ),
-            )
-            logger.info('Message "%s" published', event_data)
-    except Exception:
-        logger.exception('Error on publishing message. Traceback: %s', traceback.format_exc())
-        task = ProcessTask.objects.get(id=event_data['data']['process_task_id'])
-        task.status = ProcessTaskStatusEnum.failed
-        task.traceback = traceback.format_exc()
-        task.save()
-
-
 @csrf_exempt
 def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
-    """Webhook for process repo."""
+    """Webhook для запуска обработки репозитория."""
     if (
         not request.headers.get('Authentication')
         or request.headers['Authentication'] != 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN)
@@ -90,14 +55,6 @@ def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
         repo=repo,
         status=ProcessTaskStatusEnum.pending,
     )
-    publish_event({
-        'event_id': str(uuid.uuid4()),
-        'event_version': 1,
-        'event_name': 'RepoOrdered',
-        'event_time': str(datetime.datetime.now(tz=datetime.UTC)),
-        'producer': 'revive_bot.django',
-        'data': {'process_task_id': process_task.id},
-    })
     return JsonResponse(
         {'process_task_id': process_task.id},
         status=201,

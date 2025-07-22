@@ -52,66 +52,36 @@ class Command(BaseCommand):
 
     help = ''
 
-    def _callback(self, ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes) -> None:
-        logger.info('Message %s received, handling...', body)
-        data = json.loads(body.decode('utf-8'))
-        process_task_record = ProcessTask.objects.get(id=data['data']['process_task_id'])
-        repo = process_task_record.repo
-        try:
-            process_task_record.status = ProcessTaskStatusEnum.in_process
-            process_task_record.traceback = ''
-            process_task_record.updated_at = timezone.now()
-            process_task_record.save()
-            process_repo(
-                repo.id,
-                GhClonedRepo(repo),
-                GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
-            )
-            logger.info('Repository %s processed', repo)
-            process_task_record.status = ProcessTaskStatusEnum.success
-            process_task_record.updated_at = timezone.now()
-            process_task_record.traceback = ''
-            process_task_record.save()
-        except Exception:  # noqa: BLE001
-            logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
-            process_task_record.status = ProcessTaskStatusEnum.failed
-            process_task_record.updated_at = timezone.now()
-            process_task_record.traceback = traceback.format_exc() or ''
-            process_task_record.save()
-        if method.delivery_tag is not None:
-            ch.basic_ack(delivery_tag=method.delivery_tag)
-        else:
-            logger.warning('Received message with None delivery_tag')
-
-    # "Any" annotation taken from
-    # https://github.com/typeddjango/django-stubs/blob/c7df64/django-stubs/core/management/commands/check.pyi#L6
     def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Entrypoint."""
         while True:
             try:
-                with closing(
-                    pika.BlockingConnection(pika.ConnectionParameters(
-                        virtual_host=settings.RABBITMQ_VHOST,
-                        host=settings.RABBITMQ_HOST,
-                        port=settings.RABBITMQ_PORT,
-                        credentials=pika.PlainCredentials(
-                            settings.RABBITMQ_USER,
-                            settings.RABBITMQ_PASS,
-                        ),
-                    )),
-                ) as connection:
-                    channel = connection.channel()
-                    queue_name = settings.REPO_PROCESS_ORDER_QUEUE_NAME
-                    channel.queue_declare(queue=queue_name, durable=True)
-                    channel.basic_qos(prefetch_count=1)
-                    channel.basic_consume(queue=queue_name, on_message_callback=self._callback)
-                    logger.info('Starting consuming...')
-                    try:
-                        channel.start_consuming()
-                    except KeyboardInterrupt:
-                        logger.info('Stopped by user')
-                        channel.stop_consuming()
-                        break
+                process_task_record = ProcessTask.objects.filter(status=ProcessTaskStatusEnum.pending).order_by('created_at').first()
+                if not process_task_record:
+                    sleep(2)
+                    continue
+                repo = process_task_record.repo
+                try:
+                    process_task_record.status = ProcessTaskStatusEnum.in_process
+                    process_task_record.traceback = ''
+                    process_task_record.updated_at = timezone.now()
+                    process_task_record.save()
+                    process_repo(
+                        repo.id,
+                        GhClonedRepo(repo),
+                        GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
+                    )
+                    logger.info('Repository %s processed', repo)
+                    process_task_record.status = ProcessTaskStatusEnum.success
+                    process_task_record.updated_at = timezone.now()
+                    process_task_record.traceback = ''
+                    process_task_record.save()
+                except Exception:
+                    logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
+                    process_task_record.status = ProcessTaskStatusEnum.failed
+                    process_task_record.updated_at = timezone.now()
+                    process_task_record.traceback = traceback.format_exc() or ''
+                    process_task_record.save()
             except OperationalError:
                 logger.exception('Django OperationalError. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
                 close_old_connections()
