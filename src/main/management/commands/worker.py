@@ -48,8 +48,10 @@ class Command(BaseCommand):
 
     def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Entrypoint."""
+        logger.info('Worker started. Polling for tasks...')
         while True:
             try:
+                logger.debug('Polling for pending tasks...')
                 process_task_record = (
                     ProcessTask.objects
                     .filter(status=ProcessTaskStatusEnum.pending)
@@ -57,10 +59,13 @@ class Command(BaseCommand):
                     .first()
                 )
                 if not process_task_record:
-                    sleep(2)
+                    logger.debug('No pending tasks found. Sleeping for 2 seconds.')
+                    sleep(5)
                     continue
+                logger.info(f'Found pending task: id={process_task_record.id}, repo_id={process_task_record.repo.id}')
                 repo = process_task_record.repo
                 try:
+                    logger.info(f'Starting processing task id={process_task_record.id} for repo {repo}')
                     process_task_record.status = ProcessTaskStatusEnum.in_process
                     process_task_record.traceback = ''
                     process_task_record.updated_at = timezone.now()
@@ -70,13 +75,13 @@ class Command(BaseCommand):
                         GhClonedRepo(repo),
                         GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
                     )
-                    logger.info('Repository %s processed', repo)
+                    logger.info(f'Repository {repo} processed successfully for task id={process_task_record.id}')
                     process_task_record.status = ProcessTaskStatusEnum.success
                     process_task_record.updated_at = timezone.now()
                     process_task_record.traceback = ''
                     process_task_record.save()
                 except Exception:
-                    logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
+                    logger.exception(f'Fail process repo for task id={process_task_record.id}. Traceback: %s', traceback.format_exc())
                     process_task_record.status = ProcessTaskStatusEnum.failed
                     process_task_record.updated_at = timezone.now()
                     process_task_record.traceback = traceback.format_exc() or ''
@@ -84,4 +89,5 @@ class Command(BaseCommand):
             except OperationalError:
                 logger.exception('Django OperationalError. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
                 close_old_connections()
+                logger.info('Sleeping for 5 seconds due to OperationalError.')
                 sleep(5)
