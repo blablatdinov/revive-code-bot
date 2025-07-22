@@ -37,7 +37,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - rabbitmq
 
   worker:
     container_name: 'revive-code-bot-worker'
@@ -49,7 +48,6 @@ services:
     depends_on:
       - postgres
       - redis
-      - rabbitmq
 
   postgres:
     image: postgres:17
@@ -75,21 +73,6 @@ services:
     volumes:
       - ./redis-data:/data
 
-  rabbitmq:
-    image: rabbitmq:4-management-alpine
-    container_name: 'revive-code-bot-rabbitmq'
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
-      RABBITMQ_DEFAULT_VHOST: revive_code_bot
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - ./rabbitmq-data/data/:/var/lib/rabbitmq/
-      - ./rabbitmq-data/log/:/var/log/rabbitmq/
-
 volumes:
   postgres-data:
   redis-data:
-  rabbitmq-data:
