@@ -22,57 +22,61 @@
 
 """Command to update the token in all Croniq tasks."""
 
-import sys
-import requests
-from django.core.management.base import BaseCommand
-from django.conf import settings
-from main.models import GhRepo, RepoConfig
 import logging
+
+import requests
+from django.conf import settings
+from django.core.management.base import BaseCommand
+
+from main.models import GhRepo, RepoConfig
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+    """Command to update the token in all Croniq tasks (Authorization header)."""
+
     help = 'Updates the token in all Croniq tasks (Authorization header)'
 
-    def handle(self, *args, **options):
+    def handle(self) -> None:
+        """Update the token in all Croniq tasks."""
         success, failed = 0, 0
         for repo in GhRepo.objects.all():
             try:
                 config = RepoConfig.objects.filter(repo=repo).first()
                 if not config:
-                    logger.warning('No config found for repository {0}'.format(repo.full_name))
+                    logger.warning('No config found for repository %s', repo.full_name)
                     continue
-                name = 'repo_{0}'.format(repo.id)
-                croniq_auth_headers = {'authorization': 'Basic {0}'.format(settings.CRONIQ_API_KEY)}
+                name = f'repo_{repo.id}'
+                croniq_auth_headers = {'authorization': f'Basic {settings.CRONIQ_API_KEY}'}
                 resp = requests.get(
-                    '{0}/api/v1/tasks?name={1}'.format(settings.CRONIQ_DOMAIN, name),
+                    f'{settings.CRONIQ_DOMAIN}/api/v1/tasks?name={name}',
                     headers=croniq_auth_headers,
                     timeout=5,
                 )
                 resp.raise_for_status()
                 results = resp.json().get('results', [])
                 if not results:
-                    logger.warning('Task {0} not found in Croniq'.format(name))
+                    logger.warning('Task %s not found in Croniq', name)
                     continue
                 task = results[0]
                 put_resp = requests.put(
-                    '{0}/api/v1/tasks/{1}'.format(settings.CRONIQ_DOMAIN, task["id"]),
+                    f'{settings.CRONIQ_DOMAIN}/api/v1/tasks/{task["id"]}',
                     json={
                         'name': name,
                         'schedule': config.cron_expression,
                         'url': task.get('url'),
                         'headers': {
-                            'Authorization': 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN),
+                            'Authorization': f'Basic {settings.BASIC_AUTH_TOKEN}',
                         },
                     },
                     headers=croniq_auth_headers,
                     timeout=5,
                 )
                 put_resp.raise_for_status()
-                logger.info('Token updated for {0} (id={1})'.format(repo.full_name, repo.id))
+                logger.info('Token updated for %s (id=%s)', repo.full_name, repo.id)
                 success += 1
-            except Exception as exc:
-                logger.error('Error for {0}: {1}'.format(repo.full_name, exc))
+            except Exception:  # noqa: BLE001
+                logger.exception('Error for %s', repo.full_name)
                 failed += 1
-        logger.info('Done! Success: {0}, failed: {1}'.format(success, failed)) 
+        logger.info('Done! Success: %s, failed: %s', success, failed)
