@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     logger.warning('No config found for repository {0}'.format(repo.full_name))
                     continue
                 name = 'repo_{0}'.format(repo.id)
-                croniq_auth_headers = {'Authorization': 'Basic {0}'.format(settings.CRONIQ_API_KEY)}
+                croniq_auth_headers = {'authorization': 'Basic {0}'.format(settings.CRONIQ_API_KEY)}
                 resp = requests.get(
                     '{0}/api/v1/tasks?name={1}'.format(settings.CRONIQ_DOMAIN, name),
                     headers=croniq_auth_headers,
