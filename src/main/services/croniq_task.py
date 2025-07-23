@@ -47,7 +47,7 @@ class CroniqTask:
         an existing task with a new schedule.
         """
         name = 'repo_{0}'.format(self._repo_id)
-        auth_headers = {'Authorization': 'Basic {0}'.format(settings.BASIC_AUTH_TOKEN)}
+        auth_headers = {'Authorization': 'Basic {0}'.format(settings.CRONIQ_API_KEY)}
         response = requests.get(
             '{0}/api/v1/tasks?name={1}'.format(settings.CRONIQ_DOMAIN, name),
             headers=auth_headers,
