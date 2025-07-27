@@ -67,7 +67,11 @@ class Command(BaseCommand):
                         'schedule': config.cron_expression,
                         'url': task.get('url'),
                         'headers': {
-                            'Authorization': f'Basic {settings.BASIC_AUTH_TOKEN}',
+                            'Authentication': f'Basic {settings.BASIC_AUTH_TOKEN}',
+                            'Accept': '*/*',
+                            'Accept-Encoding': 'deflate, zstd',
+                            'Connection': 'keep-alive',
+                            'User-Agent': 'croniq/0.1.0',
                         },
                     },
                     headers=croniq_auth_headers,
