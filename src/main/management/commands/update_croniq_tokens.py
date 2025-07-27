@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
     help = 'Updates the token in all Croniq tasks (Authorization header)'
 
-    def handle(self) -> None:
+    def handle(self, *args, **kwargs) -> None:
         """Update the token in all Croniq tasks."""
         success, failed = 0, 0
         for repo in GhRepo.objects.all():
