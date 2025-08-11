@@ -23,6 +23,7 @@
 """Command to update the token in all Croniq tasks."""
 
 import logging
+from typing import Any
 
 import requests
 from django.conf import settings
@@ -38,7 +39,9 @@ class Command(BaseCommand):
 
     help = 'Updates the token in all Croniq tasks (Authorization header)'
 
-    def handle(self, *args, **kwargs) -> None:
+    # "Any" annotation taken from
+    # https://github.com/typeddjango/django-stubs/blob/c7df64/django-stubs/core/management/commands/check.pyi#L6
+    def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Update the token in all Croniq tasks."""
         success, failed = 0, 0
         for repo in GhRepo.objects.all():
