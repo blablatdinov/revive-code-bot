@@ -75,6 +75,14 @@ class Command(BaseCommand):
                     process_task_record.updated_at = timezone.now()
                     process_task_record.traceback = ''
                     process_task_record.save()
+                    if process_task_record.trigger_issue_id:
+                        GhIssueComment(
+                            gh_repo,
+                            data['data']['trigger_issue_id'],
+                            # TODO: tag comment author
+                            # TODO: send link to new issue
+                            'Issue created',
+                        ).publish()
                 except Exception:
                     logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
                     process_task_record.status = ProcessTaskStatusEnum.failed
