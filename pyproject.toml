@@ -58,7 +58,7 @@ django-stubs = {extras = ["compatible-mypy"], version = "5.2.5"}
 lxml-stubs = "0.5.1"
 types-requests = "2.32.4.20250809"
 requests-mock = "1.12.1"
-pytest-randomly = "4.0.0"
+pytest-randomly = "4.0.1"
 django-extensions = "4.1"
 ipython = "9.5.0"
 types-pika = "1.2.0b1"
