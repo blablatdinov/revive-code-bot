@@ -39,7 +39,7 @@ pyyaml = "6.0.2"
 attrs = "25.3.0"
 lxml = "6.0.1"
 cron-validator = "1.0.8"
-whitenoise = "6.10.0"
+whitenoise = "6.11.0"
 sentry-sdk = {extras = ["django"], version = "2.38.0"}
 pika = "1.3.2"
 
