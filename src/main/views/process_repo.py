@@ -52,7 +52,7 @@ def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
     ):
         raise PermissionDenied
     repo = get_object_or_404(GhRepo, id=repo_id)
-    create_process_task(repo)
+    process_task = create_process_task(repo)
     return JsonResponse(
         {'process_task_id': process_task.id},
         status=201,
