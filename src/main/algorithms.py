@@ -137,7 +137,7 @@ def code_coverage_rating(coverage_xml: str) -> dict[Path, int]:
 
 def files_sorted_by_avg_line_age(repo_path: Path, files_for_check: list[Path]) -> dict[Path, float]:
     """Calculate average age of lines in days for each file.
-    
+
     For each line in file, finds when it was last modified,
     then calculates average age of all lines in the file.
     """

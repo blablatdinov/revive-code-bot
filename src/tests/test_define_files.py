@@ -40,11 +40,11 @@ from main.algorithms import (
     code_coverage_rating,
     file_editors_count,
     files_changes_count,
+    files_sorted_by_avg_line_age,
     files_sorted_by_last_changes,
     files_sorted_by_last_changes_from_db,
     lines_count,
     merge_rating,
-    files_sorted_by_avg_line_age,
 )
 from main.models import GhRepo, TouchRecord
 
