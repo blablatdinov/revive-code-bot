@@ -59,6 +59,7 @@ tasks:
       - syntax-check
       - type-check
     cmds:
+      - cd src
       - poetry run pytest {{.CLI_ARGS}}
 
   shell:
