@@ -25,6 +25,7 @@
 import datetime
 from collections import defaultdict
 from pathlib import Path
+from git.objects.commit import Commit
 
 from git import Repo
 from lxml import etree
@@ -145,16 +146,22 @@ def files_sorted_by_avg_line_age(repo_path: Path, files_for_check: list[Path]) -
     now = datetime.datetime.now(tz=datetime.UTC)
     file_avg_age = {}
     for file in files_for_check:
-        blame = repo.blame_incremental(repo.head.commit, str(file.relative_to(repo_path)))
-        print([entry for entry in blame])
+        blame = repo.blame(repo.head, str(file.relative_to(repo_path)))
+        if not blame:
+            file_avg_age[file] = 0.0
+            continue
         line_ages = []
         for entry in blame:
-            commit_time = entry.commit.committed_datetime  # type: ignore [attr-defined]
-            age_days = (now - commit_time).days
-            line_ages.extend([age_days] * len(entry.linenos))
-        # print('!!!', line_ages)
-        if line_ages:
-            file_avg_age[file] = sum(line_ages) / len(line_ages)
-        else:
-            file_avg_age[file] = 0.0
+            commit = entry[0]
+            lines = entry[1]
+            # TODO: разобраться с типами
+            if isinstance(commit, Commit):
+                commit_time = commit.committed_datetime
+                age_days = (now - commit_time).days
+                print(now - commit_time, lines)
+                line_ages.extend([age_days] * len(lines))  # type: ignore
+                if line_ages:
+                    file_avg_age[file] = sum(line_ages) / len(line_ages)
+                else:
+                    file_avg_age[file] = 0.0
     return file_avg_age
