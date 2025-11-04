@@ -35,7 +35,7 @@ RUN cat /tmp/requirements.txt
 RUN apt-get update && apt-get install gcc -y
 RUN python -m venv /app/.venv && /app/.venv/bin/pip install -r /tmp/requirements.txt
 
-FROM python:3.14.0-slim as runtime
+FROM python:3.13.7-slim as runtime
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /app
