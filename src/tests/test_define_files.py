@@ -40,6 +40,7 @@ from main.algorithms import (
     code_coverage_rating,
     file_editors_count,
     files_changes_count,
+    files_sorted_by_avg_line_age,
     files_sorted_by_last_changes,
     files_sorted_by_last_changes_from_db,
     lines_count,
@@ -230,4 +231,17 @@ def test_files_sorted_by_last_changes_from_db(gh_repo: GhRepo, time_machine: Tim
     assert got == {
         Path('src/main.py'): 0,
         Path('src/lib.py'): 73,
+    }
+
+
+def test_files_sorted_by_avg_line_age(repo_path: Path) -> None:
+    got = {
+        Path(str(file).replace(str(repo_path), '')[1:]): rating
+        for file, rating in files_sorted_by_avg_line_age(repo_path, list(repo_path.glob('**/*.py'))).items()
+    }
+
+    assert got == {
+        Path('dir1/file_in_dir.py'): 2.0,
+        Path('first.py'): 0.0,
+        Path('third.py'): 0.0,
     }
