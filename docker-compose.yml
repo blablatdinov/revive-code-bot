@@ -50,7 +50,7 @@ services:
       - redis
 
   postgres:
-    image: postgres:16
+    image: postgres:18
     container_name: revive-code-bot-postgres
     environment:
       POSTGRES_USER: admin
