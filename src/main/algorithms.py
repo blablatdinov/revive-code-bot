@@ -24,10 +24,11 @@
 
 import datetime
 from collections import defaultdict
+from collections.abc import Sized
 from pathlib import Path
-from git.objects.commit import Commit
 
 from git import Repo
+from git.objects.commit import Commit
 from lxml import etree
 
 from main.models import TouchRecord
@@ -154,14 +155,15 @@ def files_sorted_by_avg_line_age(repo_path: Path, files_for_check: list[Path]) -
         for entry in blame:
             commit = entry[0]
             lines = entry[1]
-            # TODO: разобраться с типами
-            if isinstance(commit, Commit):
-                commit_time = commit.committed_datetime
-                age_days = (now - commit_time).days
-                print(now - commit_time, lines)
-                line_ages.extend([age_days] * len(lines))  # type: ignore
-                if line_ages:
-                    file_avg_age[file] = sum(line_ages) / len(line_ages)
-                else:
-                    file_avg_age[file] = 0.0
+            if not isinstance(commit, Commit):
+                continue
+            commit_time = commit.committed_datetime
+            age_days = (now - commit_time).days
+            if not isinstance(lines, Sized):
+                continue
+            line_ages.extend([age_days] * len(lines))
+            if line_ages:
+                file_avg_age[file] = sum(line_ages) / len(line_ages)
+            else:
+                file_avg_age[file] = 0.0
     return file_avg_age
