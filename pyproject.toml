@@ -60,7 +60,7 @@ types-requests = "2.32.4.20250913"
 requests-mock = "1.12.1"
 pytest-randomly = "4.0.1"
 django-extensions = "4.1"
-ipython = "9.6.0"
+ipython = "9.7.0"
 types-pika = "1.2.0b1"
 
 [build-system]
