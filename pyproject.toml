@@ -44,7 +44,7 @@ sentry-sdk = {extras = ["django"], version = "2.43.0"}
 pika = "1.3.2"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "8.4.2"
+pytest = "9.0.0"
 ruff = "0.14.4"
 wemake-python-styleguide = "1.4.0"
 refurb = "2.2.0"
