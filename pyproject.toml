@@ -52,7 +52,7 @@ pytest-cov = "7.0.0"
 pytest-django = "4.11.1"
 time-machine = "3.0.0"
 model-bakery = "1.20.5"
-faker = "38.0.0"
+faker = "38.2.0"
 mypy = "1.18.2"
 django-stubs = {extras = ["compatible-mypy"], version = "5.2.7"}
 lxml-stubs = "0.5.1"
