@@ -18,13 +18,14 @@ def _repo_configs(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
     RepoConfig = apps.get_model('main', 'RepoConfig')
     for repo_db_record in GhRepo.objects.filter(repoconfig__isnull=True):
         gh_repo = github_repo(repo_db_record.installation_id, repo_db_record.full_name)
-        parsed_config = config.parse()
         config = MergedConfig.ctor(
             GhReviveConfig(
                 gh_repo,
-                DefaultReviveConfig(random.Random()),
+                # Not secure issue
+                DefaultReviveConfig(random.Random()),  # noqa: S311
             ),
         )
+        parsed_config = config.parse()
         RepoConfig.objects.create(
             repo=repo_db_record,
             cron_expression=parsed_config['cron'],
