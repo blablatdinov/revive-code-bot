@@ -23,8 +23,8 @@
 """Revive bot config from github."""
 
 from contextlib import suppress
-from typing import final, override
 from http import HTTPStatus
+from typing import final, override
 
 import attrs
 from github.GithubException import GithubException, UnknownObjectException
