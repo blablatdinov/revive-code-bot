@@ -62,6 +62,7 @@ pytest-randomly = "4.0.1"
 django-extensions = "4.1"
 ipython = "9.7.0"
 types-pika = "1.2.0b1"
+django-test-migrations = "^1.5.0"
 
 [build-system]
 requires = ["poetry-core"]
