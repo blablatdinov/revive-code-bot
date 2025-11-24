@@ -23,6 +23,7 @@
 """Revive bot config from github."""
 
 from contextlib import suppress
+from http import HTTPStatus
 from typing import final, override
 
 import attrs
@@ -52,6 +53,8 @@ class GhReviveConfig(ReviveConfig):
                 try:
                     file = self._gh_repo.get_contents(variant)
                 except GithubException as err:
+                    if err.status == HTTPStatus.NOT_FOUND:
+                        continue
                     raise UnavailableRepoError from err
                 if isinstance(file, list):
                     raise UnexpectedGhFileContentError

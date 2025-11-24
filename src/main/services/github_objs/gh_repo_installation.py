@@ -73,7 +73,8 @@ class GhRepoInstallation(RepoInstallation):
             config = MergedConfig.ctor(
                 GhReviveConfig(
                     gh_repo,
-                    DefaultReviveConfig(random),
+                    # Not secure issue
+                    DefaultReviveConfig(random.Random()),  # noqa: S311
                 ),
             )
             RepoConfig.objects.create(
