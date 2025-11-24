@@ -11,13 +11,20 @@ from main.services.github_objs.github_client import github_repo
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
+from main.models import RepoStatusEnum
+from main.exceptions import UnavailableRepoError
 
 
 def _repo_configs(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
     GhRepo = apps.get_model('main', 'GhRepo')
     RepoConfig = apps.get_model('main', 'RepoConfig')
     for repo_db_record in GhRepo.objects.filter(repoconfig__isnull=True):
-        gh_repo = github_repo(repo_db_record.installation_id, repo_db_record.full_name)
+        try:
+            gh_repo = github_repo(repo_db_record.installation_id, repo_db_record.full_name)
+        except UnavailableRepoError:
+            repo_db_record.status = RepoStatusEnum.inactive
+            repo_db_record.save()
+            continue
         config = MergedConfig.ctor(
             GhReviveConfig(
                 gh_repo,
