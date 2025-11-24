@@ -60,7 +60,7 @@ def get_or_create_repo(repo_full_name: str, installation_id: int) -> GhRepo:
     config = MergedConfig.ctor(
         GhReviveConfig(
             github_repo(installation_id, repo_full_name),
-            DefaultReviveConfig(random),
+            DefaultReviveConfig(random.Random()),
         ),
     )
     RepoConfig.objects.create(

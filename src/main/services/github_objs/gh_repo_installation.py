@@ -73,7 +73,7 @@ class GhRepoInstallation(RepoInstallation):
             config = MergedConfig.ctor(
                 GhReviveConfig(
                     gh_repo,
-                    DefaultReviveConfig(random),
+                    DefaultReviveConfig(random.Random()),
                 ),
             )
             RepoConfig.objects.create(
