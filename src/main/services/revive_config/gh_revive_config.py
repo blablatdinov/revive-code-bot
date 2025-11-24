@@ -24,6 +24,7 @@
 
 from contextlib import suppress
 from typing import final, override
+from http import HTTPStatus
 
 import attrs
 from github.GithubException import GithubException, UnknownObjectException
@@ -52,7 +53,7 @@ class GhReviveConfig(ReviveConfig):
                 try:
                     file = self._gh_repo.get_contents(variant)
                 except GithubException as err:
-                    if err.status == 404:
+                    if err.status == HTTPStatus.NOT_FOUND:
                         continue
                     raise UnavailableRepoError from err
                 if isinstance(file, list):
