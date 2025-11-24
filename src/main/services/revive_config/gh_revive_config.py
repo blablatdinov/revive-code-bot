@@ -29,7 +29,7 @@ import attrs
 from github.GithubException import GithubException, UnknownObjectException
 from github.Repository import Repository
 
-from main.exceptions import UnexpectedGhFileContentError
+from main.exceptions import UnavailableRepoError, UnexpectedGhFileContentError
 from main.services.revive_config.revive_config import ConfigDict, ReviveConfig
 from main.services.revive_config.str_config import StrReviveConfig
 
@@ -48,8 +48,13 @@ class GhReviveConfig(ReviveConfig):
         variants = ('.revive-code-bot.yaml', '.revive-code-bot.yml')
         config = self._default_config.parse()
         for variant in variants:
-            with suppress(UnknownObjectException, GithubException):
-                file = self._gh_repo.get_contents(variant)
+            with suppress(UnknownObjectException):
+                try:
+                    file = self._gh_repo.get_contents(variant)
+                except GithubException as err:
+                    if err.status == 404:
+                        continue
+                    raise UnavailableRepoError from err
                 if isinstance(file, list):
                     raise UnexpectedGhFileContentError
                 config |= StrReviveConfig(
