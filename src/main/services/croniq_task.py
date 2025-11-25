@@ -60,6 +60,15 @@ class CroniqTask:
                 json={
                     'name': name,
                     'schedule': cron,
+                    'url': f'https://revive-code-bot.ilaletdinov.ru/process-repo/{self._repo_id}',
+                    'method': 'POST',
+                    'headers': {
+                        'Accept': '*/*',
+                        'Connection': 'keep-alive',
+                        'User-Agent': 'croniq/0.1.0',
+                        'Authentication': f'Basic {settings.BASIC_AUTH_TOKEN}',
+                        'Accept-Encoding': 'deflate, zstd',
+                    },
                 },
                 headers=auth_headers,
                 timeout=5,
@@ -68,7 +77,19 @@ class CroniqTask:
         else:
             response = requests.put(
                 '{0}/api/v1/tasks/{1}'.format(settings.CRONIQ_DOMAIN, response.json()['results'][0]['id']),
-                json={'schedule': cron},
+                json={
+                    'schedule': cron,
+                    'name': name,
+                    'url': f'https://revive-code-bot.ilaletdinov.ru/process-repo/{self._repo_id}',
+                    'method': 'POST',
+                    'headers': {
+                        'Accept': '*/*',
+                        'Connection': 'keep-alive',
+                        'User-Agent': 'croniq/0.1.0',
+                        'Authentication': f'Basic {settings.BASIC_AUTH_TOKEN}',
+                        'Accept-Encoding': 'deflate, zstd',
+                    },
+                },
                 headers=auth_headers,
                 timeout=5,
             )

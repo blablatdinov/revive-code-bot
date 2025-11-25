@@ -6,6 +6,8 @@ from django.apps.registry import Apps
 from django.db import migrations
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 
+from main.exceptions import UnavailableRepoError
+from main.models import RepoStatusEnum
 from main.services.croniq_task import CroniqTask
 from main.services.github_objs.github_client import github_repo
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
@@ -17,7 +19,12 @@ def _repo_configs(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
     GhRepo = apps.get_model('main', 'GhRepo')
     RepoConfig = apps.get_model('main', 'RepoConfig')
     for repo_db_record in GhRepo.objects.filter(repoconfig__isnull=True):
-        gh_repo = github_repo(repo_db_record.installation_id, repo_db_record.full_name)
+        try:
+            gh_repo = github_repo(repo_db_record.installation_id, repo_db_record.full_name)
+        except UnavailableRepoError:
+            repo_db_record.status = RepoStatusEnum.inactive
+            repo_db_record.save()
+            continue
         config = MergedConfig.ctor(
             GhReviveConfig(
                 gh_repo,
