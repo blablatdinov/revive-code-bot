@@ -56,14 +56,13 @@ class GhRepoInstallation(RepoInstallation):
     def register(self) -> None:
         """Registering new repositories."""
         for repo in self._repos:
-            try:
-                repo_db_record = GhRepo.objects.create(
-                    full_name=repo['full_name'],
-                    installation_id=self._installation_id,
-                    has_webhook=False,
-                )
-            except IntegrityError:
-                repo_db_record = GhRepo.objects.get(full_name=repo['full_name'])
+            repo_db_record, _ = GhRepo.objects.get_or_create(
+                full_name=repo['full_name'],
+                defaults={
+                    'installation_id': self._installation_id,
+                    'has_webhook': False,
+                },
+            )
             gh_repo = github_repo(self._installation_id, repo['full_name'])
             # TODO: query may be failed, because already created
             gh_repo.create_hook(
