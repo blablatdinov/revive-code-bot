@@ -26,7 +26,6 @@ import random
 from typing import Protocol, final, override
 
 import attrs
-from django.db.utils import IntegrityError
 
 from main.models import GhRepo, RepoConfig
 from main.services.croniq_task import CroniqTask
