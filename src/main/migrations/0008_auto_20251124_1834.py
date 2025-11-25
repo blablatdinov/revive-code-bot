@@ -6,13 +6,13 @@ from django.apps.registry import Apps
 from django.db import migrations
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 
+from main.exceptions import UnavailableRepoError
+from main.models import RepoStatusEnum
 from main.services.croniq_task import CroniqTask
 from main.services.github_objs.github_client import github_repo
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
-from main.models import RepoStatusEnum
-from main.exceptions import UnavailableRepoError
 
 
 def _repo_configs(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:

@@ -61,19 +61,18 @@ class CroniqTask:
                     'name': name,
                     'schedule': cron,
                     'url': f'https://revive-code-bot.ilaletdinov.ru/process-repo/{self._repo_id}',
-                    "method": "POST",
-                    "headers": {
-                        "Accept": "*/*",
-                        "Connection": "keep-alive",
-                        "User-Agent": "croniq/0.1.0",
-                        "Authentication": f"Basic {settings.BASIC_AUTH_TOKEN}",
-                        "Accept-Encoding": "deflate, zstd",
+                    'method': 'POST',
+                    'headers': {
+                        'Accept': '*/*',
+                        'Connection': 'keep-alive',
+                        'User-Agent': 'croniq/0.1.0',
+                        'Authentication': f'Basic {settings.BASIC_AUTH_TOKEN}',
+                        'Accept-Encoding': 'deflate, zstd',
                     },
                 },
                 headers=auth_headers,
                 timeout=5,
             )
-            print(response.content)
             response.raise_for_status()
         else:
             response = requests.put(
@@ -81,15 +80,14 @@ class CroniqTask:
                 json={
                     'schedule': cron,
                     'name': name,
-                    'schedule': cron,
                     'url': f'https://revive-code-bot.ilaletdinov.ru/process-repo/{self._repo_id}',
-                    "method": "POST",
-                    "headers": {
-                        "Accept": "*/*",
-                        "Connection": "keep-alive",
-                        "User-Agent": "croniq/0.1.0",
-                        "Authentication": f"Basic {settings.BASIC_AUTH_TOKEN}",
-                        "Accept-Encoding": "deflate, zstd",
+                    'method': 'POST',
+                    'headers': {
+                        'Accept': '*/*',
+                        'Connection': 'keep-alive',
+                        'User-Agent': 'croniq/0.1.0',
+                        'Authentication': f'Basic {settings.BASIC_AUTH_TOKEN}',
+                        'Accept-Encoding': 'deflate, zstd',
                     },
                 },
                 headers=auth_headers,
