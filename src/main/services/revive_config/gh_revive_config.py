@@ -55,7 +55,7 @@ class GhReviveConfig(ReviveConfig):
                 except GithubException as err:
                     if err.status == HTTPStatus.NOT_FOUND:
                         continue
-                    raise UnavailableRepoError from err
+                    return config
                 if isinstance(file, list):
                     raise UnexpectedGhFileContentError
                 config |= StrReviveConfig(
