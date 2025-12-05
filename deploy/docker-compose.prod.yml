@@ -24,7 +24,7 @@ services:
 
   revive-code-bot-http:
     image: blablatdinov/revive-code-bot:${TAG_NAME}
-    command: .venv/bin/gunicorn config.wsgi:application --bind localhost:8010 --reload
+    command: .venv/bin/gunicorn config.wsgi:application --bind 0.0.0.0:8010 --reload
     restart: always
     ports:
       - 8010:8010
