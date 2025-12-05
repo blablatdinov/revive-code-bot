@@ -25,12 +25,12 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /app
 
 FROM base as poetry
-RUN pip install poetry==1.8.5
+RUN pip install poetry==1.8.5 --no-cache-dir
 COPY poetry.lock pyproject.toml /app/
 RUN poetry export --without dev -o requirements.txt
 
 FROM base as build
-RUN apt-get update && apt-get install gcc git -y
+RUN apt-get update && apt-get install gcc git -y --no-install-recommends
 COPY --from=poetry /app/requirements.txt /tmp/requirements.txt
 RUN cat /tmp/requirements.txt
 RUN python -m venv /app/.venv && /app/.venv/bin/pip install -r /tmp/requirements.txt
