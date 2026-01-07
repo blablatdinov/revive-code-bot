@@ -38,7 +38,7 @@ faker = "40.1.0"
 mypy = "1.19.1"
 django-stubs = {extras = ["compatible-mypy"], version = "5.2.8"}
 lxml-stubs = "0.5.1"
-types-requests = "2.32.4.20250913"
+types-requests = "2.32.4.20260107"
 requests-mock = "1.12.1"
 pytest-randomly = "4.0.1"
 ipython = "9.9.0"
