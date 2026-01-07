@@ -122,7 +122,7 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue) -> 
     new_issue.create(
         'Issue from revive-code-bot',
         Template('\n'.join([
-            '## Potentially Stagnant Files Identified\n'
+            '## Potentially Stagnant Files Identified\n',
             'This issue was automatically created by Revive Code Bot to highlight files that',
             "haven't been updated for a long time or may require review. Regular updates and reviews",
             'of such files help maintain the quality and relevance of the project codebase.',
