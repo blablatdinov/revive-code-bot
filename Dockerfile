@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026 Almaz Ilaletdinov <a.ilaletdinov@yandex.ru>
 # SPDX-License-Identifier: MIT
 
-FROM python:3.14.2-slim as base
+FROM python:3.14.3-slim as base
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY --from=poetry /app/requirements.txt /tmp/requirements.txt
 RUN cat /tmp/requirements.txt
 RUN python -m venv /app/.venv && /app/.venv/bin/pip install -r /tmp/requirements.txt
 
-FROM python:3.14.2-slim as runtime
+FROM python:3.14.3-slim as runtime
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /app
