@@ -13,6 +13,7 @@ from main.exceptions import UnavailableRepoError
 from main.models import RepoStatusEnum
 from main.service import get_or_create_repo, is_default_branch, update_config
 from main.services.github_objs.gh_repo_installation import GhRepoInstallation
+from main.views.process_repo import create_process_task
 
 
 @csrf_exempt
@@ -44,13 +45,18 @@ def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911 . TODO
             )
         except UnavailableRepoError:
             return HttpResponse('Repo unavailable', status=404)
+        if pg_repo.status != RepoStatusEnum.active:
+            return HttpResponse('Skip as inactive')
         if gh_event == 'ping':
             return HttpResponse('Webhooks installed')
         elif gh_event == 'push':
-            if pg_repo.status != RepoStatusEnum.active:
-                return HttpResponse('Skip as inactive')
             if not is_default_branch(request_json):
                 return HttpResponse('Skip not default branch')
             update_config(request_json['repository']['full_name'])
             return HttpResponse('Config updated')
+        elif gh_event == 'issue_comment':
+            comment_body = request_json['comment']['body']
+            if '@revive-code-bot scan repo' in comment_body.lower():
+                create_process_task(pg_repo, request_json['issue']['number'])
+                return HttpResponse('Manual scan triggered')
         return HttpResponse('Unprocessable event type')
