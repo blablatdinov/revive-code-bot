@@ -15,7 +15,7 @@ gunicorn = "25.1.0"
 psycopg = { version = "3.3.3", extras = ["binary"] }
 django = "6.0.3"
 django-environ = "0.13.0"
-pygithub = "2.8.1"
+pygithub = "2.9.0"
 pyyaml = "6.0.3"
 attrs = "26.1.0"
 lxml = "6.0.2"
