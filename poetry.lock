@@ -1757,14 +1757,14 @@ files = [
 
 [[package]]
 name = "refurb"
-version = "2.3.0"
+version = "2.3.1"
 description = "A tool for refurbishing and modernizing Python codebases"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "refurb-2.3.0-py3-none-any.whl", hash = "sha256:5ae83b9dd84dca07d8c9b8be207329d2adfaf95c7c8ff0594e9fbd1cbf1841ec"},
-    {file = "refurb-2.3.0.tar.gz", hash = "sha256:c6225698b7334760511038d8d5db75bc1524cc842e668fff27cda85fae29bef5"},
+    {file = "refurb-2.3.1-py3-none-any.whl", hash = "sha256:c18f0abdeb478ab86df5bfc352b635fa3543b403950f610814884055115e9a82"},
+    {file = "refurb-2.3.1.tar.gz", hash = "sha256:8605ef2cf40804403340396b9cf51b13bd5d0f5f6a84f8b4447484b7ba94bc79"},
 ]
 
 [package.dependencies]
@@ -2203,4 +2203,4 @@ brotli = ["brotli"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.14,<3.15"
-content-hash = "e61f628bd25c5fe119ee70a3814fb8f8413198391747f4442fdcf774ec792b8c"
+content-hash = "4fa5993bfdf9194490fae28a60295b46c861703f758b016e8bcd9edd72062b06"
