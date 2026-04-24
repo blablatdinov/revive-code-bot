@@ -41,7 +41,7 @@ lxml-stubs = "0.5.1"
 types-requests = "2.33.0.20260408"
 requests-mock = "1.12.1"
 pytest-randomly = "4.1.0"
-ipython = "9.12.0"
+ipython = "9.13.0"
 types-pika = "1.2.0b1"
 django-test-migrations = "^1.5.0"
 
