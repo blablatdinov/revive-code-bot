@@ -36,7 +36,7 @@ time-machine = "3.2.0"
 model-bakery = "1.23.4"
 faker = "40.19.1"
 mypy = "2.0.0"
-django-stubs = { extras = ["compatible-mypy"], version = "6.0.4" }
+django-stubs = { extras = ["compatible-mypy"], version = "6.0.5" }
 lxml-stubs = "0.5.1"
 types-requests = "2.33.0.20260518"
 requests-mock = "1.12.1"
