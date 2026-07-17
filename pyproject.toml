@@ -34,7 +34,7 @@ pytest-cov = "7.1.0"
 pytest-django = "4.12.0"
 time-machine = "3.2.0"
 model-bakery = "1.24.0"
-faker = "40.28.1"
+faker = "40.31.0"
 mypy = "2.1.0"
 django-stubs = { extras = ["compatible-mypy"], version = "6.0.7" }
 lxml-stubs = "0.5.1"
