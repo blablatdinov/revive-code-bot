@@ -28,7 +28,7 @@ django-extensions = "4.1"
 [tool.poetry.group.dev.dependencies]
 pytest = "9.1.1"
 ruff = "0.15.13"
-wemake-python-styleguide = "1.7.0"
+wemake-python-styleguide = "1.7.1"
 refurb = "2.3.1"
 pytest-cov = "7.1.0"
 pytest-django = "4.12.0"
