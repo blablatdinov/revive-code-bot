@@ -134,4 +134,5 @@ jobs:
           ssh www@87.249.49.217 'cd /home/www/code/revive-code-bot && TAG_NAME=${{ steps.tag_name.outputs.TAG_NAME }} docker compose -f deploy/docker-compose.prod.yml down && TAG_NAME=${{ steps.tag_name.outputs.TAG_NAME }} docker compose -f deploy/docker-compose.prod.yml up -d'
       - name: Remove old images
         run: |
-          ssh www@87.249.49.217 "docker images | grep revive-code-bot | tail -n +2 | awk '{print $3}' | xargs -r docker rmi"
+          ssh www@87.249.49.217 'bash -c "docker images | grep revive-code-bot | tail -n +2 | awk \"{print \\$3}\" | xargs -r docker rmi -f"'
+
