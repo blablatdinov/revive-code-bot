@@ -25,7 +25,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-    - name: Set up Python 3.12
+    - name: Set up Python 3.14
       uses: actions/setup-python@v7
       with:
         python-version: "3.14"
@@ -70,6 +70,8 @@ jobs:
         id: tag_name
         # run: echo "::set-output name=TAG_NAME::$(echo ${GITHUB_REF#refs/tags/})"
         run: echo "::set-output name=TAG_NAME::$(echo ${GITHUB_SHA})"
+      - name: Create pem file
+        run: echo '${{ secrets.GH_APP_KEY }}' > src/revive-code-bot.private-key.pem
       - name: Build Docker image
         uses: docker/build-push-action@v7
         with:
@@ -83,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Set up Python 3.12
+      - name: Set up Python 3.14
         uses: actions/setup-python@v7
         with:
           python-version: "3.14"
@@ -102,28 +104,13 @@ jobs:
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
-      - name: Fill .env
-        run: |
-          echo 'DATABASE_URL=${{ secrets.POSTGRES_URL }}' > .env
+      - name: Create .pem file
+        run: touch src/revive-code-bot.private-key.pem
       - name: Apply Migrations
         run: |
           .venv/bin/python src/manage.py migrate
-
-  apply-nginx-conf:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v7
-      - name: Install SSH Key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          key: ${{ secrets.SSH_KEY}}
-          known_hosts: '87.249.49.217 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDXsftBFh0RQ0pupvfT8zZp7HEIT8cWD9ziL7glOEtCqVWu8mMqgmYH+GzA7xsWHkAGgQ0BHHQinVMg2sQzDyyHdSVuMvsi04WsgAaOdD0mQa5LwauXpaw/X5nyOKAtiVzzUSi6I8leTS+o4/5nnNz+wxGEZSItESEYYbLWIhE9p30Mt1cSB+F8iUXsAO/I1DqwqXsOUET5ocVOfeRd7/3P7ZT8KGjG6DP8D4aCvxnc1NIAVnW9sfj7hsR84kTWNFFfihMZkmFrDuQfS30mFBlb9sAahHmQfeYfVUexU0ntkiSyE7jsnvfKJIKb3uyfbP1TjJ5EwTt7lDgNdZst3aAkK/JHiEJaIyod1AHt5gG8OFC75+Cy7fbwawPJUuRysxz2O35KFGcbZyN42kdHYZoVLpe5GvcziUSkQLW/KRBrbK7Uw4X6Q6h1QOhUL1ifbqACEIZXeuqkje0c6nL9M5lFeYITn1Ikc3N+c50hAmnX6F4rnifbFUnqiELBk0sn7zM='
-      - name:
-        run: |
-          scp deploy/revive_code_bot_nginx.conf www@87.249.49.217:/etc/nginx/sites-enabled/
-          ssh www@87.249.49.217 'sudo nginx -t && sudo service nginx reload'
+        env:
+          DATABASE_URL: ${{ secrets.POSTGRES_URL }}
 
   update-remote-container:
     needs: build-and-push
@@ -132,28 +119,21 @@ jobs:
       - name: Install SSH Key
         uses: shimataro/ssh-key-action@v2
         with:
-          key: ${{ secrets.SSH_KEY}}
-          known_hosts: '87.249.49.217 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDXsftBFh0RQ0pupvfT8zZp7HEIT8cWD9ziL7glOEtCqVWu8mMqgmYH+GzA7xsWHkAGgQ0BHHQinVMg2sQzDyyHdSVuMvsi04WsgAaOdD0mQa5LwauXpaw/X5nyOKAtiVzzUSi6I8leTS+o4/5nnNz+wxGEZSItESEYYbLWIhE9p30Mt1cSB+F8iUXsAO/I1DqwqXsOUET5ocVOfeRd7/3P7ZT8KGjG6DP8D4aCvxnc1NIAVnW9sfj7hsR84kTWNFFfihMZkmFrDuQfS30mFBlb9sAahHmQfeYfVUexU0ntkiSyE7jsnvfKJIKb3uyfbP1TjJ5EwTt7lDgNdZst3aAkK/JHiEJaIyod1AHt5gG8OFC75+Cy7fbwawPJUuRysxz2O35KFGcbZyN42kdHYZoVLpe5GvcziUSkQLW/KRBrbK7Uw4X6Q6h1QOhUL1ifbqACEIZXeuqkje0c6nL9M5lFeYITn1Ikc3N+c50hAmnX6F4rnifbFUnqiELBk0sn7zM='
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: '87.249.49.217 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDyRsXjQSzzB0b/g9mm1/ET01bx3BTUpm1DRLeG03UY7X+NfAQLskQWl7NP5rp8AVIwFmcRtiZo+Stle2Xo3wNCHRDFu0zU2RixTeelJ046Kcu6xSeIgwvi+OK1MaFPJwd1Em+U/aq624FNI7aJe05UCOy77W9Xa5TzKW3htG9ZLN0ykQ3AUEJ0ZnDLoOY1/4g4x1KqeRRnh61mwxGqzQ/kub/GVooKzfqrfY07/5E7hw3VLMZrQwuUhe9XJOZZjO/rObZdChmHxHwBsmprbYmWEjiRJRms4OZ70kVV7O2HjEVCkQQdtWrxhXzoDB4+oJq1STSEv9hEM2lpZERm1muTIYsLn3z4Ejget0iA/H5PJRLxRZs9y/q/vxptI/cX+VDKWstOQKu/Ic7v8LIhTe0mPUAHqp0eu60ZHp2JLpJ6pko9RptflM2cjPawINulmINOE43wrTzFhhhgrdxtYEt7dnCVAfooanbB9vYoH5LGBVOPxiqUnJzMvlJ0z9rpk/0='
+      - name: Setup SSH
+        run: |
+          ssh-keyscan -H 87.249.49.217 >> ~/.ssh/known_hosts
       - name: Get tag name
         id: tag_name
-        # run: echo "::set-output name=TAG_NAME::$(echo ${GITHUB_REF#refs/tags/})"
         run: echo "::set-output name=TAG_NAME::$(echo ${GITHUB_SHA})"
-      - name: Generate docker-compose.yml
-        run: |
-          echo 'version: "3.3"
-          services:
-            revive-code-bot:
-              image: blablatdinov/revive-code-bot:${{ steps.tag_name.outputs.TAG_NAME }}
-              command: .venv/bin/gunicorn config.wsgi:application -b 0.0.0.0:8011
-              restart: always
-              ports:
-                - 8011:8011
-              env_file:
-                - .env
-          ' > docker-compose.yml
-          cat docker-compose.yml
+      - uses: actions/checkout@v7
       - name: Deploy with docker-compose on remote server
         run: |
           ssh www@87.249.49.217 'echo "Connected!"'
-          scp docker-compose.yml www@87.249.49.217:/home/www/code/revive-code-bot/docker-compose.yml
-          ssh www@87.249.49.217 'cd /home/www/code/revive-code-bot/ && docker-compose up -d'
+          scp deploy/docker-compose.prod.yml www@87.249.49.217:/home/www/code/revive-code-bot/deploy/docker-compose.prod.yml
+          ssh www@87.249.49.217 'cd /home/www/code/revive-code-bot && TAG_NAME=${{ steps.tag_name.outputs.TAG_NAME }} docker compose -f deploy/docker-compose.prod.yml down && TAG_NAME=${{ steps.tag_name.outputs.TAG_NAME }} docker compose -f deploy/docker-compose.prod.yml up -d'
+      - name: Remove old images
+        run: |
+          ssh www@87.249.49.217 'bash -c "docker images | grep revive-code-bot | tail -n +2 | awk \"{print \\$3}\" | xargs -r docker rmi -f"'
+
