@@ -104,6 +104,8 @@ jobs:
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
+      - name: Create .pem file
+        run: touch revive-code-bot.private-key.pem
       - name: Apply Migrations
         run: |
           .venv/bin/python src/manage.py migrate
