@@ -113,7 +113,6 @@ jobs:
           .venv/bin/python src/manage.py migrate
         env:
           DATABASE_URL: ${{ secrets.POSTGRES_URL }}
-          BASIC_AUTH_TOKEN: fake
 
   update-remote-container:
     needs: build-and-push
