@@ -25,4 +25,4 @@ RUN apt-get update && apt-get install git -y
 
 # Creating folders, and files for a project:
 COPY src /app
-RUN DATABASE_URL=sqlite:///:memory: /app/.venv/bin/python manage.py collectstatic
+RUN BASIC_AUTH_TOKEN=fake DATABASE_URL=sqlite:///:memory: /app/.venv/bin/python manage.py collectstatic
