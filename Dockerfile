@@ -25,3 +25,4 @@ RUN apt-get update && apt-get install git -y
 
 # Creating folders, and files for a project:
 COPY src /app
+RUN DATABASE_URL=sqlite:///:memory: python manage.py collectstatic
