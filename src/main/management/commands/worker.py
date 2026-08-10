@@ -30,7 +30,7 @@ class Command(BaseCommand):
     def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Entrypoint."""
         while True:
-            try:
+            try:  # noqa: PLW0717
                 process_task_record = (
                     ProcessTask.objects
                     .filter(status=ProcessTaskStatusEnum.pending)
@@ -41,7 +41,7 @@ class Command(BaseCommand):
                     sleep(2)
                     continue
                 repo = process_task_record.repo
-                try:
+                try:  # noqa: PLW0717
                     process_task_record.status = ProcessTaskStatusEnum.in_process
                     process_task_record.traceback = ''
                     process_task_record.updated_at = timezone.now()
