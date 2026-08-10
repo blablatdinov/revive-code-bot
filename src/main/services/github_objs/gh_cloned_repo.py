@@ -30,7 +30,7 @@ class GhClonedRepo(ClonedRepo):
     def clone_to(self, path: Path) -> Path:
         """Cloning from github."""
         repo = github_repo(self._gh_repo.installation_id, self._gh_repo.full_name)
-        try:
+        try:  # noqa: PLW0717
             now = int(datetime.datetime.now(tz=datetime.UTC).timestamp())
             payload = {'iat': now, 'exp': now + 600, 'iss': 874924}
             encoded_jwt = jwt.encode(

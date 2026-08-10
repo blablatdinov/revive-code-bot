@@ -26,7 +26,7 @@ class Command(BaseCommand):
         """Update the token in all Croniq tasks."""
         success, failed = 0, 0
         for repo in GhRepo.objects.all():
-            try:
+            try:  # noqa: PLW0717
                 config = RepoConfig.objects.filter(repo=repo).first()
                 if not config:
                     logger.warning('No config found for repository %s', repo.full_name)
