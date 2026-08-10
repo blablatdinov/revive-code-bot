@@ -16,6 +16,7 @@ from django.utils import timezone
 from main.models import ProcessTask, ProcessTaskStatusEnum
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
+from main.services.github_objs.gh_issue_comment import GhIssueComment
 from main.services.github_objs.gh_new_issue import GhNewIssue
 from main.services.github_objs.github_client import github_repo
 
@@ -56,6 +57,14 @@ class Command(BaseCommand):
                     process_task_record.updated_at = timezone.now()
                     process_task_record.traceback = ''
                     process_task_record.save()
+                    if process_task_record.trigger_issue_id:
+                        GhIssueComment(
+                            repo,
+                            data['data']['trigger_issue_id'],
+                            # TODO: tag comment author
+                            # TODO: send link to new issue
+                            'Issue created',
+                        ).publish()
                 except Exception:
                     logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
                     process_task_record.status = ProcessTaskStatusEnum.failed
