@@ -27,7 +27,7 @@ django-extensions = "4.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "9.1.1"
-ruff = "0.15.13"
+ruff = "0.16.2"
 wemake-python-styleguide = "1.7.1"
 refurb = "2.3.1"
 pytest-cov = "7.1.0"
@@ -71,30 +71,31 @@ fixable = [
   "I",
 ]
 ignore = [
-  "ARG001", # Unused function argument
-  "ARG002", # Unused method argument
-  "D106",   # Missing docstring in public nested class
-  "D203",   # no-blank-line-before-class
-  "D213",   # multi-line-summary-first-line
-  "D401",   # First line of docstring should be in imperative mood
-  "D418",   # Function decorated with `@overload` shouldn't contain a docstring
-  "FBT001", # Boolean-typed positional argument in function definition
-  "FBT002", # Boolean-typed positional argument in function definition
-  "FIX002", # Line contains TODO, consider resolving the issue
-  "FLY002", # We not use f-strings
-  "RUF100", # WPS primary linter
-  "RUF001", # Project contain cyrillic symbols
-  "RUF002", # Project contain cyrillic symbols
-  "RET505", # Unnecessary `elif` after `return` statement
-  "RET506", # Unnecessary `elif` after `raise` statement
-  "UP030",  # We use explicit references
-  "UP032",  # We not use f-strings
-  "UP004",  # Class `PrayerReaction` inherits from `object`
-  "TD",     # "todo" formats
-  "PLR630", # We not respect staticmethods "TCH003",  # Move standard library import `os.PathLike` into a type-checking block
-  "DOC201", # `return` is not documented in docstrin
-  "DOC501", # Raised exception `UnreachebleCaseError` missing from docstring
-  "DOC402", # `yield` is not documented in docstring
+  "ARG001",        # Unused function argument
+  "ARG002",        # Unused method argument
+  "D106",          # Missing docstring in public nested class
+  "D203",          # no-blank-line-before-class
+  "D213",          # multi-line-summary-first-line
+  "D401",          # First line of docstring should be in imperative mood
+  "D418",          # Function decorated with `@overload` shouldn't contain a docstring
+  "FBT001",        # Boolean-typed positional argument in function definition
+  "FBT002",        # Boolean-typed positional argument in function definition
+  "FIX002",        # Line contains TODO, consider resolving the issue
+  "FLY002",        # We not use f-strings
+  "RUF100",        # WPS primary linter
+  "RUF001",        # Project contain cyrillic symbols
+  "RUF002",        # Project contain cyrillic symbols
+  "RET505",        # Unnecessary `elif` after `return` statement
+  "RET506",        # Unnecessary `elif` after `raise` statement
+  "UP030",         # We use explicit references
+  "UP032",         # We not use f-strings
+  "UP004",         # Class `PrayerReaction` inherits from `object`
+  "TD",            # "todo" formats
+  "PLR630",        # We not respect staticmethods "TCH003",  # Move standard library import `os.PathLike` into a type-checking block
+  "DOC201",        # `return` is not documented in docstrin
+  "DOC501",        # Raised exception `UnreachebleCaseError` missing from docstring
+  "DOC402",        # `yield` is not documented in docstring
+  "noqa-comments", # WPS primary linter
 ]
 
 [tool.ruff.lint.flake8-quotes]
