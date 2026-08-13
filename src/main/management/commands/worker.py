@@ -14,12 +14,12 @@ from django.db.utils import OperationalError
 from django.utils import timezone
 from github.GithubException import GithubException
 
+from main.exceptions import UnavailableRepoError
 from main.models import ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
 from main.services.github_objs.github_client import github_repo
-from main.exceptions import UnavailableRepoError
 
 logger = logging.getLogger(__name__)
 
