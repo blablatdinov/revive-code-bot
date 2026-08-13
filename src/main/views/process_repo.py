@@ -11,7 +11,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
-from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum
+from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +25,8 @@ def process_repo_view(request: HttpRequest, repo_id: int) -> HttpResponse:
     ):
         raise PermissionDenied
     repo = get_object_or_404(GhRepo, id=repo_id)
+    if repo.status == RepoStatusEnum.inactive:
+        return JsonResponse({'ok': True, 'message': 'Repo inactive'})
     process_task = ProcessTask.objects.create(
         repo=repo,
         status=ProcessTaskStatusEnum.pending,
