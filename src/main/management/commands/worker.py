@@ -68,7 +68,7 @@ class Command(BaseCommand):
                         process_task_record.traceback = traceback.format_exc() or ''
                         process_task_record.save()
                     else:
-                        raise err
+                        raise
                 except UnavailableRepoError:
                     logger.exception('Issues has been disabled in this repository')
                     repo.status = RepoStatusEnum.invactive
