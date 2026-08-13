@@ -12,8 +12,9 @@ from django.core.management.base import BaseCommand
 from django.db import close_old_connections
 from django.db.utils import OperationalError
 from django.utils import timezone
+from github.GithubException import GithubException
 
-from main.models import ProcessTask, ProcessTaskStatusEnum
+from main.models import ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
@@ -56,6 +57,17 @@ class Command(BaseCommand):
                     process_task_record.updated_at = timezone.now()
                     process_task_record.traceback = ''
                     process_task_record.save()
+                except GithubException as err:
+                    if 'Issues has been disabled in this repository' in str(err):
+                        logger.exception('Issues has been disabled in this repository')
+                        repo.status = RepoStatusEnum.invactive
+                        repo.save()
+                        process_task_record.status = ProcessTaskStatusEnum.failed
+                        process_task_record.updated_at = timezone.now()
+                        process_task_record.traceback = traceback.format_exc() or ''
+                        process_task_record.save()
+                    else:
+                        raise err
                 except Exception:
                     logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
                     process_task_record.status = ProcessTaskStatusEnum.failed
