@@ -70,13 +70,13 @@ class Command(BaseCommand):
                     else:
                         raise err
                 except UnavailableRepoError:
-                        logger.exception('Issues has been disabled in this repository')
-                        repo.status = RepoStatusEnum.invactive
-                        repo.save()
-                        process_task_record.status = ProcessTaskStatusEnum.failed
-                        process_task_record.updated_at = timezone.now()
-                        process_task_record.traceback = traceback.format_exc() or ''
-                        process_task_record.save()
+                    logger.exception('Issues has been disabled in this repository')
+                    repo.status = RepoStatusEnum.invactive
+                    repo.save()
+                    process_task_record.status = ProcessTaskStatusEnum.failed
+                    process_task_record.updated_at = timezone.now()
+                    process_task_record.traceback = traceback.format_exc() or ''
+                    process_task_record.save()
                 except Exception:
                     logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
                     process_task_record.status = ProcessTaskStatusEnum.failed
