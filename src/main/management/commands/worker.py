@@ -14,6 +14,7 @@ from django.db.utils import OperationalError
 from django.utils import timezone
 from github.GithubException import GithubException
 
+from main.exceptions import UnavailableRepoError
 from main.models import ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
@@ -60,14 +61,22 @@ class Command(BaseCommand):
                 except GithubException as err:
                     if 'Issues has been disabled in this repository' in str(err):
                         logger.exception('Issues has been disabled in this repository')
-                        repo.status = RepoStatusEnum.invactive
+                        repo.status = RepoStatusEnum.inactive
                         repo.save()
                         process_task_record.status = ProcessTaskStatusEnum.failed
                         process_task_record.updated_at = timezone.now()
                         process_task_record.traceback = traceback.format_exc() or ''
                         process_task_record.save()
                     else:
-                        raise err
+                        raise
+                except UnavailableRepoError:
+                    logger.exception('Issues has been disabled in this repository')
+                    repo.status = RepoStatusEnum.inactive
+                    repo.save()
+                    process_task_record.status = ProcessTaskStatusEnum.failed
+                    process_task_record.updated_at = timezone.now()
+                    process_task_record.traceback = traceback.format_exc() or ''
+                    process_task_record.save()
                 except Exception:
                     logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
                     process_task_record.status = ProcessTaskStatusEnum.failed
