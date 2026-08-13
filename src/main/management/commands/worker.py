@@ -61,7 +61,7 @@ class Command(BaseCommand):
                 except GithubException as err:
                     if 'Issues has been disabled in this repository' in str(err):
                         logger.exception('Issues has been disabled in this repository')
-                        repo.status = RepoStatusEnum.invactive
+                        repo.status = RepoStatusEnum.inactive
                         repo.save()
                         process_task_record.status = ProcessTaskStatusEnum.failed
                         process_task_record.updated_at = timezone.now()
@@ -71,7 +71,7 @@ class Command(BaseCommand):
                         raise
                 except UnavailableRepoError:
                     logger.exception('Issues has been disabled in this repository')
-                    repo.status = RepoStatusEnum.invactive
+                    repo.status = RepoStatusEnum.inactive
                     repo.save()
                     process_task_record.status = ProcessTaskStatusEnum.failed
                     process_task_record.updated_at = timezone.now()
