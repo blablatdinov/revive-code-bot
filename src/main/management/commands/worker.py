@@ -12,6 +12,7 @@ from django.core.management.base import BaseCommand
 from django.db import close_old_connections
 from django.db.utils import OperationalError
 from django.utils import timezone
+from github.GithubException import GithubException
 
 from main.models import ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
 from main.service import process_repo
