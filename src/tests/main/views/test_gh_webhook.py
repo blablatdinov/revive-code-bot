@@ -6,6 +6,7 @@
 import hashlib
 import hmac
 import re
+from http import HTTPStatus
 from pathlib import Path
 
 import pytest
@@ -412,8 +413,7 @@ def test_issue_comment_triggers_scan(anon):
             'X-GitHub-Hook-Installation-Target-Type': 'integration',
         },
     )
-
     task = ProcessTask.objects.get()
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.content == b'Manual scan triggered'
     assert task.trigger_issue_id == 1
