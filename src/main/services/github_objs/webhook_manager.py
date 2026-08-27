@@ -15,9 +15,17 @@ from main.models import GhRepo
 _WEBHOOK_URL = 'https://www.rehttp.net/p/https://revive-code-bot.ilaletdinov.ru/hook/github'
 
 
+def _hook_already_exists(gh_repo: Repository, url: str) -> bool:
+    """Check if a webhook with the given URL already exists on the repo."""
+    return any(
+        hook.config.get('url') == url
+        for hook in gh_repo.get_hooks()
+    )
+
+
 @final
 @attrs.define(frozen=True)
-class WebhookManager:
+class WebhookCreation:
     """Manage webhook creation with idempotency."""
 
     _gh_repo: Repository
@@ -26,7 +34,7 @@ class WebhookManager:
         """Create webhook only if it does not already exist."""
         if repo_db_record.has_webhook:
             return
-        if self._hook_already_exists(_WEBHOOK_URL):
+        if _hook_already_exists(self._gh_repo, _WEBHOOK_URL):
             repo_db_record.has_webhook = True
             repo_db_record.save(update_fields=['has_webhook'])
             return
@@ -44,10 +52,3 @@ class WebhookManager:
                 raise
         repo_db_record.has_webhook = True
         repo_db_record.save(update_fields=['has_webhook'])
-
-    def _hook_already_exists(self, url: str) -> bool:
-        """Check if a webhook with the given URL already exists on the repo."""
-        return any(
-            hook.config.get('url') == url
-            for hook in self._gh_repo.get_hooks()
-        )

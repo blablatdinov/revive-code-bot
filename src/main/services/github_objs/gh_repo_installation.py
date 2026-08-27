@@ -13,7 +13,7 @@ from main.models import GhRepo, RepoConfig
 from main.services.croniq_task import CroniqTask
 from main.services.github_objs.github_client import github_repo
 from main.services.github_objs.repo_installation import RegisteredRepoFromGithub
-from main.services.github_objs.webhook_manager import WebhookManager
+from main.services.github_objs.webhook_manager import WebhookCreation
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
@@ -47,7 +47,7 @@ class GhRepoInstallation(RepoInstallation):
                     },
                 )
                 gh_repo = github_repo(self._installation_id, repo['full_name'])
-                WebhookManager(gh_repo).create_if_needed(repo_db_record)
+                WebhookCreation(gh_repo).create_if_needed(repo_db_record)
                 config = MergedConfig.ctor(
                     GhReviveConfig(
                         gh_repo,
