@@ -18,6 +18,7 @@ from main.exceptions import UnavailableRepoError
 from main.models import ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
+from main.services.github_objs.gh_issue_comment import GhIssueComment
 from main.services.github_objs.gh_new_issue import GhNewIssue
 from main.services.github_objs.github_client import github_repo
 
@@ -28,6 +29,14 @@ class Command(BaseCommand):
     """CLI command."""
 
     help = ''
+
+    @staticmethod
+    def _mark_failed(task: ProcessTask) -> None:
+        """Mark a process task as failed with traceback."""
+        task.status = ProcessTaskStatusEnum.failed
+        task.updated_at = timezone.now()
+        task.traceback = traceback.format_exc() or ''
+        task.save()
 
     def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Entrypoint."""
@@ -58,31 +67,28 @@ class Command(BaseCommand):
                     process_task_record.updated_at = timezone.now()
                     process_task_record.traceback = ''
                     process_task_record.save()
+                    if process_task_record.trigger_issue_id:
+                        GhIssueComment(
+                            github_repo(repo.installation_id, repo.full_name),
+                            process_task_record.trigger_issue_id,
+                            'Issue created',
+                        ).publish()
                 except GithubException as err:
                     if 'Issues has been disabled in this repository' in str(err):
                         logger.exception('Issues has been disabled in this repository')
                         repo.status = RepoStatusEnum.inactive
                         repo.save()
-                        process_task_record.status = ProcessTaskStatusEnum.failed
-                        process_task_record.updated_at = timezone.now()
-                        process_task_record.traceback = traceback.format_exc() or ''
-                        process_task_record.save()
+                        self._mark_failed(process_task_record)
                     else:
                         raise
                 except UnavailableRepoError:
                     logger.exception('Issues has been disabled in this repository')
                     repo.status = RepoStatusEnum.inactive
                     repo.save()
-                    process_task_record.status = ProcessTaskStatusEnum.failed
-                    process_task_record.updated_at = timezone.now()
-                    process_task_record.traceback = traceback.format_exc() or ''
-                    process_task_record.save()
+                    self._mark_failed(process_task_record)
                 except Exception:
                     logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
-                    process_task_record.status = ProcessTaskStatusEnum.failed
-                    process_task_record.updated_at = timezone.now()
-                    process_task_record.traceback = traceback.format_exc() or ''
-                    process_task_record.save()
+                    self._mark_failed(process_task_record)
             except OperationalError:
                 logger.exception('Django OperationalError. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
                 close_old_connections()
