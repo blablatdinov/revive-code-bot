@@ -80,6 +80,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Checkout master
+        run: git fetch origin master:master -u
       - name: Set up Python 3.14
         uses: actions/setup-python@v7
         with:
@@ -96,7 +98,7 @@ jobs:
         run: echo '${{ secrets.GH_APP_KEY }}' > src/revive-code-bot.private-key.pem
       - name: Lint via ruff
         run: .venv/bin/ruff check src
-      # - name: Lint via flake8
-      #   run: .venv/bin/flake8 src
+      - name: Lint via flake8
+        run: .venv/bin/flake8 src | .venv/bin/ondivi
       - name: Check types with mypy
         run: .venv/bin/mypy src
