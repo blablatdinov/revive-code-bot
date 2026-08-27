@@ -32,7 +32,7 @@ class DefaultReviveConfig(ReviveConfig):
             'cron': '{0} {1} {2} * *'.format(
                 self._rnd.randint(0, 59),  # noqa: S311 . Not secure issue
                 self._rnd.randint(0, 23),  # noqa: S311 . Not secure issue
-                self._rnd.randint(1, 31),  # noqa: S311 . Not secure issue
+                self._rnd.randint(1, 28),  # noqa: S311 . Not secure issue
             ),
             'glob': '**/*',
         })
