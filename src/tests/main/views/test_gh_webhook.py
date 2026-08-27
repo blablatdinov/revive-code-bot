@@ -3,15 +3,33 @@
 
 """Test github webhook."""
 
+import hashlib
+import hmac
 import re
 from pathlib import Path
 
 import pytest
 from django.conf import settings
+from django.test import override_settings
 
 from main.models import GhRepo, RepoStatusEnum
 
 pytestmark = [pytest.mark.django_db]
+
+
+def _sign(body: str, secret: str) -> str:
+    return 'sha256=' + hmac.new(
+        secret.encode(),
+        body.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+@pytest.fixture
+def webhook_secret():
+    value = 'test-secret'
+    with override_settings(GITHUB_WEBHOOK_SECRET=value):
+        yield value
 
 
 @pytest.fixture
@@ -283,6 +301,76 @@ def test_skip_inactive_repo(anon, inactive_gh_repo):
 
     assert response.status_code == 200
     assert response.content == b'Skip as inactive'
+
+
+@pytest.mark.usefixtures('gh_repo', 'empty_revive_config', 'mock_scheduler')
+def test_valid_signature(anon, webhook_secret):
+    body = Path(settings.BASE_DIR / 'tests/fixtures/push_event.json').read_text(encoding='utf-8')
+    response = anon.post(
+        '/hook/github',
+        body,
+        content_type='application/json',
+        headers={
+            'Accept': '*/*',
+            'Content-Type': 'application/json',
+            'User-Agent': 'GitHub-Hookshot/9729b30',
+            'X-GitHub-Delivery': '18faf6d0-3662-11ef-9e2b-0e81d1f2cc20',
+            'X-GitHub-Event': 'push',
+            'X-GitHub-Hook-ID': '487229453',
+            'X-GitHub-Hook-Installation-Target-ID': '874924',
+            'X-GitHub-Hook-Installation-Target-Type': 'integration',
+            'X-Hub-Signature-256': _sign(body, webhook_secret),
+        },
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.usefixtures('webhook_secret', 'gh_repo')
+def test_invalid_signature(anon):
+    body = Path(settings.BASE_DIR / 'tests/fixtures/push_event.json').read_text(encoding='utf-8')
+    response = anon.post(
+        '/hook/github',
+        body,
+        content_type='application/json',
+        headers={
+            'Accept': '*/*',
+            'Content-Type': 'application/json',
+            'User-Agent': 'GitHub-Hookshot/9729b30',
+            'X-GitHub-Delivery': '18faf6d0-3662-11ef-9e2b-0e81d1f2cc20',
+            'X-GitHub-Event': 'push',
+            'X-GitHub-Hook-ID': '487229453',
+            'X-GitHub-Hook-Installation-Target-ID': '874924',
+            'X-GitHub-Hook-Installation-Target-Type': 'integration',
+            'X-Hub-Signature-256': 'sha256=invalid',
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.content == b'Invalid signature'
+
+
+@pytest.mark.usefixtures('webhook_secret', 'gh_repo')
+def test_missing_signature(anon):
+    body = Path(settings.BASE_DIR / 'tests/fixtures/push_event.json').read_text(encoding='utf-8')
+    response = anon.post(
+        '/hook/github',
+        body,
+        content_type='application/json',
+        headers={
+            'Accept': '*/*',
+            'Content-Type': 'application/json',
+            'User-Agent': 'GitHub-Hookshot/9729b30',
+            'X-GitHub-Delivery': '18faf6d0-3662-11ef-9e2b-0e81d1f2cc20',
+            'X-GitHub-Event': 'push',
+            'X-GitHub-Hook-ID': '487229453',
+            'X-GitHub-Hook-Installation-Target-ID': '874924',
+            'X-GitHub-Hook-Installation-Target-Type': 'integration',
+        },
+    )
+
+    assert response.status_code == 403
+    assert response.content == b'Invalid signature'
 
 
 @pytest.mark.skip

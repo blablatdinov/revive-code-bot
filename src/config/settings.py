@@ -200,5 +200,7 @@ LOGGING = {
 
 ADMIN_SECRET_PATH = env('ADMIN_SECRET_PATH', str, default='')
 
+GITHUB_WEBHOOK_SECRET = env('GITHUB_WEBHOOK_SECRET', default='')
+
 CRONIQ_API_KEY = env('CRONIQ_API_KEY', str, default='fake')
 CRONIQ_DOMAIN = env('CRONIQ_DOMAIN', str, default='https://croniq.ilaletdinov.ru')
