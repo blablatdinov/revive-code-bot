@@ -30,9 +30,9 @@ class DefaultReviveConfig(ReviveConfig):
         return ConfigDict({
             'limit': 10,
             'cron': '{0} {1} {2} * *'.format(
-                self._rnd.randint(0, 61),  # noqa: S311 . Not secure issue
-                self._rnd.randint(0, 25),  # noqa: S311 . Not secure issue
-                self._rnd.randint(0, 29),  # noqa: S311 . Not secure issue
+                self._rnd.randint(0, 59),  # noqa: S311 . Not secure issue
+                self._rnd.randint(0, 23),  # noqa: S311 . Not secure issue
+                self._rnd.randint(1, 31),  # noqa: S311 . Not secure issue
             ),
             'glob': '**/*',
         })
