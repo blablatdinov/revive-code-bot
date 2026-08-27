@@ -3,8 +3,12 @@
 
 """Github webhook."""
 
+import hashlib
+import hmac
 import json
+import secrets
 
+from django.conf import settings
 from django.db import transaction
 from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -15,10 +19,28 @@ from main.service import get_or_create_repo, is_default_branch, update_config
 from main.services.github_objs.gh_repo_installation import GhRepoInstallation
 
 
+def verify_signature(request: HttpRequest) -> bool:
+    """Verify GitHub webhook signature."""
+    secret = settings.GITHUB_WEBHOOK_SECRET
+    if not secret:
+        return True
+    signature = request.headers.get('X-Hub-Signature-256')
+    if not signature:
+        return False
+    expected = 'sha256=' + hmac.new(
+        secret.encode(),
+        request.body,
+        hashlib.sha256,
+    ).hexdigest()
+    return secrets.compare_digest(signature, expected)
+
+
 @csrf_exempt
 def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911 . TODO
     """Process webhooks from github."""
     with transaction.atomic():
+        if not verify_signature(request):
+            return HttpResponse('Invalid signature', status=403)
         gh_event = request.headers.get('X-GitHub-Event')
         if not gh_event:
             return HttpResponse(status=422)
