@@ -14,8 +14,13 @@ from django.http import HttpRequest, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from main.exceptions import UnavailableRepoError
-from main.models import ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
-from main.service import get_or_create_repo, is_default_branch, update_config
+from main.models import GhRepo, ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
+from main.service import (
+    _RequestForCheckBranchDefault,
+    get_or_create_repo,
+    is_default_branch,
+    update_config,
+)
 from main.services.github_objs.gh_repo_installation import GhRepoInstallation
 
 SCAN_TRIGGER_COMMENT = '@revive-code-bot scan repo'
@@ -37,9 +42,9 @@ def verify_signature(request: HttpRequest) -> bool:
     return secrets.compare_digest(signature, expected)
 
 
-def _handle_push(repo_status: RepoStatusEnum, request_json: dict) -> HttpResponse:
+def _handle_push(pg_repo: GhRepo, request_json: _RequestForCheckBranchDefault) -> HttpResponse:
     """Handle push webhook event."""
-    if repo_status != RepoStatusEnum.active:
+    if pg_repo.status != RepoStatusEnum.active:
         return HttpResponse('Skip as inactive')
     if not is_default_branch(request_json):
         return HttpResponse('Skip not default branch')
@@ -82,7 +87,7 @@ def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911 . TODO
             case 'ping':
                 return HttpResponse('Webhooks installed')
             case 'push':
-                return _handle_push(pg_repo.status, request_json)
+                return _handle_push(pg_repo, request_json)
             case 'issue_comment' if SCAN_TRIGGER_COMMENT in request_json['comment']['body'].lower():
                 ProcessTask.objects.create(
                     repo=pg_repo,
