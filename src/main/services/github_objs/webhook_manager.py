@@ -4,7 +4,7 @@
 """Webhook management helpers."""
 
 from http import HTTPStatus
-from typing import final, override
+from typing import final
 
 import attrs
 from github import GithubException
@@ -22,7 +22,6 @@ class WebhookManager:
 
     _gh_repo: Repository
 
-    @override
     def create_if_needed(self, repo_db_record: GhRepo) -> None:
         """Create webhook only if it does not already exist."""
         if repo_db_record.has_webhook:

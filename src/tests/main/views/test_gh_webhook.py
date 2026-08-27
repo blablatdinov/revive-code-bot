@@ -13,7 +13,7 @@ import pytest
 from django.conf import settings
 from django.test import override_settings
 
-from main.models import GhRepo, ProcessTask, RepoStatusEnum
+from main.models import GhRepo, ProcessTask, RepoConfig, RepoStatusEnum
 
 pytestmark = [pytest.mark.django_db]
 
@@ -194,7 +194,7 @@ def test_filled_revive_config(anon, gh_repo):
         },
     )
 
-    config = gh_repo.repoconfig
+    config = RepoConfig.objects.get(repo=gh_repo)
 
     assert response.status_code == 200
     assert response.content == b'Config updated'
