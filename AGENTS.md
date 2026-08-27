@@ -7,6 +7,7 @@
 - **Coverage:** CI runs `pytest -m 'not integration' --doctest-modules --cov --cov-report xml`
 - **Lint:** `poetry run ruff check src --output-format=concise && poetry run flake8 src && poetry run mypy src` (or `task lint`)
 - **Type check:** `poetry run mypy src` (or `task type-check`)
+  - Local mypy with in-memory DB: `DATABASE_URL=sqlite:///:memory: poetry run mypy src/ --show-traceback`
 - **Format:** `poetry run ruff check src --fix --fix-only` (or `task fmt`)
 - **Syntax check:** `poetry run ruff check src --select=F --ignore=F401,F841` (or `task syntax-check`)
 - **Migrations:** `poetry run python src/manage.py makemigrations && poetry run python src/manage.py migrate` (or `task migrate`)
