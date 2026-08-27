@@ -46,10 +46,12 @@ def get_or_create_repo(repo_full_name: str, installation_id: int) -> GhRepo:
         ),
     )
     parsed_config = config.parse()
-    RepoConfig.objects.create(
+    RepoConfig.objects.get_or_create(
         repo=new_repo,
-        cron_expression=parsed_config['cron'],
-        files_glob=parsed_config['glob'],
+        defaults={
+            'cron_expression': parsed_config['cron'],
+            'files_glob': parsed_config['glob'],
+        },
     )
     return new_repo
 
