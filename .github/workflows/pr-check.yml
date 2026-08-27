@@ -80,6 +80,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Checkout master
+        run: git fetch origin master:master -u
       - name: Set up Python 3.14
         uses: actions/setup-python@v7
         with:
