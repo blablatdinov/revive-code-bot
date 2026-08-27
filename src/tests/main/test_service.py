@@ -20,7 +20,7 @@ pytestmark = [pytest.mark.django_db]
 @pytest.fixture
 def gh_repo(baker):
     repo = baker.make('main.GhRepo')
-    baker.make('main.RepoConfig', repo=repo)
+    baker.make('main.RepoConfig', repo=repo, files_glob='**/*')
     return repo
 
 

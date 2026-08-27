@@ -40,7 +40,7 @@ def gh_repo(baker):
         installation_id=1,
         status=RepoStatusEnum.active,
     )
-    baker.make('main.RepoConfig', repo=repo)
+    baker.make('main.RepoConfig', repo=repo, files_glob='**/*')
     return repo
 
 
@@ -52,7 +52,7 @@ def inactive_gh_repo(baker):
         installation_id=1,
         status=RepoStatusEnum.inactive,
     )
-    baker.make('main.RepoConfig', repo=repo)
+    baker.make('main.RepoConfig', repo=repo, files_glob='**/*')
     return repo
 
 

@@ -60,10 +60,12 @@ class GhRepoInstallation(RepoInstallation):
                     DefaultReviveConfig(random.Random()),  # noqa: S311
                 ),
             )
+            parsed_config = config.parse()
             RepoConfig.objects.create(
                 repo=repo_db_record,
-                cron_expression=config.parse()['cron'],
+                cron_expression=parsed_config['cron'],
+                files_glob=parsed_config['glob'],
             )
             CroniqTask(repo_db_record.id).apply(
-                config.parse()['cron'],
+                parsed_config['cron'],
             )
