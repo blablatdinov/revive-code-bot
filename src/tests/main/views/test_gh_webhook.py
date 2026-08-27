@@ -194,7 +194,7 @@ def test_filled_revive_config(anon, gh_repo):
         },
     )
 
-    config = gh_repo.repoconfig_set.earliest('id')
+    config = gh_repo.repoconfig
 
     assert response.status_code == 200
     assert response.content == b'Config updated'
