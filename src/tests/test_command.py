@@ -32,6 +32,7 @@ def repo_config(baker: ModuleType, gh_repo: GhRepo) -> RepoConfig:
     return baker.make(  # type: ignore [no-any-return]
         'main.RepoConfig',
         repo=gh_repo,
+        files_glob='**/*',
     )
 
 

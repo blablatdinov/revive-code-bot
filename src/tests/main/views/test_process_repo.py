@@ -22,7 +22,7 @@ def gh_repo(baker):
         installation_id=1,
         status=RepoStatusEnum.active,
     )
-    baker.make('main.RepoConfig', repo=repo)
+    baker.make('main.RepoConfig', repo=repo, files_glob='**/*')
     return repo
 
 

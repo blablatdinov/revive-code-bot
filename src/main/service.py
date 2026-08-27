@@ -45,9 +45,11 @@ def get_or_create_repo(repo_full_name: str, installation_id: int) -> GhRepo:
             DefaultReviveConfig(random.Random()),  # noqa: S311
         ),
     )
+    parsed_config = config.parse()
     RepoConfig.objects.create(
         repo=new_repo,
-        cron_expression=config.parse()['cron'],
+        cron_expression=parsed_config['cron'],
+        files_glob=parsed_config['glob'],
     )
     return new_repo
 
