@@ -11,7 +11,9 @@ from main.models import GhRepo
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
+from main.services.github_objs.gh_open_issues import GhOpenIssues
 from main.services.github_objs.github_client import github_repo
+from main.services.issue_strategies import ISSUE_LABEL
 
 
 class Command(BaseCommand):
@@ -24,8 +26,10 @@ class Command(BaseCommand):
     def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Entrypoint."""
         for repo in GhRepo.objects.all():
+            gh_repo = github_repo(repo.installation_id, repo.full_name)
             process_repo(
                 repo.id,
                 GhClonedRepo(repo),
-                GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
+                GhNewIssue(gh_repo),
+                GhOpenIssues(gh_repo, ISSUE_LABEL),
             )

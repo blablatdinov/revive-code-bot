@@ -4,12 +4,17 @@
 """Issue creation strategies."""
 
 from main.services.github_objs.new_issue import NewIssue
+from main.services.github_objs.open_issues import OpenIssues
 
 ISSUE_LABEL = 'revive-code-bot'
+
+STRATEGY_CREATE_ALWAYS = 'create_always'
+STRATEGY_SKIP_IF_EXISTS = 'skip_if_exists'
 
 
 def apply_issue_strategy(
     new_issue: NewIssue,
+    open_issues: OpenIssues,
     strategy: str,
     title: str,
     body: str,
@@ -17,25 +22,13 @@ def apply_issue_strategy(
     """Apply issue creation strategy.
 
     Args:
-        new_issue: Issue abstraction.
-        strategy: Strategy name ('create_always', 'update_or_create', 'create_after_close').
+        new_issue: Issue creation object.
+        open_issues: Open issues search object.
+        strategy: Strategy name ('create_always' or 'skip_if_exists').
         title: Issue title.
         body: Issue body content.
 
     """
-    if strategy == 'create_always':
-        new_issue.create(title, body, [ISSUE_LABEL])
-    elif strategy == 'update_or_create':
-        open_issues = new_issue.find_issues(ISSUE_LABEL, 'open')
-        matching = [issue for issue in open_issues if issue['title'] == title]
-        if matching:
-            new_issue.update_issue(matching[0]['number'], body)
-        else:
-            new_issue.create(title, body, [ISSUE_LABEL])
-    elif strategy == 'create_after_close':
-        open_issues = new_issue.find_issues(ISSUE_LABEL, 'open')
-        matching = [issue for issue in open_issues if issue['title'] == title]
-        if not matching:
-            new_issue.create(title, body, [ISSUE_LABEL])
-    else:
-        new_issue.create(title, body, [ISSUE_LABEL])
+    if strategy == STRATEGY_SKIP_IF_EXISTS and open_issues.find():
+        return
+    new_issue.create(title, body, [ISSUE_LABEL])

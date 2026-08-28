@@ -7,7 +7,7 @@ from typing import Self, TypedDict, final, override
 
 import attrs
 
-from main.services.github_objs.new_issue import IssueInfo, NewIssue
+from main.services.github_objs.new_issue import NewIssue
 
 
 class _IssueDict(TypedDict):
@@ -15,8 +15,6 @@ class _IssueDict(TypedDict):
     title: str
     body: str
     labels: list[str]
-    number: int
-    state: str
 
 
 @final
@@ -38,27 +36,4 @@ class FkNewIssue(NewIssue):
             'title': title,
             'body': body,
             'labels': labels or [],
-            'number': len(self.issues) + 1,
-            'state': 'open',
         })
-
-    @override
-    def find_issues(self, label: str, state: str) -> list[IssueInfo]:
-        """Find issues by label and state."""
-        return [
-            IssueInfo({
-                'number': issue['number'],
-                'title': issue['title'],
-                'state': issue['state'],
-            })
-            for issue in self.issues
-            if label in issue['labels'] and issue['state'] == state
-        ]
-
-    @override
-    def update_issue(self, issue_number: int, body: str) -> None:
-        """Update existing issue body."""
-        for issue in self.issues:
-            if issue['number'] == issue_number:
-                issue['body'] = body
-                return

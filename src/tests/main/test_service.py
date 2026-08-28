@@ -13,6 +13,7 @@ from git import Repo
 from main.service import define_files_for_search, process_repo
 from main.services.github_objs.fk_cloned_repo import FkClonedRepo
 from main.services.github_objs.fk_new_issue import FkNewIssue
+from main.services.github_objs.fk_open_issues import FkOpenIssues
 
 pytestmark = [pytest.mark.django_db]
 
@@ -79,10 +80,12 @@ def tmp_dir(file_list):
 
 def test_process_repo_without_disk_config(gh_repo):
     new_issue = FkNewIssue.ctor()
+    open_issues = FkOpenIssues(new_issue.issues, 'revive-code-bot')
     process_repo(
         gh_repo.id,
         FkClonedRepo(settings.BASE_DIR / 'tests/fixtures/repo-without-config.zip'),
         new_issue,
+        open_issues,
     )
     assert len(new_issue.issues) == 1
     assert 'revive-code-bot' in new_issue.issues[0]['labels']

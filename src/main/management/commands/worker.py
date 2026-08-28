@@ -19,7 +19,9 @@ from main.models import ProcessTask, ProcessTaskStatusEnum, RepoStatusEnum
 from main.service import process_repo
 from main.services.github_objs.gh_cloned_repo import GhClonedRepo
 from main.services.github_objs.gh_new_issue import GhNewIssue
+from main.services.github_objs.gh_open_issues import GhOpenIssues
 from main.services.github_objs.github_client import github_repo
+from main.services.issue_strategies import ISSUE_LABEL
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +54,10 @@ class Command(BaseCommand):
                         repo.id,
                         GhClonedRepo(repo),
                         GhNewIssue(github_repo(repo.installation_id, repo.full_name)),
+                        GhOpenIssues(
+                            github_repo(repo.installation_id, repo.full_name),
+                            ISSUE_LABEL,
+                        ),
                     )
                     logger.info('Repository %s processed', repo)
                     process_task_record.status = ProcessTaskStatusEnum.success

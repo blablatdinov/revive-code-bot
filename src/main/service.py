@@ -17,6 +17,7 @@ from main.services.croniq_task import CroniqTask
 from main.services.github_objs.cloned_repo import ClonedRepo
 from main.services.github_objs.github_client import github_repo
 from main.services.github_objs.new_issue import NewIssue
+from main.services.github_objs.open_issues import OpenIssues
 from main.services.issue_strategies import apply_issue_strategy
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.disk_revive_config import DiskReviveConfig
@@ -97,7 +98,7 @@ def is_default_branch(request_json: _RequestForCheckBranchDefault) -> bool:
     return actual == default_branch
 
 
-def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue) -> None:
+def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue, open_issues: OpenIssues) -> None:
     """Processing repo."""
     with tempfile.TemporaryDirectory() as tmpdirname:
         repo_path = cloned_repo.clone_to(Path(tmpdirname))
@@ -139,6 +140,7 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue) -> 
     }))
     apply_issue_strategy(
         new_issue,
+        open_issues,
         config['issue_strategy'],
         'Issue from revive-code-bot',
         issue_body,

@@ -13,6 +13,7 @@ from main.models import GhRepo, TouchRecord
 from main.service import process_repo
 from main.services.github_objs.fk_cloned_repo import FkClonedRepo
 from main.services.github_objs.fk_new_issue import FkNewIssue
+from main.services.github_objs.fk_open_issues import FkOpenIssues
 
 pytestmark = [pytest.mark.django_db]
 
@@ -48,10 +49,12 @@ def _exist_touch_records(baker: ModuleType, gh_repo: GhRepo) -> None:
 @pytest.mark.integration
 def test(gh_repo: GhRepo) -> None:
     new_issue = FkNewIssue.ctor()
+    open_issues = FkOpenIssues(new_issue.issues, 'revive-code-bot')
     process_repo(
         gh_repo.id,
         FkClonedRepo(settings.BASE_DIR / 'tests/fixtures/iman-game-bot.zip'),
         new_issue,
+        open_issues,
     )
     today = datetime.datetime.now(tz=datetime.UTC).date()
 
@@ -83,10 +86,12 @@ def test(gh_repo: GhRepo) -> None:
 @pytest.mark.usefixtures('_exist_touch_records')
 def test_double_process(gh_repo: GhRepo) -> None:
     new_issue = FkNewIssue.ctor()
+    open_issues = FkOpenIssues(new_issue.issues, 'revive-code-bot')
     process_repo(
         gh_repo.id,
         FkClonedRepo(settings.BASE_DIR / 'tests/fixtures/iman-game-bot.zip'),
         new_issue,
+        open_issues,
     )
     today = datetime.datetime.now(tz=datetime.UTC).date()
 
