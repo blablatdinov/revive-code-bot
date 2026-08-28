@@ -9,6 +9,7 @@ from typing import Protocol, final, override
 
 import attrs
 from django.db import transaction
+from github.Repository import Repository
 
 from main.models import GhRepo, RepoConfig
 from main.services.croniq_task import CroniqTask
@@ -34,7 +35,7 @@ class GhRepoInstallation(RepoInstallation):
 
     _repos: list[RegisteredRepoFromGithub]
     _installation_id: int
-    _repo_fetcher: Callable[[int, str], object] = attrs.field(default=github_repo)
+    _repo_fetcher: Callable[[int, str], Repository] = attrs.field(default=github_repo)
 
     @override
     def register(self) -> None:
