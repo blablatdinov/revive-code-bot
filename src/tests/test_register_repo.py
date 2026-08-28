@@ -46,7 +46,7 @@ class FkRepo:
 
 @final
 @attrs.define(frozen=True)
-class FkRepoFetcher:
+class FkFetchRepo:
     """Fake repo fetcher that always returns the same repo."""
 
     _repo: FkRepo
@@ -61,8 +61,8 @@ def fk_repo() -> FkRepo:
 
 
 @pytest.fixture
-def fk_repo_fetcher(fk_repo: FkRepo) -> FkRepoFetcher:
-    return FkRepoFetcher(fk_repo)
+def fk_repo_fetcher(fk_repo: FkRepo) -> FkFetchRepo:
+    return FkFetchRepo(fk_repo)
 
 
 @pytest.fixture
@@ -80,7 +80,7 @@ def mock_scheduler(mock_http):
     return mock_http
 
 
-def test_registers_repo_and_creates_webhook(fk_repo: FkRepo, fk_repo_fetcher: FkRepoFetcher, mock_scheduler) -> None:
+def test_registers_repo_and_creates_webhook(fk_repo: FkRepo, fk_repo_fetcher: FkFetchRepo, mock_scheduler) -> None:
     GhRepoInstallation(
         [{'full_name': 'owner/repo'}],
         1,
@@ -96,7 +96,7 @@ def test_registers_repo_and_creates_webhook(fk_repo: FkRepo, fk_repo_fetcher: Fk
 
 def test_idempotent_register_no_duplicate_webhook(
     fk_repo: FkRepo,
-    fk_repo_fetcher: FkRepoFetcher,
+    fk_repo_fetcher: FkFetchRepo,
     mock_scheduler,
 ) -> None:
     GhRepoInstallation(
