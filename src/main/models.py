@@ -54,7 +54,7 @@ class TouchRecord(models.Model):
 class RepoConfig(models.Model):
     """Table contain configs for repos."""
 
-    repo = models.ForeignKey(GhRepo, on_delete=models.PROTECT)  # TODO: one-to-one
+    repo = models.OneToOneField(GhRepo, on_delete=models.PROTECT)
     cron_expression = models.CharField(max_length=16)
     files_glob = models.CharField(max_length=128)
 

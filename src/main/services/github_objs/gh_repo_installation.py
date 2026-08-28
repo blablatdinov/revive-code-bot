@@ -4,14 +4,18 @@
 """Github repository installation."""
 
 import random
+from collections.abc import Callable
 from typing import Protocol, final, override
 
 import attrs
+from django.db import transaction
+from github.Repository import Repository
 
 from main.models import GhRepo, RepoConfig
 from main.services.croniq_task import CroniqTask
 from main.services.github_objs.github_client import github_repo
 from main.services.github_objs.repo_installation import RegisteredRepoFromGithub
+from main.services.github_objs.webhook_manager import WebhookCreation
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
 from main.services.revive_config.merged_config import MergedConfig
@@ -31,41 +35,36 @@ class GhRepoInstallation(RepoInstallation):
 
     _repos: list[RegisteredRepoFromGithub]
     _installation_id: int
+    _repo_fetcher: Callable[[int, str], Repository] = attrs.field(default=github_repo)
 
     @override
     def register(self) -> None:
         """Registering new repositories."""
         for repo in self._repos:
-            repo_db_record, _ = GhRepo.objects.get_or_create(
-                full_name=repo['full_name'],
-                defaults={
-                    'installation_id': self._installation_id,
-                    'has_webhook': False,
-                },
-            )
-            gh_repo = github_repo(self._installation_id, repo['full_name'])
-            # TODO: query may be failed, because already created
-            gh_repo.create_hook(
-                'web',
-                {
-                    'url': 'https://www.rehttp.net/p/https://revive-code-bot.ilaletdinov.ru/hook/github',
-                    'content_type': 'json',
-                },
-                ['issues', 'issue_comment', 'push'],
-            )
-            config = MergedConfig.ctor(
-                GhReviveConfig(
-                    gh_repo,
-                    # Not secure issue
-                    DefaultReviveConfig(random.Random()),  # noqa: S311
-                ),
-            )
-            parsed_config = config.parse()
-            RepoConfig.objects.create(
-                repo=repo_db_record,
-                cron_expression=parsed_config['cron'],
-                files_glob=parsed_config['glob'],
-            )
-            CroniqTask(repo_db_record.id).apply(
-                parsed_config['cron'],
-            )
+            with transaction.atomic():
+                repo_db_record, _ = GhRepo.objects.get_or_create(
+                    full_name=repo['full_name'],
+                    defaults={
+                        'installation_id': self._installation_id,
+                        'has_webhook': False,
+                    },
+                )
+                gh_repo = self._repo_fetcher(self._installation_id, repo['full_name'])
+                WebhookCreation(gh_repo).create_if_needed(repo_db_record)
+                config = MergedConfig.ctor(
+                    GhReviveConfig(
+                        gh_repo,
+                        DefaultReviveConfig(random.Random()),  # noqa: S311
+                    ),
+                )
+                parsed = config.parse()
+                RepoConfig.objects.get_or_create(
+                    repo=repo_db_record,
+                    defaults={
+                        'cron_expression': parsed['cron'],
+                        'files_glob': parsed['glob'],
+                    },
+                )
+                CroniqTask(repo_db_record.id).apply(
+                    parsed['cron'],
+                )
