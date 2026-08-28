@@ -84,6 +84,8 @@ def test_process_repo_without_disk_config(gh_repo):
         FkClonedRepo(settings.BASE_DIR / 'tests/fixtures/repo-without-config.zip'),
         new_issue,
     )
+    assert len(new_issue.issues) == 1
+    assert 'revive-code-bot' in new_issue.issues[0]['labels']
 
 
 def test_define_files(tmp_dir, file_list):
