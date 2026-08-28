@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 
 from typing import final
-from unittest.mock import patch
 
 import attrs
 import pytest
@@ -45,9 +44,25 @@ class FkRepo:
         return FkContent(b'limit: 5')
 
 
+@final
+@attrs.define(frozen=True)
+class FkRepoFetcher:
+    """Fake repo fetcher that always returns the same repo."""
+
+    _repo: FkRepo
+
+    def __call__(self, installation_id: int, full_name: str) -> FkRepo:
+        return self._repo
+
+
 @pytest.fixture
 def fk_repo() -> FkRepo:
     return FkRepo([])
+
+
+@pytest.fixture
+def fk_repo_fetcher(fk_repo: FkRepo) -> FkRepoFetcher:
+    return FkRepoFetcher(fk_repo)
 
 
 @pytest.fixture
@@ -65,15 +80,12 @@ def mock_scheduler(mock_http):
     return mock_http
 
 
-def test_registers_repo_and_creates_webhook(fk_repo: FkRepo, mock_scheduler) -> None:
-    with patch(
-        'main.services.github_objs.gh_repo_installation.github_repo',
-        return_value=fk_repo,
-    ):
-        GhRepoInstallation(
-            [{'full_name': 'owner/repo'}],
-            1,
-        ).register()
+def test_registers_repo_and_creates_webhook(fk_repo: FkRepo, fk_repo_fetcher: FkRepoFetcher, mock_scheduler) -> None:
+    GhRepoInstallation(
+        [{'full_name': 'owner/repo'}],
+        1,
+        fk_repo_fetcher,
+    ).register()
 
     assert GhRepo.objects.filter(full_name='owner/repo').exists()
     assert RepoConfig.objects.filter(repo__full_name='owner/repo').exists()
@@ -82,19 +94,21 @@ def test_registers_repo_and_creates_webhook(fk_repo: FkRepo, mock_scheduler) -> 
     assert fk_repo.created_hooks_count == 1
 
 
-def test_idempotent_register_no_duplicate_webhook(fk_repo: FkRepo, mock_scheduler) -> None:
-    with patch(
-        'main.services.github_objs.gh_repo_installation.github_repo',
-        return_value=fk_repo,
-    ):
-        GhRepoInstallation(
-            [{'full_name': 'owner/repo'}],
-            1,
-        ).register()
-        GhRepoInstallation(
-            [{'full_name': 'owner/repo'}],
-            1,
-        ).register()
+def test_idempotent_register_no_duplicate_webhook(
+    fk_repo: FkRepo,
+    fk_repo_fetcher: FkRepoFetcher,
+    mock_scheduler,
+) -> None:
+    GhRepoInstallation(
+        [{'full_name': 'owner/repo'}],
+        1,
+        fk_repo_fetcher,
+    ).register()
+    GhRepoInstallation(
+        [{'full_name': 'owner/repo'}],
+        1,
+        fk_repo_fetcher,
+    ).register()
 
     assert GhRepo.objects.filter(full_name='owner/repo').count() == 1
     assert RepoConfig.objects.filter(repo__full_name='owner/repo').count() == 1

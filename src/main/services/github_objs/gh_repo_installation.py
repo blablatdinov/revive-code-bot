@@ -4,6 +4,7 @@
 """Github repository installation."""
 
 import random
+from collections.abc import Callable
 from typing import Protocol, final, override
 
 import attrs
@@ -33,6 +34,7 @@ class GhRepoInstallation(RepoInstallation):
 
     _repos: list[RegisteredRepoFromGithub]
     _installation_id: int
+    _repo_fetcher: Callable[[int, str], object] = attrs.field(default=github_repo)
 
     @override
     def register(self) -> None:
@@ -46,7 +48,7 @@ class GhRepoInstallation(RepoInstallation):
                         'has_webhook': False,
                     },
                 )
-                gh_repo = github_repo(self._installation_id, repo['full_name'])
+                gh_repo = self._repo_fetcher(self._installation_id, repo['full_name'])
                 WebhookCreation(gh_repo).create_if_needed(repo_db_record)
                 config = MergedConfig.ctor(
                     GhReviveConfig(
