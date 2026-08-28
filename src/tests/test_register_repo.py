@@ -84,7 +84,8 @@ def test_registers_repo_and_creates_webhook(fk_repo: FkRepo, fk_repo_fetcher: Fk
     GhRepoInstallation(
         [{'full_name': 'owner/repo'}],
         1,
-        fk_repo_fetcher,
+        # Too hard create Protocol for github.Repository.Repository
+        fk_repo_fetcher,  # type: ignore [arg-type]
     ).register()
 
     assert GhRepo.objects.filter(full_name='owner/repo').exists()
@@ -102,12 +103,14 @@ def test_idempotent_register_no_duplicate_webhook(
     GhRepoInstallation(
         [{'full_name': 'owner/repo'}],
         1,
-        fk_repo_fetcher,
+        # Too hard create Protocol for github.Repository.Repository
+        fk_repo_fetcher,  # type: ignore [arg-type]
     ).register()
     GhRepoInstallation(
         [{'full_name': 'owner/repo'}],
         1,
-        fk_repo_fetcher,
+        # Too hard create Protocol for github.Repository.Repository
+        fk_repo_fetcher,  # type: ignore [arg-type]
     ).register()
 
     assert GhRepo.objects.filter(full_name='owner/repo').count() == 1
