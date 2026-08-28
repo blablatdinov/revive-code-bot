@@ -25,7 +25,7 @@ class MergedConfig(ReviveConfig):
 
     def parse(self) -> ConfigDict:
         """Merge configs."""
-        result_config = ConfigDict({'limit': 0, 'cron': '', 'glob': ''})
+        result_config = ConfigDict({'limit': 0, 'cron': '', 'glob': '', 'issue_strategy': 'create_always'})
         for config in self._origins:
             result_config |= config.parse()
         return result_config

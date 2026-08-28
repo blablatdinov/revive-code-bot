@@ -35,4 +35,5 @@ class DefaultReviveConfig(ReviveConfig):
                 self._rnd.randint(1, 28),  # noqa: S311 . Not secure issue
             ),
             'glob': '**/*',
+            'issue_strategy': 'create_always',
         })

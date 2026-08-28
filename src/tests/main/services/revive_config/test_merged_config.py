@@ -12,11 +12,13 @@ def test() -> None:
             'cron': '* * * * *',
             'limit': 20,
             'glob': '**/*.js',
+            'issue_strategy': 'create_always',
         })),
         FkReviveConfig(ConfigDict({
             'cron': '1 1 1 1 1',
             'limit': 10,
             'glob': '**/*.py',
+            'issue_strategy': 'update_or_create',
         })),
     ).parse()
 
@@ -24,4 +26,5 @@ def test() -> None:
         'cron': '1 1 1 1 1',
         'glob': '**/*.py',
         'limit': 10,
+        'issue_strategy': 'update_or_create',
     }

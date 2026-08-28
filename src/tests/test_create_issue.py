@@ -63,22 +63,20 @@ def test(gh_repo: GhRepo) -> None:
         'game/__init__.py',
     ]
     assert list(TouchRecord.objects.values_list('date', flat=True)) == [today] * 5
-    assert new_issue.issues[0] == {
-        'title': 'Issue from revive-code-bot',
-        'content': '\n'.join([
-            '- [ ] `manage.py`',
-            '- [ ] `game/views.py`',
-            '- [ ] `game/migrations/__init__.py`',
-            '- [ ] `game/apps.py`',
-            '- [ ] `game/__init__.py`',
-            '',
-            '',
-            'Expected actions:',
-            '1. Create new issues with reference to this issue',
-            '2. Clean files must be marked in checklist',
-            '3. Close issue',
-        ]),
-    }
+    assert new_issue.issues[0]['title'] == 'Issue from revive-code-bot'
+    assert new_issue.issues[0]['body'] == '\n'.join([
+        '- [ ] `manage.py`',
+        '- [ ] `game/views.py`',
+        '- [ ] `game/migrations/__init__.py`',
+        '- [ ] `game/apps.py`',
+        '- [ ] `game/__init__.py`',
+        '',
+        '',
+        'Expected actions:',
+        '1. Create new issues with reference to this issue',
+        '2. Clean files must be marked in checklist',
+        '3. Close issue',
+    ])
 
 
 @pytest.mark.integration
@@ -104,20 +102,18 @@ def test_double_process(gh_repo: GhRepo) -> None:
         'bot_init/migrations/__init__.py',
         'bot_init/migrations/0001_initial.py',
     ]
-    assert new_issue.issues[0] == {
-        'title': 'Issue from revive-code-bot',
-        'content': '\n'.join([
-            '- [ ] `config/wsgi.py`',
-            '- [ ] `config/asgi.py`',
-            '- [ ] `bot_init/urls.py`',
-            '- [ ] `bot_init/migrations/__init__.py`',
-            '- [ ] `bot_init/migrations/0001_initial.py`',
-            '',
-            '',
-            'Expected actions:',
-            '1. Create new issues with reference to this issue',
-            '2. Clean files must be marked in checklist',
-            '3. Close issue',
-        ]),
-    }
+    assert new_issue.issues[0]['title'] == 'Issue from revive-code-bot'
+    assert new_issue.issues[0]['body'] == '\n'.join([
+        '- [ ] `config/wsgi.py`',
+        '- [ ] `config/asgi.py`',
+        '- [ ] `bot_init/urls.py`',
+        '- [ ] `bot_init/migrations/__init__.py`',
+        '- [ ] `bot_init/migrations/0001_initial.py`',
+        '',
+        '',
+        'Expected actions:',
+        '1. Create new issues with reference to this issue',
+        '2. Clean files must be marked in checklist',
+        '3. Close issue',
+    ])
     assert list(TouchRecord.objects.values_list('date', flat=True)) == [today] * 10

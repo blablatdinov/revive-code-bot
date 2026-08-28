@@ -45,4 +45,4 @@ def test() -> None:
         DefaultReviveConfig(random.Random(0)),  # noqa: S311 . Not secure issue
     ).parse()
 
-    assert got == {'cron': '3 4 * * *', 'glob': '**/*', 'limit': 10}
+    assert got == {'cron': '3 4 * * *', 'glob': '**/*', 'limit': 10, 'issue_strategy': 'create_always'}

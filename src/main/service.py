@@ -17,6 +17,7 @@ from main.services.croniq_task import CroniqTask
 from main.services.github_objs.cloned_repo import ClonedRepo
 from main.services.github_objs.github_client import github_repo
 from main.services.github_objs.new_issue import NewIssue
+from main.services.issue_strategies import apply_issue_strategy
 from main.services.revive_config.default_revive_config import DefaultReviveConfig
 from main.services.revive_config.disk_revive_config import DiskReviveConfig
 from main.services.revive_config.gh_revive_config import GhReviveConfig
@@ -122,23 +123,26 @@ def process_repo(repo_id: int, cloned_repo: ClonedRepo, new_issue: NewIssue) -> 
         )
     stripped_file_list: list[tuple[str, int]] = _sorted_file_list(repo_path, got)[:config['limit']]
     file_list: list[str] = [file for file, _ in stripped_file_list]
-    new_issue.create(
+    issue_body = Template('\n'.join([
+        '## Potentially Stagnant Files Identified\n',
+        'This issue was automatically created by Revive Code Bot to highlight files that',
+        "haven't been updated for a long time or may require review. Regular updates and reviews",
+        'of such files help maintain the quality and relevance of the project codebase.',
+        '{% for file in files %}- [ ] `{{ file }}`\n{% endfor %}\n',
+        '## Recommended Actions:',
+        '1. Create separate issues for each file (referencing this issue for context).',
+        '2. Review the listed files:',
+        '  - Update or remove outdated files.',
+        '  - Mark relevant files as reviewed in the checklist below.',
+        '3. Once all files have been reviewed, close this issue.',
+    ])).render(Context({
+        'files': file_list,
+    }))
+    apply_issue_strategy(
+        new_issue,
+        config['issue_strategy'],
         'Issue from revive-code-bot',
-        Template('\n'.join([
-            '## Potentially Stagnant Files Identified\n',
-            'This issue was automatically created by Revive Code Bot to highlight files that',
-            "haven't been updated for a long time or may require review. Regular updates and reviews",
-            'of such files help maintain the quality and relevance of the project codebase.',
-            '{% for file in files %}- [ ] `{{ file }}`\n{% endfor %}\n',
-            '## Recommended Actions:',
-            '1. Create separate issues for each file (referencing this issue for context).',
-            '2. Review the listed files:',
-            '  - Update or remove outdated files.',
-            '  - Mark relevant files as reviewed in the checklist below.',
-            '3. Once all files have been reviewed, close this issue.',
-        ])).render(Context({
-            'files': file_list,
-        })),
+        issue_body,
     )
     PgSynchronizeTouchRecords().sync(
         file_list,

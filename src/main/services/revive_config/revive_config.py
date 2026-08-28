@@ -12,6 +12,7 @@ class ConfigDict(TypedDict):
     limit: int
     cron: str
     glob: str
+    issue_strategy: str
 
 
 class ReviveConfig(Protocol):
