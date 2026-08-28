@@ -11,18 +11,18 @@ from main.services.github_objs.issue_comment import IssueComment
 
 
 @final
-@attrs.define
+@attrs.define(frozen=True)
 class FkIssueComment(IssueComment):
     """Fake issue comment."""
 
-    published: list[str]
+    _published: list[str] = attrs.field(factory=list)
 
     @classmethod
     def ctor(cls) -> Self:
         """Ctor."""
-        return cls([])
+        return cls()
 
     @override
     def publish(self) -> None:
         """Publish comment."""
-        self.published.append('published')
+        self._published.append('published')

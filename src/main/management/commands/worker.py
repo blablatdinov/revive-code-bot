@@ -25,40 +25,44 @@ from main.services.github_objs.github_client import github_repo
 logger = logging.getLogger(__name__)
 
 
+def mark_failed(task: ProcessTask) -> None:
+    """Mark a process task as failed with traceback."""
+    task.status = ProcessTaskStatusEnum.failed
+    task.updated_at = timezone.now()
+    task.traceback = traceback.format_exc() or ''
+    task.save()
+
+
+def deactivate_repo(repo: GhRepo, task: ProcessTask) -> None:
+    """Deactivate repo and mark task as failed."""
+    repo.status = RepoStatusEnum.inactive
+    repo.save()
+    mark_failed(task)
+
+
+def notify_trigger_issue(task: ProcessTask, repo: GhRepo) -> None:
+    """Post a comment on the trigger issue after successful processing."""
+    if task.trigger_issue_id:
+        GhIssueComment(
+            github_repo(repo.installation_id, repo.full_name),
+            task.trigger_issue_id,
+            'Issue created',
+        ).publish()
+
+
+def handle_github_exception(err: GithubException, repo: GhRepo, task: ProcessTask) -> bool:
+    """Handle GithubException. Returns True if handled, False to re-raise."""
+    if 'Issues has been disabled in this repository' not in str(err):
+        return False
+    logger.warning('Issues has been disabled in this repository')
+    deactivate_repo(repo, task)
+    return True
+
+
 class Command(BaseCommand):
     """CLI command."""
 
     help = ''
-
-    def _mark_failed(self, task: ProcessTask) -> None:
-        """Mark a process task as failed with traceback."""
-        task.status = ProcessTaskStatusEnum.failed
-        task.updated_at = timezone.now()
-        task.traceback = traceback.format_exc() or ''
-        task.save()
-
-    def _deactivate_repo(self, repo: GhRepo, task: ProcessTask) -> None:
-        """Deactivate repo and mark task as failed."""
-        repo.status = RepoStatusEnum.inactive
-        repo.save()
-        self._mark_failed(task)
-
-    def _notify_trigger_issue(self, task: ProcessTask, repo: GhRepo) -> None:
-        """Post a comment on the trigger issue after successful processing."""
-        if task.trigger_issue_id:
-            GhIssueComment(
-                github_repo(repo.installation_id, repo.full_name),
-                task.trigger_issue_id,
-                'Issue created',
-            ).publish()
-
-    def _handle_github_exception(self, err: GithubException, repo: GhRepo, task: ProcessTask) -> bool:
-        """Handle GithubException. Returns True if handled, False to re-raise."""
-        if 'Issues has been disabled in this repository' not in str(err):
-            return False
-        logger.warning('Issues has been disabled in this repository')
-        self._deactivate_repo(repo, task)
-        return True
 
     def handle(self, *args: list[str], **options: Any) -> None:  # noqa: ANN401
         """Entrypoint."""
@@ -89,16 +93,16 @@ class Command(BaseCommand):
                     process_task_record.updated_at = timezone.now()
                     process_task_record.traceback = ''
                     process_task_record.save()
-                    self._notify_trigger_issue(process_task_record, repo)
+                    notify_trigger_issue(process_task_record, repo)
                 except GithubException as err:
-                    if not self._handle_github_exception(err, repo, process_task_record):
+                    if not handle_github_exception(err, repo, process_task_record):
                         raise
                 except UnavailableRepoError:
                     logger.exception('Issues has been disabled in this repository')
-                    self._deactivate_repo(repo, process_task_record)
+                    deactivate_repo(repo, process_task_record)
                 except Exception:
                     logger.exception('Fail process repo. Traceback: %s', traceback.format_exc())
-                    self._mark_failed(process_task_record)
+                    mark_failed(process_task_record)
             except OperationalError:
                 logger.exception('Django OperationalError. Traceback: %s\n\nSleep 5 seconds...', traceback.format_exc())
                 close_old_connections()

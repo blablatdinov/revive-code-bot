@@ -42,7 +42,7 @@ def verify_signature(request: HttpRequest) -> bool:
     return secrets.compare_digest(signature, expected)
 
 
-def _handle_push(pg_repo: GhRepo, request_json: _RequestForCheckBranchDefault) -> HttpResponse:
+def handle_push(pg_repo: GhRepo, request_json: _RequestForCheckBranchDefault) -> HttpResponse:
     """Handle push webhook event."""
     if pg_repo.status != RepoStatusEnum.active:
         return HttpResponse('Skip as inactive')
@@ -87,7 +87,7 @@ def gh_webhook(request: HttpRequest) -> HttpResponse:  # noqa: PLR0911 . TODO
             case 'ping':
                 return HttpResponse('Webhooks installed')
             case 'push':
-                return _handle_push(pg_repo, request_json)
+                return handle_push(pg_repo, request_json)
             case 'issue_comment' if SCAN_TRIGGER_COMMENT in request_json['comment']['body'].lower():
                 ProcessTask.objects.create(
                     repo=pg_repo,

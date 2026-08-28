@@ -10,4 +10,4 @@ def test_publish_appends_to_published():
     comment = FkIssueComment.ctor()
     comment.publish()
     comment.publish()
-    assert len(comment.published) == 2
+    assert len(comment._published) == 2  # noqa: SLF001
