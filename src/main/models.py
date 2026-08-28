@@ -85,6 +85,7 @@ class ProcessTask(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     traceback = models.TextField(default=str)
+    trigger_issue_id = models.IntegerField(null=True, blank=True)
 
     class Meta:
         db_table = 'process_tasks'

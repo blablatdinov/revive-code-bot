@@ -92,6 +92,7 @@ ignore = [
   "DOC501",        # Raised exception `UnreachebleCaseError` missing from docstring
   "DOC402",        # `yield` is not documented in docstring
   "noqa-comments", # WPS primary linter
+  "invalid-rule-code",
 ]
 
 [tool.ruff.lint.flake8-quotes]

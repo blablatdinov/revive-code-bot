@@ -80,6 +80,7 @@ def update_config(repo_full_name: str) -> None:
 class _Repository(TypedDict):
 
     default_branch: str
+    full_name: str
     ref: str
 
 

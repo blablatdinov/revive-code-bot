@@ -6,13 +6,14 @@
 import hashlib
 import hmac
 import re
+from http import HTTPStatus
 from pathlib import Path
 
 import pytest
 from django.conf import settings
 from django.test import override_settings
 
-from main.models import GhRepo, RepoStatusEnum
+from main.models import GhRepo, ProcessTask, RepoStatusEnum
 
 pytestmark = [pytest.mark.django_db]
 
@@ -393,3 +394,26 @@ def test_repo_not_found(anon):
 
     assert response.status_code == 200
     assert response.content == b'Skip as inactive'
+
+
+@pytest.mark.usefixtures('gh_repo')
+def test_issue_comment_triggers_scan(anon):
+    response = anon.post(
+        '/hook/github',
+        Path(settings.BASE_DIR / 'tests/fixtures/issue_comment_event.json').read_text(encoding='utf-8'),
+        content_type='application/json',
+        headers={
+            'Accept': '*/*',
+            'Content-Type': 'application/json',
+            'User-Agent': 'GitHub-Hookshot/9729b30',
+            'X-GitHub-Delivery': '18faf6d0-3662-11ef-9e2b-0e81d1f2cc20',
+            'X-GitHub-Event': 'issue_comment',
+            'X-GitHub-Hook-ID': '487229453',
+            'X-GitHub-Hook-Installation-Target-ID': '874924',
+            'X-GitHub-Hook-Installation-Target-Type': 'integration',
+        },
+    )
+    task = ProcessTask.objects.get()
+    assert response.status_code == HTTPStatus.OK
+    assert response.content == b'Manual scan triggered'
+    assert task.trigger_issue_id == 1
