@@ -26,4 +26,5 @@ class PgReviveConfig(ReviveConfig):
             'limit': 10,
             'cron': cfg.cron_expression,
             'glob': cfg.files_glob,
+            'issue_strategy': 'create_always',
         })
