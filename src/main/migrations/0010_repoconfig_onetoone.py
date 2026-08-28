@@ -9,7 +9,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0008_auto_20251124_1834'),
+        ('main', '0009_processtask_trigger_issue_id'),
     ]
 
     operations = [
